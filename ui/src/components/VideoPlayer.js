@@ -1,0 +1,95 @@
+import React from "react"
+import ReactPlayer from 'react-player'
+import {connect} from 'react-redux'
+import {play, pause,updateSeek, updateQueue} from '../store/room/room.actions'
+import { Empty } from "antd"
+
+class VideoPlayer extends React.Component {
+    state = {
+        url: null,
+        pip: false,
+        playing: true,
+        controls: false,
+        light: false,
+        volume: 0.8,
+        muted: false,
+        played: 0,
+        loaded: 0,
+        duration: 0,
+        playbackRate: 1.0,
+        loop: false
+    }
+
+
+    componentWillReceiveProps(nextProps) {
+        // You don't have to do this check first, but it can help prevent an unneeded render
+        if (nextProps.seek !== this.state.played) {
+            console.log("STATE_CHANGE",nextProps )
+          this.setState({ played: nextProps.seek });
+          if (this.player !== undefined) {
+            this.player.seekTo(parseFloat(nextProps.seek))
+          }
+          
+        }
+      }
+
+    handlePlay = () => {
+        play();
+    }
+
+    handlePause = () => {
+        pause();
+    }
+
+    handleEnded = () => {
+        let videoList = [...this.props.queue];
+        videoList.splice(0, 1);
+        updateQueue(videoList)
+    }
+
+    handleProgress = state => {
+        console.log('onProgress', state)
+        console.log("PLAYER!", this.player)
+        this.setState({ seek: state.playedSeconds })
+        updateSeek(state.played)
+    }
+
+    onProgressUpdate = e => {
+        this.setState({ seeking: false })
+        this.player.seekTo(parseFloat(e.target.value))
+    }
+
+    changeProgress = () => {
+        this.player.seekTo(parseFloat(120))
+    }
+
+    
+    ref = player => { this.player = player }
+
+    render(){
+            const {queue, playing, controls, isHost } = this.props
+            return(
+            <div style={{ "height":"500px", "width":"100%"}}>  
+            {/* {"Controls: "+ JSON.stringify(controls || isHost) }   */}
+            {queue[0] !== undefined ? 
+               <ReactPlayer 
+                ref={this.ref}
+                width="100%" height="500px"  
+                url={queue[0].url} 
+                controls={controls || isHost}
+                playing={playing}
+                onPause={this.handlePause}
+                onPlay={this.handlePlay}
+                onProgress={this.handleProgress}
+                onEnded={this.handleEnded}
+                />  
+            : <Empty  style={{ "height":"500px", "width":"100%", "paddingTop":"180px"}}/>}
+          </div>  
+        )
+    }
+}
+const mapStateToProps  = (state) =>{
+    return state.room
+  } 
+export default connect(mapStateToProps, {updateQueue, updateSeek})(VideoPlayer)
+  
