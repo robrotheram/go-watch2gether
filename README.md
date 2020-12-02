@@ -1,2 +1,4 @@
 # go-watch2gether
-Watch2gether Thing with a golang server. Allows for multiple rooms and syncing video from Youtube or your own fileserver
+'Ever wanted to watch youtube videos in-sync with your friends, via. web-browser?' 
+
+Its Yet another video sync website it currently support Youtube, DailyMotion Vimeo Soundcloud and Videos hosted on your own fileserver that you totally legally own😉
