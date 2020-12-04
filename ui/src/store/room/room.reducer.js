@@ -1,4 +1,3 @@
-import store from "..";
 import {openNotificationWithIcon} from "../../components/notification"
 import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, UPDATE_SEEK, SEEK_TO_HOST, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL} from './room.types';
     const INITIAL_STATE = {
@@ -59,7 +58,7 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
                 let data = JSON.parse(action.payload.message)
                 return process_websocket_event(state, data)
               } catch(e){
-                console.log("Parse Error", e)
+                console.log("Parse Error", action.payload.message,  e)
               }
               return state;
             case "REDUX_WEBSOCKET::CLOSED" :
@@ -90,8 +89,13 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
 const process_websocket_event = (state, data) => {
   // console.log("Procees_Event", data)
   switch(data.action){
+    case "ROOM_EXIT":
+      openNotificationWithIcon("success", "Room has closed")   
+      return {
+        ...state, active:false, room:""
+      };
     case "UPDATE_QUEUE":             
-      openNotificationWithIcon("success", "Queue Updated")   
+      openNotificationWithIcon("success", "Queue Updated by "+data.user)   
       return {
         ...state, queue: data.queue
       };
@@ -101,14 +105,14 @@ const process_websocket_event = (state, data) => {
       };
     case "PLAYING": 
       if (state.playing !== data.playing){
-        openNotificationWithIcon("success", "Playing")
+        openNotificationWithIcon("success", "User: "+data.user+" started video")
       }
       return {
         ...state, playing: true,
       };
     case "PAUSING": 
       if (state.playing !== data.playing){
-        openNotificationWithIcon("success", "Pausing")
+        openNotificationWithIcon("success", "User: "+data.user+" has paused video")
       }
       return {
         ...state, playing: false,
@@ -120,6 +124,17 @@ const process_websocket_event = (state, data) => {
     case "UPDATE_CONTROLS":
       return {
         ...state, controls: data.controls,
+      };
+    case "ON_PROGRESS_UPDATE":
+      let userList = [...state.users];
+      userList = userList.map(user => {
+        if(user.name === data.user) {
+          return {...user, seek: data.seek};
+        }
+        return {...user};
+      });
+      return {
+        ...state, users: userList,
       };
     case "SEEK_TO_USER":
         return {

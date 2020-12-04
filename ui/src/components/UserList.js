@@ -1,5 +1,6 @@
 
-import { Card, List, Avatar, Button } from 'antd';
+import { Card, List, Avatar, Button, Progress } from 'antd';
+import { Row, Col } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import {connect} from 'react-redux'
 import {updateHost} from '../store/room/room.actions'
@@ -8,8 +9,8 @@ function UserList(props){
 
     const listActions = (item) => {
       let actions = [] 
-      if(isHost  && host!==item.name){
-        actions.push(<Button type="link"  key="list-loadmore-edit" onClick={() => updateHost(item.name)}>Promote To Host</Button>)
+      if(isHost){
+        actions.push(<Button type="link" disabled={isHost  && host===item.name}  key="list-loadmore-edit" onClick={() => updateHost(item.name)}>Promote To Host</Button>)
       }
       // if (isHost) {
       //   actions.push( <a key="list-loadmore-more">Kick</a>);
@@ -17,15 +18,22 @@ function UserList(props){
       return actions;
     }
     return (
-      <Card type="inner" title="Users List:" className="list">
-        <div className="container .sc2">
+      <Card type="inner" title="Users Progress" className="list">
+        <div className="container .sc2 userlist">
           <List
             size="small"
             itemLayout="horizontal"
             dataSource={users}
             renderItem={item => (
-              <List.Item actions={listActions(item)}>
-                <div><Avatar icon={<UserOutlined />}  style={{"marginRight": "10px"}}/>{item.name}</div>
+              <List.Item actions={listActions(item)} className={item.name === host ? "userListActive" : null}>
+                  <Row style={{"width":"100%", "padding":"5px"}}>
+                    <Col flex="150px" style={{"textAlign":"right", "paddingRight":"10px"}}>
+                      {item.name === host ? "Host: "+item.name : item.name}  
+                    </Col>
+                    <Col flex="auto" >
+                      <div style={{"display":"inline-block", "width":"100%"}}><Progress percent={(item.seek)*100} showInfo={false}size="small"/></div>
+                    </Col>
+                </Row>
               </List.Item>
             )}
           />

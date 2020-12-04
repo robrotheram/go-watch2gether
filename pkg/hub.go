@@ -15,7 +15,11 @@ var Hub = hub{rooms: map[string]*room{}}
 
 func (h *hub) DeleteRoom(roomName string) {
 	fmt.Println("DELETING_ROOM")
-	h.rooms[roomName].forward <- []byte("ROOM_EXIT")
+	evt := Event{
+		Action: "ROOM_EXIT",
+	}
+	b, _ := json.Marshal(evt)
+	h.rooms[roomName].forward <- b
 	h.rooms[roomName].quit <- true
 	delete(h.rooms, roomName)
 }

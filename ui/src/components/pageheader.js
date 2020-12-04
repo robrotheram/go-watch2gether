@@ -6,19 +6,26 @@ import {leave, sinkToHost, sinkToME} from '../store/room/room.actions'
 import SettingsModal from './SettingsModal'
 
 function Pageheader (props) {
-    const { name, isHost, host} = props
+    const { name, isHost, host, queue} = props
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const showModal = () => {setIsModalVisible(true);};
     const handleOk = () => {setIsModalVisible(false); };
     const handleCancel = () => {setIsModalVisible(false);};
 
+    const currentlyPlaying = () => {
+        if (queue[0] === undefined){
+            return ""
+        }
+        return (<span>Currently Playing: <a href={queue[0].url}>{queue[0].url}</a></span>)
+    }
+
     return(
         <PageHeader
             ghost={false}
             onBack={() => { props.leave()} }
             title={name}
-            subTitle={isHost ? "You are the hosts" : host+" is the host"}
+            subTitle={currentlyPlaying()}
             extra={isHost ? [
                 <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => sinkToHost()}>Sync to host</Button>,
                 <Button type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>,
@@ -28,8 +35,7 @@ function Pageheader (props) {
                 <Button type="primary" icon={<SyncOutlined />} onClick={() => sinkToHost()} key="3">Sync to host</Button>,
                 <Button type="primary" icon={<SyncOutlined />} onClick={() => sinkToME()} key="2">Sync everyone to me</Button>,
             ]
-        }>
-            <SettingsModal isModalVisible={isModalVisible} showModal={showModal} handleOk={handleOk} handleCancel={handleCancel}/>
+        }><SettingsModal isModalVisible={isModalVisible} showModal={showModal} handleOk={handleOk} handleCancel={handleCancel}/>
         </PageHeader>
     )
 }
