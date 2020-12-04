@@ -114,9 +114,7 @@ func (r *room) processEvent(byteData []byte) bool {
 		break
 	case "ON_PROGRESS_UPDATE":
 		r.UpdateUserSeek(data.User, data.Seek)
-		//Do not sink with client
-		return false
-	case "USER_UPATE":
+	case "USER_UPADTE":
 		r.SeenUser(data.User)
 		//Do not sink with client
 		return false
@@ -178,7 +176,7 @@ func (room *room) PurgeUsers() {
 
 	for i := range room.Meta.Users {
 		user := &room.Meta.Users[i]
-		if user.LastSeen.Add(5 * time.Second).Before(time.Now()) {
+		if user.LastSeen.Add(10 * time.Second).Before(time.Now()) {
 			deletedUsers = append(deletedUsers, user.Name)
 		}
 	}
@@ -244,11 +242,17 @@ func (room *room) SeekToUser(username string) {
 	room.forward <- b
 }
 func (room *room) SeenUser(username string) {
+	found := false
 	for i := range room.Meta.Users {
 		user := &room.Meta.Users[i]
 		if username == user.Name {
 			user.LastSeen = time.Now()
+			found = true
+			return
 		}
+	}
+	if !found {
+		room.Join(username)
 	}
 }
 

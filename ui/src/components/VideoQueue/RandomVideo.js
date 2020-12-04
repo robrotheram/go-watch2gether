@@ -1,43 +1,71 @@
 export const VideoList = [
-      "https://www.youtube.com/watch?v=-5q5mZbe3V8",
-      "https://www.youtube.com/watch?v=vRXZj0DzXIA",
-      "https://www.youtube.com/watch?v=ZeerrnuLi5E",
-      "https://www.youtube.com/watch?v=gdZLi9oWNZg",
-      "https://www.youtube.com/watch?v=CM4CkVFmTds",
-      "https://www.youtube.com/watch?v=kwy0nR1_SBQ",
-      "https://www.youtube.com/watch?v=dyRsYk0LyA8",
-      "https://www.youtube.com/watch?v=KUvOQlkLNhE",
-      "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-      "https://www.youtube.com/watch?v=jeI992mvlEY",
-      "https://www.youtube.com/watch?v=wTowEKjDGkU",
-      "https://www.youtube.com/watch?v=dfl9KIX1WpU",
-      "https://www.youtube.com/watch?v=tyrVtwE8Gv0",
-      "https://www.youtube.com/watch?v=qvu4nPMyl3U",
-      "https://www.youtube.com/watch?v=Ujb-gvqsoi0",
-      "https://www.youtube.com/watch?v=F8c8f2nK82w",
-      "https://www.youtube.com/watch?v=zrsBjYukE8s",
-      "https://www.youtube.com/watch?v=jUsUzbmSLow",
-      "https://www.youtube.com/watch?v=5Lw38CVAVxw",
-      "https://www.youtube.com/watch?v=RkID8_gnTxw",
-      "https://www.youtube.com/watch?v=-MyvZMiRGvE",
-      "https://www.youtube.com/watch?v=HdZdxocqzq4",
-      "https://www.youtube.com/watch?v=IBMiaPKJCeI",
-      "https://www.youtube.com/watch?v=_hFarg-Obuc",
-      "https://www.youtube.com/watch?v=NeUODC6F7zk",
-      "https://www.youtube.com/watch?v=fnPn6At3v28",
-      "https://www.youtube.com/watch?v=UCx_OVfVav0",
-      "https://www.youtube.com/watch?v=HPQ5mqovXHo",
-      "https://www.youtube.com/watch?v=UsvoDgmfUwc",
-      "https://www.youtube.com/watch?v=mH0_XpSHkZo",
-      "https://www.youtube.com/watch?v=JSAfPh1A25E",
-      "https://www.youtube.com/watch?v=TQTlCHxyuu8",
-      "https://www.youtube.com/watch?v=I_tP-vcTjq4",
-      "https://www.youtube.com/watch?v=ImTgS5OXgbU",
-      "https://www.youtube.com/watch?v=I7chzfdbEPc",
-      "https://www.youtube.com/watch?v=MZ4JGye4dQU",
-      "https://www.youtube.com/watch?v=Is7glC9Jp7Q",
-      "https://www.youtube.com/watch?v=9IHwqdz8Xhw",
-      "https://www.youtube.com/watch?v=nnVjsos40qk",
-      "https://www.youtube.com/watch?v=tDukIfFzX18",
-      "https://www.youtube.com/watch?v=gmgcRWxhmqY"
-    ];
+  "https://www.youtube.com/watch?v=dQw4w9WgXcQ", //Rick Astley - Never going to give you up
+
+  //KPOP
+
+  "https://www.youtube.com/watch?v=9bZkp7q19f0", //PSY - GANGNAM STYLE
+
+  "https://www.youtube.com/watch?v=ASO_zypdnsQ", //PSY - GENTLEMEN
+
+  "https://www.youtube.com/watch?v=FrG4TEcSuRg", //PSY - DADDY
+
+  "https://www.youtube.com/watch?v=zYoYoBtLqOY", //KARA - STEP
+
+  "https://www.youtube.com/watch?v=s2EQm6WPMHs", //KARA - MISTER MISTER
+
+  "https://www.youtube.com/watch?v=j7TYiyEhxdI", //KARA - LUPIN
+
+  "https://www.youtube.com/watch?v=AEAdE9wSqwg", //KARA - Mamma Mia
+
+  "https://www.youtube.com/watch?v=g0XpNvLWimo", //KARA - Pandora
+
+  "https://www.youtube.com/watch?v=z-rftpZ7kCY", //f(x) - Hot Summer
+
+  "https://www.youtube.com/watch?v=fhseD2tRLUY", //Girls' Generation - MR. TAXI
+
+  "https://www.youtube.com/watch?v=fYP_3QEb5Yk", //Girls' Generation - Genie
+
+  "https://www.youtube.com/watch?v=UCx_OVfVav0",  //AleXa (알렉사) – 'REVOLUTION' Official MV
+
+  //JPOP	
+
+  "https://www.youtube.com/watch?v=GUKahpj243g", //SUPER☆GiRLS - PAN-PAKA-PAN
+
+  "https://www.youtube.com/watch?v=7Zmw-wP67ds", //SUPER☆GiRLS - V!CTORY
+
+  "https://www.youtube.com/watch?v=FxT0IFU5pAo", //SUPER☆GiRLS - ???
+
+  //EUROVISION
+
+  "https://www.youtube.com/watch?v=hfjHJneVonE", //UKRAINE 2007
+
+  "https://www.youtube.com/watch?v=pHXDMe6QV-U", //MOLDOVA 2010
+
+  "https://www.youtube.com/watch?v=SWaQdHoCvYk", //MOLDOVA 2017
+
+  "https://www.youtube.com/watch?v=m1kjPaVAeeE", //MOLDOVA 2018
+
+  "https://www.youtube.com/watch?v=WXwgZL4zx9o", //NORWAY 2009
+
+  "https://www.youtube.com/watch?v=Ovt7YGHAj8I", //NORWAY 2019
+
+  "https://www.youtube.com/watch?v=1HU7ocv3S2o", //ICELAND 2020
+
+  "https://www.youtube.com/watch?v=L_dWvTCdDQ4", //RUSSIA 2020
+
+  "https://www.youtube.com/watch?v=6iS-lV909T4", //UK 2020
+
+  //RPOP
+
+  "https://www.youtube.com/watch?v=RhMYBfF7-hE", //LITTLE BIG - HYPNODANCER
+
+  "https://www.youtube.com/watch?v=ADlGkXAz1D0", //LITTLE BIG - GO BANANAS
+
+  //POP
+
+  "https://www.youtube.com/watch?v=arZZw8NyPq8", //Las Ketchu- Aserejé (The Ketchup Song)
+
+  "https://www.youtube.com/watch?v=l5aZJBLAu1E", // ITs Raining Men
+  "https://www.youtube.com/watch?v=CS9OO0S5w2k", //YMCA OFFICIAL
+  "https://www.youtube.com/watch?v=3NX4sg3K-zg" //Would You? (Instrumental Track Without Background Vocals) (Karaoke in the style of Touch And Go)
+];

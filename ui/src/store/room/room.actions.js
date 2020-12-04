@@ -97,7 +97,6 @@ export const getMeta = () => {
 }
 
 export const updateSeek = (seek) => {
-    console.log(seek)
     let evnt = {action: "ON_PROGRESS_UPDATE", user:store.getState().room.user, seek:seek}
     store.dispatch(send(evnt))   
 }
@@ -114,7 +113,8 @@ export const updateHost = (host) => {
 }
 
 export async function isAlive() {
-    let evnt = {action: "USER_UPATE", user:store.getState().room.user}
+    console.log("USER_UPADTE")
+    let evnt = {action: "USER_UPADTE", user:store.getState().room.user}
     return store.dispatch(send(evnt))   
 }
 
@@ -124,7 +124,7 @@ export const sinkToME = (seek) => {
 }
 
 export const sinkToHost = () => {
-    console.log("SINGK")
+    //console.log("SINGK")
     axios.get(API_URL+`room/`+store.getState().room.name).then(res => {
         console.log("SINasdasdasdsadasdGK")
         store.dispatch( {
@@ -142,12 +142,12 @@ export const clearError = () => {
 }
 
 export const play = () => {
-    let evnt = {action: "PLAYING"}
+    let evnt = {action: "PLAYING", user: store.getState().room.user}
     store.dispatch(send(evnt))
 }
 
 export const pause = () => {
-    let evnt = {action: "PAUSING"}
+    let evnt = {action: "PAUSING", user: store.getState().room.user}
     store.dispatch(send(evnt))
 }
 

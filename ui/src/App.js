@@ -1,5 +1,5 @@
 import './App.less';
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import { Layout, Row, Col, Divider } from 'antd';
 import {Navigation} from './components/Nav'
 import Pageheader from './components/pageheader'
@@ -13,65 +13,77 @@ import {connect} from 'react-redux'
 import {join, leave, isAlive, reJoin} from './store/room/room.actions'
 import {history} from './store'
 import { withRouter } from "react-router";
+import { render } from 'react-dom';
 
 const { Content } = Layout;
 
 
 
-function App(props) {
-  
-  const update = () =>{
+class App extends React.Component {
+  state = {
+    timer: null,
+  };
+
+  update = () =>{
     try {
       isAlive();
     }catch(e){
-      console.log("APP", e)
+      console.log("APP_ERROR", e)
     }
   }
+  componentDidMount() {
+    window.onbeforeunload = (function(){leave()})
+    this.startApp();
+  }
 
-  useEffect(() => {
-    if (props.active){
-      console.log("APP", "Starting Watcher")
-      const intervalId = setInterval(() => update(), 1000);
-      return () => clearInterval(intervalId);
+  componentWillUnmount() {
+    clearInterval(this.state.timer);
+  }
+
+  startTimer = () => {
+    console.log("APP", "Starting Watcher")
+    let timer = setInterval(this.update, 1000);
+    this.setState({timer});
+  }
+
+  startApp = () => {
+    if (this.props.active){
+      this.startTimer();
     }else{
-      if (!props.active && props.user !== "" && props.name !== ""){
-        props.reJoin(props.name)
-        console.log("APP", "Starting Watcher")
-        const intervalId = setInterval(() => update(), 1000);
-        return () => clearInterval(intervalId);
+      if (!this.props.active && this.props.user !== "" && this.props.name !== ""){
+        this.props.reJoin(this.props.name)
+        this.startTimer();
       }else{
-        const id = props.match.params.id;
+        const id = this.props.match.params.id;
         history.push("/?room="+id)
       }      
     }
-  }, [props, props.location.search]);
+  }
 
-  useEffect(() => {
-    window.onbeforeunload = (function(){leave()})
-  });
-
-  return (
-    <Layout className="dark-theme">
-      <Navigation/>
-      
-    <Content style={{ padding: '78px 0px', "width":"1550px",  "margin": "0 auto"}}>
-    <Pageheader/>
-    <Divider/>
-      <Row gutter={[16, 16]}>
-        <Col span={18} push={6}>
-          <VideoPlayer/>
-          <Divider/>
-          <UserList/>
-        </Col>
-        <Col span={6} pull={18}>
-            <VideoControls/>
-            <VideoList/>
-        </Col>
-      </Row>
-    </Content>
-    <PageFooter/>
-  </Layout>
-  );
+  render(){
+    return (
+      <Layout className="dark-theme">
+        <Navigation/>
+        
+      <Content style={{ padding: '78px 0px', "width":"1550px",  "margin": "0 auto"}}>
+      <Pageheader/>
+      <Divider/>
+        <Row gutter={[16, 16]}>
+          <Col span={18} push={6}>
+            <VideoPlayer/>
+            <Divider/>
+            <UserList/>
+          </Col>
+          <Col span={6} pull={18}>
+              <VideoControls/>
+              <VideoList/>
+          </Col>
+        </Row>
+      </Content>
+      <PageFooter/>
+    </Layout>
+    );
+  }
 }
 
 const mapStateToProps  = (state) =>{

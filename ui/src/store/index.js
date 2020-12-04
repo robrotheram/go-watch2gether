@@ -31,7 +31,7 @@ const rootReducer = (history) => combineReducers({
 const middleware = [thunk,  routerMiddleware(history), reduxWebsocket()]
 
 export const getStoreFromLocalStore = () => {
-    let store =  JSON.parse( localStorage.getItem('watch2gether') );
+    let store =  JSON.parse( sessionStorage.getItem('watch2gether') );
     if (store === null ){
         return {}
     }
@@ -43,7 +43,7 @@ export const getStoreFromLocalStore = () => {
 }
 const store = createStore(rootReducer(history), getStoreFromLocalStore(), composeWithDevTools(applyMiddleware(...middleware)))
 store.subscribe(()=>{
-    localStorage.setItem('watch2gether', JSON.stringify(store.getState()))
+    sessionStorage.setItem('watch2gether', JSON.stringify(store.getState()))
 })
 
 

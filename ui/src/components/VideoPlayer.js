@@ -29,27 +29,41 @@ class VideoPlayer extends React.Component {
           if (this.player !== undefined) {
             this.player.seekTo(parseFloat(nextProps.seek))
           }
-          
         }
+
+
       }
 
     handlePlay = () => {
-        play();
+        if(!this.props.playing){
+            play();
+        }
+        
     }
 
     handlePause = () => {
-        pause();
+        if(this.props.playing){
+            pause();
+        }
     }
 
     handleEnded = () => {
         let videoList = [...this.props.queue];
         videoList.splice(0, 1);
-        updateQueue(videoList)
+        let lowestSeek = 1; 
+        this.props.users.forEach(user => {
+            if (lowestSeek > user.seek){
+                lowestSeek = user.seek
+            }
+        });
+        if (lowestSeek >= 0.9) {
+            updateQueue(videoList)
+        }
     }
 
     handleProgress = state => {
-        console.log('onProgress', state)
-        console.log("PLAYER!", this.player)
+        // console.log('onProgress', state)
+        // console.log("PLAYER!", this.player)
         this.setState({ seek: state.playedSeconds })
         updateSeek(state.played)
     }
