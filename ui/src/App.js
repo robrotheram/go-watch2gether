@@ -49,14 +49,15 @@ class App extends React.Component {
   startApp = () => {
     if (this.props.active){
       this.startTimer();
+      return;
     }else{
-      if (!this.props.active && this.props.user !== "" && this.props.name !== ""){
+      if (!this.props.active && this.props.user !== "" && this.props.name !== "" && this.props.name === this.props.match.params.id){
         this.props.reJoin(this.props.name)
         this.startTimer();
-      }else{
-        const id = this.props.match.params.id;
-        history.push("/?room="+id)
-      }      
+        return
+      }
+      const id = this.props.match.params.id;
+      history.push("/?room="+id)
     }
   }
 

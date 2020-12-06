@@ -3,15 +3,16 @@ import { Modal } from 'antd';
 import { Form, Button } from 'antd';
 import { Switch } from 'antd';
 import {connect} from 'react-redux'
-import {updateControls} from '../store/room/room.actions'
+import {updateControls, updateQueue} from '../store/room/room.actions'
+import {openNotificationWithIcon} from "./notification"
 
 const layout = {
-    labelCol: { span: 8 },
-    wrapperCol: { span: 16 },
+    labelCol: { span: 12 },
+    wrapperCol: { span: 12 },
 };
 
 function SettingsModal (props) {
-    const {isModalVisible, handleOk, handleCancel } = props
+    const {isModalVisible, handleOk, handleCancel, queue } = props
     const [controls, setControls] = useState(props.controls);
 
     const submitForm = () =>{
@@ -22,7 +23,13 @@ function SettingsModal (props) {
     const cancelForm = () =>{
         setControls(props.controls)
         handleCancel();
+    }
 
+    const handleDarkMode = () => {
+        openNotificationWithIcon("warning", "Only Dark Mode for you!")   
+        let videoList = [...queue]; 
+        videoList.unshift({url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", "user": "Watch2Gether"})
+        updateQueue(videoList)
     }
 
     return (
@@ -41,7 +48,7 @@ function SettingsModal (props) {
         >
         <Form {...layout} name="basic">
             <Form.Item
-                label="Enable Player Controls"
+                label="Enable Player Sink To Me Button"
                 name="controls"
             >
                 <Switch checked={controls} onChange={()=>(setControls(!controls))} />
@@ -50,7 +57,7 @@ function SettingsModal (props) {
                 label="Dark Mode"
                 name="controls"
             >
-                <Switch defaultChecked checked={true}/>
+                <Switch defaultChecked checked={true} onClick={handleDarkMode}/>
             </Form.Item>
             </Form>
       </Modal>

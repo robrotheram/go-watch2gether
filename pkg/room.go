@@ -23,6 +23,7 @@ type Event struct {
 	CurrentVideo string       `json:"current_video"`
 	Seek         float32      `json:"seek"`
 	Users        []User       `json:"users"`
+	Controls     bool         `json:"controls"`
 }
 
 type room struct {
@@ -106,6 +107,8 @@ func (r *room) processEvent(byteData []byte) bool {
 	case "SEEK":
 		r.Meta.Seek = data.Seek
 		break
+	case "UPDATE_CONTROLS":
+		r.Meta.Controls = data.Controls
 	case "SEEK_TO_ME":
 		r.SeekToUser(data.User)
 		return false

@@ -9,7 +9,6 @@ class VideoPlayer extends React.Component {
         url: null,
         pip: false,
         playing: true,
-        controls: false,
         light: false,
         volume: 0.8,
         muted: false,
@@ -30,9 +29,17 @@ class VideoPlayer extends React.Component {
             this.player.seekTo(parseFloat(nextProps.seek))
           }
         }
-
-
       }
+
+    componentDidMount() {
+        let _this = this
+        setTimeout(function(){
+            if (_this.player !== undefined && _this.player !== null){
+                _this.player.seekTo(parseFloat(_this.props.seek)) 
+            }
+        }, 200);
+        
+    }
 
     handlePlay = () => {
         if(!this.props.playing){
@@ -73,24 +80,19 @@ class VideoPlayer extends React.Component {
         this.player.seekTo(parseFloat(e.target.value))
     }
 
-    changeProgress = () => {
-        this.player.seekTo(parseFloat(120))
-    }
-
     
     ref = player => { this.player = player }
 
     render(){
-            const {queue, playing, controls, isHost } = this.props
+            const {queue, playing } = this.props
             return(
             <div style={{ "height":"500px", "width":"100%"}}>  
-            {/* {"Controls: "+ JSON.stringify(controls || isHost) }   */}
             {queue[0] !== undefined ? 
                <ReactPlayer 
                 ref={this.ref}
                 width="100%" height="500px"  
                 url={queue[0].url} 
-                controls={controls || isHost}
+                controls={true}
                 playing={playing}
                 onPause={this.handlePause}
                 onPlay={this.handlePlay}
