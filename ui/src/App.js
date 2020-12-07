@@ -14,6 +14,10 @@ import {join, leave, isAlive, reJoin} from './store/room/room.actions'
 import {history} from './store'
 import { withRouter } from "react-router";
 import { render } from 'react-dom';
+import { Typography } from 'antd';
+
+const { Title, Paragraph, Text, Link } = Typography;
+
 
 const { Content } = Layout;
 
@@ -71,6 +75,14 @@ class App extends React.Component {
       <Divider/>
         <Row gutter={[16, 16]}>
           <Col span={18} push={6}>
+          {this.props.queue[0] !== undefined ? 
+            <Typography>
+              <Title level={3}>Currently Playing: <Link href={this.props.queue[0].url} target="_blank">
+              {this.props.queue[0].url}
+              </Link>
+              </Title>
+            </Typography>
+          : null }
             <VideoPlayer/>
             <Divider/>
             <UserList/>

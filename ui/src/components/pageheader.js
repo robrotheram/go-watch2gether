@@ -45,8 +45,8 @@ function Pageheader (props) {
         <PageHeader
             ghost={false}
             onBack={() => { props.leave()} }
-            title={name}
-            subTitle={currentlyPlaying()}
+            title={"Room: "+name}
+            // subTitle={currentlyPlaying()}
             extra={getActionButtons()}
         >
             <SettingsModal isModalVisible={isModalVisible} showModal={showModal} handleOk={handleOk} handleCancel={handleCancel}/>

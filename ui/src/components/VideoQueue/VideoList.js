@@ -6,7 +6,7 @@ import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined } from '@ant-design/
 import {VideoThumbnail} from "./VideoThumbnail"
 import {connect} from 'react-redux'
 import {updateQueue} from '../../store/room/room.actions'
-const { Title } = Typography;
+const { Title, Paragraph, Text, Link } = Typography;
 
 export function VideoListComponent (props) {
 
@@ -39,7 +39,7 @@ export function VideoListComponent (props) {
 
   
     return(
-        <Card className="list">
+        <Card type="inner" className="list" title={<Paragraph>There are <Text strong>{queue.length}</Text> videos in the queue</Paragraph>}>
             <div className="videoQueue">
             <List
                 size="small"
