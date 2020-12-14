@@ -15,9 +15,9 @@ export function VideoThumbnail(props) {
       let video   = (results === null) ? url : results[1];
 
       if (size === 'small') {
-          return 'http://img.youtube.com/vi/' + video + '/2.jpg';
+          return 'https://img.youtube.com/vi/' + video + '/2.jpg';
       }
-      return 'http://img.youtube.com/vi/' + video + '/mqdefault.jpg';
+      return 'https://img.youtube.com/vi/' + video + '/mqdefault.jpg';
     };
 
     function youtube_parser(url){

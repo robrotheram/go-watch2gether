@@ -6,11 +6,25 @@ import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined } from '@ant-design/
 import {VideoThumbnail} from "./VideoThumbnail"
 import {connect} from 'react-redux'
 import {updateQueue} from '../../store/room/room.actions'
-const { Title, Paragraph, Text, Link } = Typography;
+const { Title, Paragraph, Text } = Typography;
 
 export function VideoListComponent (props) {
 
     const { queue } = props
+
+  const skipTo = (item) => {
+    let videoList = [...queue];
+    let i = videoList.indexOf(item);
+    videoList.splice(i, 1);
+    videoList.unshift(item)
+
+    i = 1;
+    var z = videoList[i-1];
+    videoList[i-1] = videoList[i];
+    videoList[i] = z;
+    updateQueue(videoList)
+
+  }
 
   const deleteVideo = (item) => {
     let videoList = [...queue];
@@ -59,11 +73,12 @@ export function VideoListComponent (props) {
                             </Title>
                             Added by: {item.user}
                             </td>
-                            <td style={{"width":"112px"}}>
+                            <td style={{"width":"250px"}}>
                             <Space>
                                 { queue.indexOf(item) !== 0 ? <Button onClick={() => voteUp(item)} icon={<ArrowUpOutlined />} /> : null}
                                 { queue.indexOf(item) !== queue.length - 1? <Button onClick={() => voteDown(item)} icon={<ArrowDownOutlined />} /> : null}
                                 <Button icon={<DeleteOutlined onClick={() => deleteVideo(item)}/>} />
+                                { props.isHost  && queue.indexOf(item) > 1  ? <Button onClick={() => skipTo(item) }>Move To Top</Button> : null }
                             </Space>
                             </td>
                         </tr>

@@ -4,7 +4,7 @@ import { Form, Button } from 'antd';
 import { Switch } from 'antd';
 import {connect} from 'react-redux'
 import {updateControls, updateQueue} from '../store/room/room.actions'
-import {openNotificationWithIcon} from "./notification"
+import {openNotificationWithIconKey} from "./notification"
 
 const layout = {
     labelCol: { span: 12 },
@@ -26,7 +26,7 @@ function SettingsModal (props) {
     }
 
     const handleDarkMode = () => {
-        openNotificationWithIcon("warning", "Only Dark Mode for you!")   
+        openNotificationWithIconKey("warning", "Only Dark Mode for you!","darkmode")   
         let videoList = [...queue]; 
         videoList.unshift({url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", "user": "Watch2Gether"})
         updateQueue(videoList)

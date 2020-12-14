@@ -1,5 +1,5 @@
 import './App.less';
-import React, { useEffect } from "react"
+import React from "react"
 import { Layout, Row, Col, Divider } from 'antd';
 import {Navigation} from './components/Nav'
 import Pageheader from './components/pageheader'
@@ -13,10 +13,9 @@ import {connect} from 'react-redux'
 import {join, leave, isAlive, reJoin} from './store/room/room.actions'
 import {history} from './store'
 import { withRouter } from "react-router";
-import { render } from 'react-dom';
 import { Typography } from 'antd';
 
-const { Title, Paragraph, Text, Link } = Typography;
+const { Title, Link } = Typography;
 
 
 const { Content } = Layout;

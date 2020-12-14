@@ -58,12 +58,13 @@ class VideoPlayer extends React.Component {
         let videoList = [...this.props.queue];
         videoList.splice(0, 1);
         let lowestSeek = 1; 
+        updateSeek(1)
         this.props.users.forEach(user => {
             if (lowestSeek > user.seek){
                 lowestSeek = user.seek
             }
         });
-        if (lowestSeek >= 0.9) {
+        if (lowestSeek === 1) {
             updateQueue(videoList)
         }
     }
@@ -73,6 +74,7 @@ class VideoPlayer extends React.Component {
         // console.log("PLAYER!", this.player)
         this.setState({ seek: state.playedSeconds })
         updateSeek(state.played)
+        
     }
 
     onProgressUpdate = e => {

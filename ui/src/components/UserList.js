@@ -1,7 +1,6 @@
 
-import { Card, List, Avatar, Button, Progress } from 'antd';
+import { Card, List, Button, Progress } from 'antd';
 import { Row, Col } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
 import {connect} from 'react-redux'
 import {updateHost} from '../store/room/room.actions'
 function UserList(props){

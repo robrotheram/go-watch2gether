@@ -105,14 +105,18 @@ const process_websocket_event = (state, data) => {
       };
     case "PLAYING": 
       if (state.playing !== data.playing){
-        openNotificationWithIcon("success", "User: "+data.user+" started video")
+        if (state.seek < 1){
+          openNotificationWithIcon("success", "User: "+data.user+" started video")
+        }
       }
       return {
         ...state, playing: true,
       };
     case "PAUSING": 
       if (state.playing !== data.playing){
-        openNotificationWithIcon("success", "User: "+data.user+" has paused video")
+        if (state.seek < 1){
+          openNotificationWithIcon("success", "User: "+data.user+" has paused video")
+        }
       }
       return {
         ...state, playing: false,

@@ -6,19 +6,19 @@ import {leave, sinkToHost, sinkToME} from '../store/room/room.actions'
 import SettingsModal from './SettingsModal'
 
 function Pageheader (props) {
-    const { name, isHost, controls, queue} = props
+    const { name, isHost, controls} = props
 
     const [isModalVisible, setIsModalVisible] = useState(false);
     const showModal = () => {setIsModalVisible(true);};
     const handleOk = () => {setIsModalVisible(false); };
     const handleCancel = () => {setIsModalVisible(false);};
 
-    const currentlyPlaying = () => {
-        if (queue[0] === undefined){
-            return ""
-        }
-        return (<span>Currently Playing: <a href={queue[0].url}>{queue[0].url}</a></span>)
-    }
+    // const currentlyPlaying = () => {
+    //     if (queue[0] === undefined){
+    //         return ""
+    //     }
+    //     return (<span>Currently Playing: <a href={queue[0].url}>{queue[0].url}</a></span>)
+    // }
 
     const getActionButtons = () => {
         let buttons = []

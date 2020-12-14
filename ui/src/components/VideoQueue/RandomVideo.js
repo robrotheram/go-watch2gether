@@ -3,10 +3,6 @@ export const VideoList = [
 
   //KPOP
 
-  "https://www.youtube.com/watch?v=9bZkp7q19f0", //PSY - GANGNAM STYLE
-
-  "https://www.youtube.com/watch?v=ASO_zypdnsQ", //PSY - GENTLEMEN
-
   "https://www.youtube.com/watch?v=FrG4TEcSuRg", //PSY - DADDY
 
   "https://www.youtube.com/watch?v=zYoYoBtLqOY", //KARA - STEP
@@ -66,6 +62,5 @@ export const VideoList = [
   "https://www.youtube.com/watch?v=arZZw8NyPq8", //Las Ketchu- Aserejé (The Ketchup Song)
 
   "https://www.youtube.com/watch?v=l5aZJBLAu1E", // ITs Raining Men
-  "https://www.youtube.com/watch?v=CS9OO0S5w2k", //YMCA OFFICIAL
   "https://www.youtube.com/watch?v=3NX4sg3K-zg" //Would You? (Instrumental Track Without Background Vocals) (Karaoke in the style of Touch And Go)
 ];
