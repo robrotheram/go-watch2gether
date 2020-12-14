@@ -74,14 +74,15 @@ class App extends React.Component {
       <Divider/>
         <Row gutter={[16, 16]}>
           <Col span={18} push={6}>
-          {this.props.queue[0] !== undefined ? 
+           
+          {/* {this.props.current_video.url !== undefined ? 
             <Typography>
-              <Title level={3}>Currently Playing: <Link href={this.props.queue[0].url} target="_blank">
-              {this.props.queue[0].url}
+              <Title level={3}>Currently Playing: <Link href={this.props.current_video.url} target="_blank">
+              {this.props.current_video.url}
               </Link>
               </Title>
             </Typography>
-          : null }
+          : null } */}
             <VideoPlayer/>
             <Divider/>
             <UserList/>

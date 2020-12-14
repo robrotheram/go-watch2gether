@@ -19,6 +19,7 @@ function UserList(props){
     return (
       <Card type="inner" title="Users Progress" className="list">
         <div className="container .sc2 userlist">
+          {/* {JSON.stringify(users)} */}
           <List
             size="small"
             itemLayout="horizontal"

@@ -1,7 +1,7 @@
 import React from "react"
 import ReactPlayer from 'react-player'
 import {connect} from 'react-redux'
-import {play, pause,updateSeek, updateQueue} from '../store/room/room.actions'
+import {play, pause,updateSeek, updateQueue, handleFinish} from '../store/room/room.actions'
 import { Empty } from "antd"
 
 class VideoPlayer extends React.Component {
@@ -55,18 +55,8 @@ class VideoPlayer extends React.Component {
     }
 
     handleEnded = () => {
-        let videoList = [...this.props.queue];
-        videoList.splice(0, 1);
-        let lowestSeek = 1; 
         updateSeek(1)
-        this.props.users.forEach(user => {
-            if (lowestSeek > user.seek){
-                lowestSeek = user.seek
-            }
-        });
-        if (lowestSeek === 1) {
-            updateQueue(videoList)
-        }
+        handleFinish()
     }
 
     handleProgress = state => {
@@ -86,14 +76,14 @@ class VideoPlayer extends React.Component {
     ref = player => { this.player = player }
 
     render(){
-            const {queue, playing } = this.props
+            const {queue, playing, current_video } = this.props
             return(
-            <div style={{ "height":"500px", "width":"100%"}}>  
-            {queue[0] !== undefined ? 
+            <div style={{ "height":"600px", "width":"100%"}}>  
+            {current_video !== undefined ? 
                <ReactPlayer 
                 ref={this.ref}
-                width="100%" height="500px"  
-                url={queue[0].url} 
+                width="100%" height="600px"  
+                url={current_video.url} 
                 controls={true}
                 playing={playing}
                 onPause={this.handlePause}
@@ -101,7 +91,7 @@ class VideoPlayer extends React.Component {
                 onProgress={this.handleProgress}
                 onEnded={this.handleEnded}
                 />  
-            : <Empty  style={{ "height":"500px", "width":"100%", "paddingTop":"180px"}}/>}
+            : <Empty  style={{ "height":"600px", "width":"100%", "paddingTop":"180px"}}/>}
           </div>  
         )
     }
@@ -109,5 +99,5 @@ class VideoPlayer extends React.Component {
 const mapStateToProps  = (state) =>{
     return state.room
   } 
-export default connect(mapStateToProps, {updateQueue, updateSeek})(VideoPlayer)
+export default connect(mapStateToProps, {updateQueue, handleFinish, updateSeek})(VideoPlayer)
   

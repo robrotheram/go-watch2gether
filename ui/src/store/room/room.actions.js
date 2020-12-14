@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, SEEK_TO_HOST, REJOIN_SUCCESSFUL } from './room.types';
+import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, SEEK_TO_HOST, REJOIN_SUCCESSFUL, PROGRESS_UPDATE } from './room.types';
 import store, {API_URL, WS_URL, history} from '../index'
 import { connect } from '@giantmachines/redux-websocket';
 import { send } from '@giantmachines/redux-websocket';
@@ -97,10 +97,13 @@ export const getMeta = () => {
 }
 
 export const updateSeek = (seek) => {
-    let evnt = {action: "ON_PROGRESS_UPDATE", user:store.getState().room.user, seek:seek}
-    store.dispatch(send(evnt))   
+    store.dispatch( {
+        type: PROGRESS_UPDATE,
+        seek: seek,
+    })
+    // let evnt = {action: "ON_PROGRESS_UPDATE", user:store.getState().room.user, seek:seek}
+    // store.dispatch(send(evnt))   
 }
-
 
 export const updateControls = (cntrls) => {
     let evnt = {action: "UPDATE_CONTROLS", user:store.getState().room.user, controls:cntrls}
@@ -113,10 +116,20 @@ export const updateHost = (host) => {
 }
 
 export async function isAlive() {
-    console.log("USER_UPADTE")
-    let evnt = {action: "USER_UPADTE", user:store.getState().room.user}
+    let user= store.getState().room.user;
+    user.current_video = store.getState().room.current_video;
+    let evnt = {
+        action: "USER_UPADTE", user:user, 
+    }
+    console.log("USER_UPADTE", evnt ); 
     return store.dispatch(send(evnt))   
 }
+
+export const handleFinish = () => {
+    let evnt = {action: "HANDLE_FINSH", user:store.getState().room.user}
+    store.dispatch(send(evnt))   
+}
+
 
 export const sinkToME = (seek) => {
     let evnt = {action: "SEEK_TO_ME", user:store.getState().room.user, seek:seek}
@@ -153,5 +166,10 @@ export const pause = () => {
 
 export const updateQueue = (queue) => {
     let evnt = {action: "UPDATE_QUEUE", queue: queue, user:store.getState().room.user}
+    store.dispatch(send(evnt))
+}
+
+export const nextVideo = () => {
+    let evnt = {action: "NEXT_VIDEO", user:store.getState().room.user}
     store.dispatch(send(evnt))
 }

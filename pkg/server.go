@@ -65,7 +65,7 @@ func JoinRoom(w http.ResponseWriter, r *http.Request) error {
 		go Hub.rooms[roomMsg.Name].run()
 	}
 
-	Hub.rooms[roomMsg.Name].Join(roomMsg.Username)
+	Hub.rooms[roomMsg.Name].Join(NewUser(roomMsg.Username))
 
 	return nil
 }

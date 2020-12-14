@@ -10,18 +10,13 @@ const { Title, Paragraph, Text } = Typography;
 
 export function VideoListComponent (props) {
 
-    const { queue } = props
+  const { queue, current_video } = props
 
   const skipTo = (item) => {
     let videoList = [...queue];
     let i = videoList.indexOf(item);
     videoList.splice(i, 1);
     videoList.unshift(item)
-
-    i = 1;
-    var z = videoList[i-1];
-    videoList[i-1] = videoList[i];
-    videoList[i] = z;
     updateQueue(videoList)
 
   }
@@ -53,6 +48,28 @@ export function VideoListComponent (props) {
 
   
     return(
+      <div>
+        {current_video !== undefined && current_video.url !== "" ? 
+           <List.Item>
+                    <table className="">
+                        <tbody>
+                        <tr>
+                            <td style={{"width":"130px"}}> 
+                            <VideoThumbnail url={current_video.url} user={current_video.user}/>
+                            </td>
+                            <td style={{"padding":"0px 10px", "maxWidth":"250px"}}> 
+                            Currently Playing
+                            <Title level={5}  style={{fontSize:"14px"}} className="eclipseText">
+                                {current_video.url}
+                            </Title>
+                            Added by: {current_video.user}
+                            </td>
+              
+                        </tr>
+                        </tbody>
+                    </table>
+                    </List.Item>
+        : null}
         <Card type="inner" className="list" title={<Paragraph>There are <Text strong>{queue.length}</Text> videos in the queue</Paragraph>}>
             <div className="videoQueue">
             <List
@@ -60,7 +77,7 @@ export function VideoListComponent (props) {
                 itemLayout="horizontal"
                 dataSource={queue}
                 renderItem={item => (
-                    <List.Item className={queue.indexOf(item) === 0 ? "itemPlaying":""}>
+                    <List.Item>
                     <table className="videoQueueItem">
                         <tbody>
                         <tr>
@@ -78,7 +95,7 @@ export function VideoListComponent (props) {
                                 { queue.indexOf(item) !== 0 ? <Button onClick={() => voteUp(item)} icon={<ArrowUpOutlined />} /> : null}
                                 { queue.indexOf(item) !== queue.length - 1? <Button onClick={() => voteDown(item)} icon={<ArrowDownOutlined />} /> : null}
                                 <Button icon={<DeleteOutlined onClick={() => deleteVideo(item)}/>} />
-                                { props.isHost  && queue.indexOf(item) > 1  ? <Button onClick={() => skipTo(item) }>Move To Top</Button> : null }
+                                { props.isHost  && queue.indexOf(item) > 0  ? <Button onClick={() => skipTo(item) }>Move To Top</Button> : null }
                             </Space>
                             </td>
                         </tr>
@@ -89,6 +106,7 @@ export function VideoListComponent (props) {
                 />
             </div>
         </Card>
+        </div>
     )
 }
 const mapStateToProps  = (state) =>{

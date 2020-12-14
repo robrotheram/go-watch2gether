@@ -4,8 +4,9 @@ import {Button, Space, Input} from "antd"
 import { StarOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { openNotificationWithIcon } from "../notification"
 import {connect} from 'react-redux'
-import {updateQueue} from '../../store/room/room.actions'
+import {updateQueue, nextVideo} from '../../store/room/room.actions'
 import {useState} from "react"
+import { uid } from 'uid';
 
 export function VideoControlComponent (props) {
     const [url, setURL] = useState("");
@@ -24,7 +25,7 @@ export function VideoControlComponent (props) {
     const addToQueue = () => {
         if (validURL(url)){
             let videoList = [...queue]; 
-            videoList.push({"url":url, "user":user});
+            videoList.push({"url":url, "user":user.name, "uid": uid(16)});
             updateQueue(videoList)            
             setURL("")
         } else {
@@ -37,8 +38,7 @@ export function VideoControlComponent (props) {
     }
 
     const skipQueue = () => {
-        let videoList = [...queue]; 
-        updateQueue(videoList.filter(item => item.url !== videoList[0].url));
+        nextVideo();
     }
 
 
@@ -47,7 +47,7 @@ export function VideoControlComponent (props) {
         for (var i=1; i < 100; i += 2){
             let randomElement = VideoList[Math.floor(Math.random() * VideoList.length)];
             if (videoList.filter(e => e.url === randomElement).length === 0) {
-                videoList.push({"url":randomElement, "user":user});
+                videoList.push({"url":randomElement, "user":user.name, "uid": uid(16)});
                 break;
             }
         }
