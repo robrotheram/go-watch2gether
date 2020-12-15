@@ -31,8 +31,8 @@ function Navigation (props) {
 
     return (
         <Header style={{"display":"block ruby", "zIndex": "1000", "position":"fixed", "left":0, "right":0, "top":0}}>
-          <Button type="link" size="large" icon={<ArrowLeftOutlined />} style={{color: "white"}} onClick={() => { props.leave()}}/> 
-          <div className="logo">
+          <Button style={{"display": "inline-block"}} type="link" size="large" icon={<ArrowLeftOutlined />} style={{color: "white"}} onClick={() => { props.leave()}}/> 
+          <div className="logo" style={{"display": "inline-block"}}>
             <h1 style={{"color":"white"}}>Watch2Gether</h1>
           </div>
           <Space style={{"float":"right"}}>
