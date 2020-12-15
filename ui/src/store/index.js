@@ -46,9 +46,9 @@ export const getStoreFromLocalStore = () => {
 }
 const store = createStore(rootReducer(history), getStoreFromLocalStore(), composeWithDevTools(applyMiddleware(...middleware)))
 store.subscribe(()=>{
-    let store = store.getState()
-    store.version = window.w2g_version
-    sessionStorage.setItem('watch2gether', JSON.stringify(store.getState()))
+    let save = store.getState()
+    save.version = window.w2g_version
+    sessionStorage.setItem('watch2gether', JSON.stringify(save))
 })
 
 
