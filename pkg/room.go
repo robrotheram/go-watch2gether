@@ -91,7 +91,7 @@ func (r *room) processEvent(byteData []byte) bool {
 	var data Event
 	in := bytes.NewReader(byteData)
 	_ = json.NewDecoder(in).Decode(&data)
-	fmt.Println(data)
+	//fmt.Println(data)
 	switch data.Action {
 
 	case "PLAYING":
@@ -147,12 +147,14 @@ func (room *room) updateHost(user User) {
 
 func (r *room) skipNextVideo() {
 	if len(r.Meta.Queue) == 0 {
-		return
+		r.Meta.PreVideo = r.Meta.CurrentVideo
+		r.Meta.CurrentVideo = Video{}
+	} else {
+		video := r.Meta.Queue[0]
+		r.Meta.Queue = r.Meta.Queue[1:]
+		r.Meta.PreVideo = r.Meta.CurrentVideo
+		r.Meta.CurrentVideo = video
 	}
-	video := r.Meta.Queue[0]
-	r.Meta.Queue = r.Meta.Queue[1:]
-	r.Meta.PreVideo = r.Meta.CurrentVideo
-	r.Meta.CurrentVideo = video
 
 	evt := Event{
 		Action:       "CHANGE_VIDEO",

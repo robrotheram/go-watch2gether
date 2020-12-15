@@ -48,7 +48,7 @@ export function VideoListComponent (props) {
 
   
     return(
-      <div>
+      <div style={{"height":"100%"}}>
         {current_video !== undefined && current_video.url !== "" ? 
            <List.Item>
                     <table className="">
@@ -70,7 +70,11 @@ export function VideoListComponent (props) {
                     </table>
                     </List.Item>
         : null}
-        <Card type="inner" className="list" title={<Paragraph>There are <Text strong>{queue.length}</Text> videos in the queue</Paragraph>}>
+        <Card type="inner" 
+          className="list video"
+          title={<Paragraph>There are <Text strong>{queue.length}</Text> videos in the queue</Paragraph>}
+          style={ current_video !== undefined && current_video.url !== "" ? {"height": "calc( 100% - 200px )"} : {"height": "calc( 100% - 100px )"}}
+         >
             <div className="videoQueue">
             <List
                 size="small"

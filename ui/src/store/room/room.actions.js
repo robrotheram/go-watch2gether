@@ -58,7 +58,7 @@ export const reJoin = (room) => {
 
 export const leave = (room, user) => {
     return dispatch => {
-        axios.post(API_URL+`room/`+store.getState().room.name+`/leave`, {"name":store.getState().room.name, "username":store.getState().room.user}).then(res => {
+        axios.post(API_URL+`room/`+store.getState().room.name+`/leave`, {"name":store.getState().room.name, "username":store.getState().room.user.name}).then(res => {
             console.log("Action", res)
             dispatch( {
                 type: LEAVE_SUCCESSFUL,

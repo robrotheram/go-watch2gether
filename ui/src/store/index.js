@@ -35,6 +35,9 @@ export const getStoreFromLocalStore = () => {
     if (store === null ){
         return {}
     }
+    if (store.version !== window.w2g_version) {
+        return {}
+    }
     if (store.room !== undefined){
         store.room.error = "";
         store.room.active = false;
@@ -43,6 +46,8 @@ export const getStoreFromLocalStore = () => {
 }
 const store = createStore(rootReducer(history), getStoreFromLocalStore(), composeWithDevTools(applyMiddleware(...middleware)))
 store.subscribe(()=>{
+    let store = store.getState()
+    store.version = window.w2g_version
     sessionStorage.setItem('watch2gether', JSON.stringify(store.getState()))
 })
 

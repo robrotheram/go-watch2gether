@@ -1,7 +1,7 @@
 import './App.less';
 import React from "react"
 import { Layout, Row, Col, Divider } from 'antd';
-import {Navigation} from './components/Nav'
+import Navigation from './components/Nav'
 import Pageheader from './components/pageheader'
 import {PageFooter} from './components/PageFooter'
 
@@ -70,8 +70,8 @@ class App extends React.Component {
         <Navigation/>
         
       <Content style={{ padding: '78px 0px', "width":"1550px",  "margin": "0 auto"}}>
-      <Pageheader/>
-      <Divider/>
+      {/* <Pageheader/>
+      <Divider/> */}
         <Row gutter={[16, 16]}>
           <Col span={18} push={6}>
            

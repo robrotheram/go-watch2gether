@@ -4,7 +4,7 @@ import { Row, Col } from 'antd';
 import {connect} from 'react-redux'
 import {updateHost} from '../store/room/room.actions'
 function UserList(props){
-    const {users, isHost, host } = props;
+    const {users, isHost, host, user } = props;
 
     const listActions = (item) => {
       let actions = [] 
@@ -19,7 +19,7 @@ function UserList(props){
     return (
       <Card type="inner" title="Users Progress" className="list">
         <div className="container .sc2 userlist">
-          {/* {JSON.stringify(users)} */}
+          {/* {JSON.stringify(user)} */}
           <List
             size="small"
             itemLayout="horizontal"

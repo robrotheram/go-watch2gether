@@ -18,14 +18,27 @@
   background-color: #66cc89;
 }
 
-.videoQueue {
-  max-height: 395px;
-  overflow-y: auto;
+.video {
+  position: absolute;
+  height: calc( 100% - 200px );
+  bottom: 6px;
+  left: 8px;
+  right: 8px;
 }
 
+.videoQueue {
+  overflow-y: auto;
+  height: 100%;
+}
+
+.video .ant-card-body {
+  overflow-y: auto;
+  height: calc( 100% - 46px );
+} 
 
 .list .ant-card-body {
   padding: 0px;
+  overflow-y: auto;
 }
 
 .list .ant-card-body .container {

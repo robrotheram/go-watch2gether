@@ -79,7 +79,7 @@ class VideoPlayer extends React.Component {
             const {queue, playing, current_video } = this.props
             return(
             <div style={{ "height":"600px", "width":"100%"}}>  
-            {current_video !== undefined ? 
+            {current_video.url !== "" ? 
                <ReactPlayer 
                 ref={this.ref}
                 width="100%" height="600px"  

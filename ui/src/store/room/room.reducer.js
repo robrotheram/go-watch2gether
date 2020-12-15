@@ -138,7 +138,7 @@ const process_websocket_event = (state, data) => {
         ...state, queue: data.queue, current_video: data.current_video
       };
     case "PLAYING": 
-      if (state.user.seek == 1){
+      if (state.user.seek >= 1){
         return state
       }
       if (state.playing !== data.playing){
@@ -150,7 +150,7 @@ const process_websocket_event = (state, data) => {
         ...state, playing: true,
       };
     case "PAUSING": 
-      if (state.user.seek == 1){
+      if (state.user.seek >= 1){
         return state
       }
       if (state.playing !== data.playing){
