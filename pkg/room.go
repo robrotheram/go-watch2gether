@@ -8,12 +8,14 @@ import (
 	"time"
 
 	"github.com/segmentio/ksuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type Video struct {
-	UID  string `json:"uid"`
-	User string `json:"user"`
-	Url  string `json:"url"`
+	UID   string `json:"uid"`
+	User  string `json:"user"`
+	Url   string `json:"url"`
+	Title string `json:"title"`
 }
 
 type Event struct {
@@ -91,7 +93,7 @@ func (r *room) processEvent(byteData []byte) bool {
 	var data Event
 	in := bytes.NewReader(byteData)
 	_ = json.NewDecoder(in).Decode(&data)
-	//fmt.Println(data)
+	//log.Info(data)
 	switch data.Action {
 
 	case "PLAYING":
@@ -202,7 +204,7 @@ func newRoom(name string) *room {
 }
 
 func (room *room) Join(user User) {
-	fmt.Println(user)
+	log.Info(user)
 	if len(room.Meta.Users) == 0 {
 		room.Meta.Host = user.Name
 		user.IsHost = true

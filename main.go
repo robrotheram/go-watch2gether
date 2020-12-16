@@ -2,11 +2,16 @@ package main
 
 import (
 	"flag"
-	"log"
 	"watch2gether/pkg"
+
+	log "github.com/sirupsen/logrus"
 )
 
 func main() {
+	log.SetFormatter(&log.TextFormatter{
+		DisableColors: true,
+		FullTimestamp: true,
+	})
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")
 	flag.Parse() // parse the flags
 

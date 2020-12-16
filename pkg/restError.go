@@ -23,7 +23,7 @@ func (se StatusError) Error() string {
 	return se.Err.Error()
 }
 
-// Returns our HTTP status code.
+// Status Returns our HTTP status code.
 func (se StatusError) Status() int {
 	return se.Code
 }

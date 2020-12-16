@@ -7,6 +7,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 type joinMessage struct {
@@ -51,7 +52,7 @@ func JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if _, ok := Hub.rooms[roomMsg.Name]; !ok {
-		fmt.Println("Creaeting New room:" + roomMsg.Name)
+		log.Info("Creaeting New room:" + roomMsg.Name)
 		Hub.rooms[roomMsg.Name] = newRoom(roomMsg.Name)
 		go Hub.rooms[roomMsg.Name].run()
 	}
@@ -61,7 +62,7 @@ func JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	if Hub.rooms[roomMsg.Name].status != "Running" {
-		fmt.Println("Room Starting Starting" + roomMsg.Name)
+		log.Info("Room Starting Starting" + roomMsg.Name)
 		go Hub.rooms[roomMsg.Name].run()
 	}
 
@@ -126,6 +127,8 @@ func StartServer(connection string) error {
 	r.Handle("/api/v1/room/{roomName}", Handler{UpdateRoomMeta}).Methods("POST")
 	r.Handle("/api/v1/room/{roomName}", Handler{DeleteRoom}).Methods("DELETE")
 
+	r.Handle("/api/v1/scrape", Handler{getPageInfo}).Methods("GET")
+
 	r.Handle("/api/v1/status/{roomName}", Handler{GetRoomMeta})
 	r.HandleFunc("/api/v1/status", HubStatus)
 
@@ -137,4 +140,18 @@ func StartServer(connection string) error {
 	origins := handlers.AllowedOrigins([]string{"*"})
 
 	return http.ListenAndServe(connection, handlers.CORS(headers, methods, origins)(r))
+}
+
+func getPageInfo(w http.ResponseWriter, r *http.Request) error {
+	vars := r.URL.Query()
+	url := vars["url"][0]
+
+	s, err := Scrape(url, 1)
+	if err != nil {
+		return err
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(s.Preview)
+
+	return nil
 }

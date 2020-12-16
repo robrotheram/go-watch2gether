@@ -2,19 +2,26 @@ package pkg
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type hub struct {
 	rooms map[string]*room
 }
 
+// Hub Global var storing all rooms.
+// TODO: turn into store backed by DB
 var Hub = hub{rooms: map[string]*room{}}
 
+/*
+DeleteRoom
+Sends Delete event across all clients and then closes connection before deleting
+*/
 func (h *hub) DeleteRoom(roomName string) {
-	fmt.Println("DELETING_ROOM")
+	log.Info("DELETING_ROOM")
 	evt := Event{
 		Action: "ROOM_EXIT",
 	}
@@ -24,11 +31,12 @@ func (h *hub) DeleteRoom(roomName string) {
 	delete(h.rooms, roomName)
 }
 
+// CleanUP Every 5 seconds go through each room and check to see if there was a delete
 func CleanUP() {
-	fmt.Println("Staring Cleanup Routine")
+	log.Info("Staring Cleanup Routine")
 	for {
 		time.Sleep(5 * time.Second)
-		fmt.Println("Staring Cleanup Routine")
+		log.Info("Checking Room Infomation")
 		for _, room := range Hub.rooms {
 			room.PurgeUsers()
 			if len(room.Meta.Users) == 0 {
@@ -38,6 +46,7 @@ func CleanUP() {
 	}
 }
 
+// HubStatus Return status of all rooms
 func HubStatus(w http.ResponseWriter, r *http.Request) {
 	resp := []map[string]interface{}{}
 	for _, v := range Hub.rooms {
