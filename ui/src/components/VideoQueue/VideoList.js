@@ -3,10 +3,10 @@
 import { Card, List, Space, Button,Typography  } from 'antd';
 import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined } from '@ant-design/icons';
 
-import {VideoThumbnail} from "./VideoThumbnail"
 import {connect} from 'react-redux'
 import {updateQueue} from '../../store/room/room.actions'
-const { Title, Paragraph, Text } = Typography;
+import {VideoItem} from './VideoItem'
+const { Paragraph, Text } = Typography;
 
 export function VideoListComponent (props) {
 
@@ -50,25 +50,7 @@ export function VideoListComponent (props) {
     return(
       <div style={{"height":"100%"}}>
         {current_video !== undefined && current_video.url !== "" ? 
-           <List.Item>
-                    <table className="">
-                        <tbody>
-                        <tr>
-                            <td style={{"width":"130px"}}> 
-                            <VideoThumbnail url={current_video.url} user={current_video.user}/>
-                            </td>
-                            <td style={{"padding":"0px 10px", "maxWidth":"250px"}}> 
-                            Currently Playing
-                            <Title level={5}  style={{fontSize:"14px"}} className="eclipseText">
-                                {current_video.url}
-                            </Title>
-                            Added by: {current_video.user}
-                            </td>
-              
-                        </tr>
-                        </tbody>
-                    </table>
-                    </List.Item>
+         <VideoItem video={current_video} playing/>
         : null}
         <Card type="inner" 
           className="list video"
@@ -81,31 +63,34 @@ export function VideoListComponent (props) {
                 itemLayout="horizontal"
                 dataSource={queue}
                 renderItem={item => (
-                    <List.Item>
-                    <table className="videoQueueItem">
-                        <tbody>
-                        <tr>
-                            <td style={{"width":"130px"}}> 
-                            <VideoThumbnail url={item.url} user={item.user}/>
-                            </td>
-                            <td style={{"padding":"0px 10px", "maxWidth":"250px"}}> 
-                            <Title level={5}  style={{fontSize:"14px"}} className="eclipseText">
-                                {item.url}
-                            </Title>
-                            Added by: {item.user}
-                            </td>
-                            <td style={{"width":"250px"}}>
-                            <Space>
-                                { queue.indexOf(item) !== 0 ? <Button onClick={() => voteUp(item)} icon={<ArrowUpOutlined />} /> : null}
-                                { queue.indexOf(item) !== queue.length - 1? <Button onClick={() => voteDown(item)} icon={<ArrowDownOutlined />} /> : null}
-                                <Button icon={<DeleteOutlined onClick={() => deleteVideo(item)}/>} />
-                                { props.isHost  && queue.indexOf(item) > 0  ? <Button onClick={() => skipTo(item) }>Move To Top</Button> : null }
-                            </Space>
-                            </td>
-                        </tr>
-                        </tbody>
-                    </table>
-                    </List.Item>
+                      <VideoItem video={item} loading={item.loading}>
+                        <Space>
+                                 { queue.indexOf(item) !== 0 ? <Button onClick={() => voteUp(item)} icon={<ArrowUpOutlined />} /> : null}
+                                 { queue.indexOf(item) !== queue.length - 1? <Button onClick={() => voteDown(item)} icon={<ArrowDownOutlined />} /> : null}
+                                 <Button icon={<DeleteOutlined onClick={() => deleteVideo(item)}/>} />
+                                 { props.isHost  && queue.indexOf(item) > 0  ? <Button onClick={() => skipTo(item) }>Move To Top</Button> : null }
+                        </Space>
+                    </VideoItem>
+                    // <List.Item>
+                    // <table className="videoQueueItem">
+                    //     <tbody>
+                    //     <tr>
+                    //         <td style={{"width":"130px"}}> 
+                    //         <VideoThumbnail url={item.url} user={item.user}/>
+                    //         </td>
+                    //         <td style={{"padding":"0px 10px", "maxWidth":"250px"}}> 
+                    //         <Title level={5}  style={{fontSize:"14px"}} className="eclipseText">
+                    //             {item.url}
+                    //         </Title>
+                    //         Added by: {item.user}
+                    //         </td>
+                    //         <td style={{"width":"250px"}}>
+                    //         
+                    //         </td>
+                    //     </tr>
+                    //     </tbody>
+                    // </table>
+                    // </List.Item>
                 )}
                 />
             </div>

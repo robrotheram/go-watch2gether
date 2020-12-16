@@ -4,12 +4,15 @@ import {Button, Space, Input} from "antd"
 import { StarOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { openNotificationWithIcon } from "../notification"
 import {connect} from 'react-redux'
-import {updateQueue, nextVideo} from '../../store/room/room.actions'
+import {updateQueue, nextVideo, updateLocalQueue} from '../../store/room/room.actions'
 import {useState} from "react"
 import { uid } from 'uid';
+import axios from 'axios';
+import {API_URL} from '../../store'
 
 export function VideoControlComponent (props) {
     const [url, setURL] = useState("");
+    const [loading, setLoading] = useState(false);
     const { queue, user } = props
 
     const validURL = (str) => {
@@ -22,10 +25,34 @@ export function VideoControlComponent (props) {
         return !!pattern.test(str) && !str.includes("list=");
       }
 
-    const addToQueue = () => {
+    const getTitle = async (url) => {
+        const result = await axios(API_URL+"scrape?url="+encodeURI(url),);
+        
+        return (result.data.Title);
+    };
+
+
+    const createVideoItem = async (url) => {
+        let title = await getTitle(url)
+        console.log("VIDEO GET URL", title)
+        return {
+            "url":url, 
+            "title": title,
+            "user":user.name, 
+            "uid": uid(16)
+        }
+    }
+
+    
+    const addToQueue = async () => {
         if (validURL(url)){
             let videoList = [...queue]; 
-            videoList.push({"url":url, "user":user.name, "uid": uid(16)});
+
+            videoList.push({url:"", title:"", loading:true})
+            updateLocalQueue(videoList)
+            videoList = [...queue].filter(i => !i.loading); 
+            
+            videoList.push(await createVideoItem(url));
             updateQueue(videoList)            
             setURL("")
         } else {
@@ -42,16 +69,24 @@ export function VideoControlComponent (props) {
     }
 
 
-    const randomVideo = () => {
+    const randomVideo = async() => {
+        if (loading){ return; }
+        setLoading(true);
         let videoList = [...queue]; 
+
+        videoList.push({url:"", title:"", loading:true})
+        updateLocalQueue(videoList)
+        videoList = [...queue].filter(i => !i.loading); 
+
         for (var i=1; i < 100; i += 2){
             let randomElement = VideoList[Math.floor(Math.random() * VideoList.length)];
             if (videoList.filter(e => e.url === randomElement).length === 0) {
-                videoList.push({"url":randomElement, "user":user.name, "uid": uid(16)});
+                videoList.push(await createVideoItem(randomElement));
                 break;
             }
         }
         updateQueue(videoList)
+        setLoading(false);
     }
       
     return (
@@ -62,12 +97,12 @@ export function VideoControlComponent (props) {
                 <Button onClick={clearQueue} style={{width:"100%"}}>Clear Queue</Button>
                 <Button icon={<StarOutlined />}onClick={randomVideo} style={{width:"100%"}}>Add Random</Button>
             </Space>
+            
         </div>
     )
 }
 
 const mapStateToProps  = (state) =>{
-    
     return state.room
   } 
 export const VideoControls = connect(mapStateToProps, {updateQueue})(VideoControlComponent)

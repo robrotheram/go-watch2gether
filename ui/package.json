@@ -19,6 +19,8 @@
     "connected-react-router": "^6.8.0",
     "craco-less": "^1.17.0",
     "customize-cra": "^1.0.0",
+    "get-title-at-url": "^1.1.8",
+    "get-url-title": "^2.0.0",
     "less-loader": "^7.1.0",
     "node-sass": "4.14.1",
     "plyr-react": "^3.0.7",

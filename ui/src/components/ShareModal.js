@@ -1,41 +1,20 @@
-import React, {useState} from 'react';
+import React from 'react';
 import { Modal } from 'antd';
 import { Input, Button } from 'antd';
-import { Switch } from 'antd';
 import {connect} from 'react-redux'
-import {updateControls, updateQueue} from '../store/room/room.actions'
+import {updateControls} from '../store/room/room.actions'
 import {openNotificationWithIconKey} from "./notification"
 import {
     CopyOutlined
   } from '@ant-design/icons';
 
-const layout = {
-    labelCol: { span: 12 },
-    wrapperCol: { span: 12 },
-};
 
 function ShareModal (props) {
-    const {isModalVisible, handleOk, handleCancel, queue } = props
-    const [controls, setControls] = useState(props.controls);
+    const {isModalVisible, handleCancel } = props
 
-    const submitForm = () =>{
-        updateControls(controls)
-        handleOk();
-
-    }
     const cancelForm = () =>{
-        setControls(props.controls)
         handleCancel();
     }
-
-    const handleDarkMode = () => {
-        openNotificationWithIconKey("warning", "Only Dark Mode for you!","darkmode")   
-        let videoList = [...queue]; 
-        videoList.unshift({url:"https://www.youtube.com/watch?v=dQw4w9WgXcQ", "user": "Watch2Gether"})
-        updateQueue(videoList)
-    }
-
-
     return (
         <Modal
             title="Share Room"

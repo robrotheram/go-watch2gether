@@ -1,6 +1,6 @@
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Layout, Space } from 'antd';
 import {
   ArrowLeftOutlined,
@@ -17,7 +17,16 @@ import ShareModal from './ShareModal';
 const { Header} = Layout;
 
 function Navigation (props) {
-  const { name, isHost, controls} = props
+  const { isHost, controls, current_video} = props
+
+  useEffect(() => {
+    if (current_video.title === ""){
+      document.title = "Watch2gether"
+    }else {
+      document.title = "Watch2gether | Playing:"+current_video.title
+    }
+    
+  }, [current_video.title]);
 
   const [isSettingsModalVisible, setIsSettingModalVisible] = useState(false);
   const showSettingsModal = () => {setIsSettingModalVisible(true);};
@@ -31,9 +40,9 @@ function Navigation (props) {
 
     return (
         <Header style={{"display":"block ruby", "zIndex": "1000", "position":"fixed", "left":0, "right":0, "top":0}}>
-          <Button style={{"display": "inline-block"}} type="link" size="large" icon={<ArrowLeftOutlined />} style={{color: "white"}} onClick={() => { props.leave()}}/> 
+          <Button style={{"display": "inline-block", color: "white"}} type="link" size="large" icon={<ArrowLeftOutlined />} onClick={() => { props.leave()}}/> 
           <div className="logo" style={{"display": "inline-block"}}>
-            <h1 style={{"color":"white"}}>Watch2Gether</h1>
+            <h1 style={{"color":"white"}}>Watch2Gether { current_video.title !== "" ? `| Currently Playing: ${current_video.title}` : null} </h1>
           </div>
           <Space style={{"float":"right"}}>
          

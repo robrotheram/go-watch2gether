@@ -76,7 +76,7 @@ class VideoPlayer extends React.Component {
     ref = player => { this.player = player }
 
     render(){
-            const {queue, playing, current_video } = this.props
+            const {playing, current_video } = this.props
             return(
             <div style={{ "height":"600px", "width":"100%"}}>  
             {current_video.url !== "" ? 

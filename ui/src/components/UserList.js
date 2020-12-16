@@ -4,22 +4,18 @@ import { Row, Col } from 'antd';
 import {connect} from 'react-redux'
 import {updateHost} from '../store/room/room.actions'
 function UserList(props){
-    const {users, isHost, host, user } = props;
+    const {users, isHost, host } = props;
 
     const listActions = (item) => {
       let actions = [] 
       if(isHost){
         actions.push(<Button type="link" disabled={isHost  && host===item.name}  key="list-loadmore-edit" onClick={() => updateHost(item.name)}>Promote To Host</Button>)
       }
-      // if (isHost) {
-      //   actions.push( <a key="list-loadmore-more">Kick</a>);
-      // }
       return actions;
     }
     return (
       <Card type="inner" title="Users Progress" className="list">
         <div className="container .sc2 userlist">
-          {/* {JSON.stringify(user)} */}
           <List
             size="small"
             itemLayout="horizontal"

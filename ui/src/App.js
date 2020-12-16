@@ -2,7 +2,6 @@ import './App.less';
 import React from "react"
 import { Layout, Row, Col, Divider } from 'antd';
 import Navigation from './components/Nav'
-import Pageheader from './components/pageheader'
 import {PageFooter} from './components/PageFooter'
 
 import { VideoControls, VideoList } from './components/VideoQueue';
@@ -13,14 +12,8 @@ import {connect} from 'react-redux'
 import {join, leave, isAlive, reJoin} from './store/room/room.actions'
 import {history} from './store'
 import { withRouter } from "react-router";
-import { Typography } from 'antd';
-
-const { Title, Link } = Typography;
-
 
 const { Content } = Layout;
-
-
 
 class App extends React.Component {
   state = {
@@ -70,8 +63,6 @@ class App extends React.Component {
         <Navigation/>
         
       <Content style={{ padding: '78px 0px', "width":"1550px",  "margin": "0 auto"}}>
-      {/* <Pageheader/>
-      <Divider/> */}
         <Row gutter={[16, 16]}>
           <Col span={18} push={6}>
            

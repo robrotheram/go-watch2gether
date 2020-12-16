@@ -92,6 +92,11 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
               return {
                 ...state, seek: action.seek,
               };
+
+            case "LOCAL_QUEUE_UPDATE":
+              return {
+                ...state, queue: action.queue
+              }
             case PROGRESS_UPDATE: 
               let user = state.user
               user.seek = action.seek

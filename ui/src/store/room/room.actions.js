@@ -121,7 +121,6 @@ export async function isAlive() {
     let evnt = {
         action: "USER_UPADTE", user:user, 
     }
-    console.log("USER_UPADTE", evnt ); 
     return store.dispatch(send(evnt))   
 }
 
@@ -168,6 +167,14 @@ export const updateQueue = (queue) => {
     let evnt = {action: "UPDATE_QUEUE", queue: queue, user:store.getState().room.user}
     store.dispatch(send(evnt))
 }
+
+export const updateLocalQueue = (queue) => {
+    store.dispatch({
+        type: "LOCAL_QUEUE_UPDATE",
+        queue: queue
+    })
+}
+
 
 export const nextVideo = () => {
     let evnt = {action: "NEXT_VIDEO", user:store.getState().room.user}
