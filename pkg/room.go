@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/bwmarrin/discordgo"
 	"github.com/segmentio/ksuid"
 	log "github.com/sirupsen/logrus"
 )
@@ -41,31 +40,11 @@ type room struct {
 
 	//Channel to quit the room
 	quit   chan bool
-	Status string
+	status string
 	// clients holds all current clients in this room.
 	clients map[*client]bool
 	ID      string
 	Meta    roomMeta
-
-	Discord dscrd
-}
-
-type dscrd struct {
-	Session *discordgo.Session
-	Channel string
-}
-
-func (d *dscrd) SendMessage(msg string) {
-	log.Info("SEENF" + msg)
-	d.Session.ChannelMessageSend(d.Channel, msg)
-}
-
-func (r *room) IsDiscord() bool {
-	return r.Discord.Session != nil
-}
-
-func (r *room) AddDiscord(session *discordgo.Session, channel string) {
-	r.Discord = dscrd{session, channel}
 }
 
 type roomMeta struct {
@@ -81,16 +60,16 @@ type roomMeta struct {
 }
 
 func (r *room) run() {
-	r.Status = "Running"
+	r.status = "Running"
 	for {
 		select {
 		case <-r.quit:
 			// kill the goroutine
-			r.Status = "Stopping"
+			r.status = "Stopping"
 			for client := range r.clients {
 				delete(r.clients, client)
 			}
-			r.Status = "Stopped"
+			r.status = "Stopped"
 			return
 		case client := <-r.join:
 			// joining
@@ -219,7 +198,7 @@ func newRoom(name string) *room {
 		clients: make(map[*client]bool),
 		quit:    make(chan bool),
 		Meta:    roomMeta{Name: name, Users: []User{}, Queue: []Video{}, Controls: true},
-		Status:  "Initilised",
+		status:  "Initilised",
 		ID:      ksuid.New().String(),
 	}
 }
