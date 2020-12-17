@@ -7,7 +7,7 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
+	"github.com/prometheus/common/log"
 )
 
 type joinMessage struct {
@@ -16,22 +16,28 @@ type joinMessage struct {
 	Username string `json:"username"`
 }
 
-func GetRoomMeta(w http.ResponseWriter, r *http.Request) error {
+type BaseHandler struct {
+	Hub *Hub
+}
+
+func (h BaseHandler) GetRoomMeta(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	roomName := vars["roomName"]
-	if _, ok := Hub.rooms[roomName]; !ok {
+	room, ok := h.Hub.GetRoom(roomName)
+	if !ok {
 		return StatusError{http.StatusNotFound, fmt.Errorf("Room Does not exisit")}
 	}
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(Hub.rooms[roomName].Meta)
+	json.NewEncoder(w).Encode(room.Meta)
 	return nil
 }
 
-func UpdateRoomMeta(w http.ResponseWriter, r *http.Request) error {
+func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 	roomName := vars["roomName"]
-	if _, ok := Hub.rooms[roomName]; !ok {
+	room, ok := h.Hub.GetRoom(roomName)
+	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
 	}
 
@@ -40,97 +46,108 @@ func UpdateRoomMeta(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
-	Hub.rooms[roomName].Meta.Update(meta)
+	room.Meta.Update(meta)
 	return nil
 }
 
-func JoinRoom(w http.ResponseWriter, r *http.Request) error {
+func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	var roomMsg = joinMessage{}
 	err := json.NewDecoder(r.Body).Decode(&roomMsg)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
-
-	if _, ok := Hub.rooms[roomMsg.Name]; !ok {
-		log.Info("Creaeting New room:" + roomMsg.Name)
-		Hub.rooms[roomMsg.Name] = newRoom(roomMsg.Name)
-		go Hub.rooms[roomMsg.Name].run()
+	room, ok := h.Hub.GetRoom(roomMsg.Name)
+	if !ok {
+		h.Hub.NewRoom(roomMsg.Name)
 	}
-
-	if Hub.rooms[roomMsg.Name].ContainsUser(roomMsg.Username) {
+	if room.ContainsUser(roomMsg.Username) {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("User already exisits")}
 	}
-
-	if Hub.rooms[roomMsg.Name].status != "Running" {
-		log.Info("Room Starting Starting" + roomMsg.Name)
-		go Hub.rooms[roomMsg.Name].run()
+	if room.Status != "Running" {
+		h.Hub.StartRoom(room.ID)
 	}
-
-	Hub.rooms[roomMsg.Name].Join(NewUser(roomMsg.Username))
-
+	room.Join(NewUser(roomMsg.Username))
 	return nil
 }
 
-func LeaveRoom(w http.ResponseWriter, r *http.Request) error {
+func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 	var roomMsg = joinMessage{}
 	err := json.NewDecoder(r.Body).Decode(&roomMsg)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
 
-	if _, ok := Hub.rooms[roomMsg.Name]; !ok {
+	room, ok := h.Hub.GetRoom(roomMsg.Name)
+	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room does not exisit")}
 	}
 
-	if !Hub.rooms[roomMsg.Name].ContainsUser(roomMsg.Username) {
+	if !room.ContainsUser(roomMsg.Username) {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("User does not exisits")}
 	}
-	fmt.Print("USER LEFT")
-	Hub.rooms[roomMsg.Name].Leave(roomMsg.Username)
-
+	log.Info("USER LEFT")
+	room.Leave(roomMsg.Username)
 	return nil
 }
 
-func DeleteRoom(w http.ResponseWriter, r *http.Request) error {
+func (h BaseHandler) DeleteRoom(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	roomName := vars["roomName"]
 
-	if _, ok := Hub.rooms[roomName]; !ok {
+	_, ok := h.Hub.GetRoom(roomName)
+	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
 	}
-	Hub.DeleteRoom(roomName)
+	h.Hub.DeleteRoom(roomName)
 	return nil
 }
 
-func ConnectRoom() http.Handler {
+func (h BaseHandler) ConnectRoom() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		roomName := vars["roomName"]
-		if _, ok := Hub.rooms[roomName]; !ok {
+		room, ok := h.Hub.GetRoom(roomName)
+		if !ok {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Error Room Unknown"))
 			return
 		}
-		Hub.rooms[roomName].ServeHTTP(w, r)
+		room.ServeHTTP(w, r)
 	})
 }
 
-func StartServer(connection string) error {
+// HubStatus Return status of all rooms
+func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) {
+	resp := []map[string]interface{}{}
+	for _, v := range h.Hub.rooms {
+		resp = append(resp, map[string]interface{}{
+			"id":     v.ID,
+			"status": v.Status,
+			"meta":   v.Meta,
+		})
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(resp)
+}
+
+func StartServer(connection string, hub *Hub) error {
+	api := BaseHandler{Hub: hub}
+
 	r := mux.NewRouter()
 
-	r.Handle("/api/v1/room/{roomName}/ws", ConnectRoom())
+	r.Handle("/api/v1/room/{roomName}/ws", api.ConnectRoom())
 
-	r.Handle("/api/v1/room/{roomName}/join", Handler{JoinRoom}).Methods("POST")
-	r.Handle("/api/v1/room/{roomName}/leave", Handler{LeaveRoom}).Methods("POST")
+	r.Handle("/api/v1/room/{roomName}/join", Handler{api.JoinRoom}).Methods("POST")
+	r.Handle("/api/v1/room/{roomName}/leave", Handler{api.LeaveRoom}).Methods("POST")
 
-	r.Handle("/api/v1/room/{roomName}", Handler{GetRoomMeta}).Methods("GET")
-	r.Handle("/api/v1/room/{roomName}", Handler{UpdateRoomMeta}).Methods("POST")
-	r.Handle("/api/v1/room/{roomName}", Handler{DeleteRoom}).Methods("DELETE")
+	r.Handle("/api/v1/room/{roomName}", Handler{api.GetRoomMeta}).Methods("GET")
+	r.Handle("/api/v1/room/{roomName}", Handler{api.UpdateRoomMeta}).Methods("POST")
+	r.Handle("/api/v1/room/{roomName}", Handler{api.DeleteRoom}).Methods("DELETE")
 
 	r.Handle("/api/v1/scrape", Handler{getPageInfo}).Methods("GET")
 
-	r.Handle("/api/v1/status/{roomName}", Handler{GetRoomMeta})
-	r.HandleFunc("/api/v1/status", HubStatus)
+	r.Handle("/api/v1/status/{roomName}", Handler{api.GetRoomMeta})
+	r.HandleFunc("/api/v1/status", api.HubStatus)
 
 	spa := spaHandler{staticPath: "ui/build", indexPath: "index.html"}
 	r.PathPrefix("/").Handler(spa)
