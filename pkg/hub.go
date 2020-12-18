@@ -46,19 +46,29 @@ func (h *Hub) GetRoom(roomid string) (*room, bool) {
 	return room, found
 }
 
-func (h *Hub) NewRoom(room string) {
-	log.Info("Creaeting New room:" + room)
-	h.AddRoom(newRoom(room))
+func (h *Hub) FindRoom(roomName string) (*room, bool) {
+	for _, v := range h.rooms {
+		if v.Meta.Name == roomName {
+			return v, true
+		}
+	}
+	return nil, false
 }
 
-func (h *Hub) AddRoom(room *room) {
+func (h *Hub) NewRoom(room string) *room {
+	log.Info("Creaeting New room:" + room)
+	return h.AddRoom(newRoom(room))
+}
+
+func (h *Hub) AddRoom(room *room) *room {
 	log.Info("Adding New room:" + room.ID)
 	if _, ok := h.GetRoom(room.ID); ok {
-		return
+		return nil
 	}
 
 	h.rooms[room.ID] = room
 	h.StartRoom(room.ID)
+	return room
 }
 
 func (h *Hub) StartRoom(roomID string) {

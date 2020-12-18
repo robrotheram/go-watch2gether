@@ -97,6 +97,7 @@ func (r *room) run() {
 			r.clients[client] = true
 		case client := <-r.leave:
 			// leaving
+			r.Leave(client.user)
 			delete(r.clients, client)
 			close(client.send)
 		case msg := <-r.forward:
@@ -195,6 +196,11 @@ func enableCors(w *http.ResponseWriter) {
 
 func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) error {
 	enableCors(&w)
+	vars := req.URL.Query()
+	token := vars["token"][0]
+
+	log.Info("TOKEN: " + token)
+
 	socket, err := upgrader.Upgrade(w, req, nil)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Connection is not using the websocket protocol")}
@@ -203,6 +209,7 @@ func (r *room) ServeHTTP(w http.ResponseWriter, req *http.Request) error {
 		socket: socket,
 		send:   make(chan []byte, messageBufferSize),
 		room:   r,
+		user:   token,
 	}
 	r.join <- client
 	defer func() { r.leave <- client }()
@@ -275,7 +282,7 @@ func (room *room) Leave(username string) {
 		room.forward <- b
 
 	}
-
+	log.Infof("User: %s Has left the room: %s", username, room.Meta.Name)
 	evt := Event{
 		Action: "USER_UPDATED",
 		Users:  room.Meta.Users,

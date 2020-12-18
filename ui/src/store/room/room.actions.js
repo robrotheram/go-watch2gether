@@ -15,7 +15,7 @@ export const join = (room, user) => {
             })
             dispatch(getMeta())
             console.log("WS_URL",WS_URL+"room/"+room+"/ws")
-            store.dispatch(Connect(room))
+            store.dispatch(Connect(room, user))
             history.push('/room/'+room);
         }).catch(e => {
             console.log(e)
@@ -28,14 +28,14 @@ export const join = (room, user) => {
     }
 }
 
-export const Connect = (room) => {
-    return connect(WS_URL+"room/"+room+"/ws")
+export const Connect = (room, user) => {
+    return connect(WS_URL+"room/"+room+"/ws"+"?token="+user)
 }
 
 export const reJoin = (room) => {
     return dispatch => {
         axios.get(API_URL+`room/`+room).then(res => {
-            store.dispatch(Connect(room))
+            store.dispatch(Connect(room, store.getState().room.user.name))
             dispatch( {
                 type: REJOIN_SUCCESSFUL,
                 payload: res.data,

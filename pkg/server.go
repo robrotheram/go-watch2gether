@@ -23,7 +23,7 @@ type BaseHandler struct {
 func (h BaseHandler) GetRoomMeta(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	roomName := vars["roomName"]
-	room, ok := h.Hub.GetRoom(roomName)
+	room, ok := h.Hub.FindRoom(roomName)
 	if !ok {
 		return StatusError{http.StatusNotFound, fmt.Errorf("Room Does not exisit")}
 	}
@@ -36,7 +36,7 @@ func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, r *http.Request) erro
 	vars := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 	roomName := vars["roomName"]
-	room, ok := h.Hub.GetRoom(roomName)
+	room, ok := h.Hub.FindRoom(roomName)
 	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
 	}
@@ -56,9 +56,10 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
-	room, ok := h.Hub.GetRoom(roomMsg.Name)
+	room, ok := h.Hub.FindRoom(roomMsg.Name)
 	if !ok {
-		h.Hub.NewRoom(roomMsg.Name)
+		log.Info("Room Not found. Making")
+		room = h.Hub.NewRoom(roomMsg.Name)
 	}
 	if room.ContainsUser(roomMsg.Username) {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("User already exisits")}
@@ -77,7 +78,7 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
 
-	room, ok := h.Hub.GetRoom(roomMsg.Name)
+	room, ok := h.Hub.FindRoom(roomMsg.Name)
 	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room does not exisit")}
 	}
@@ -94,7 +95,7 @@ func (h BaseHandler) DeleteRoom(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	roomName := vars["roomName"]
 
-	_, ok := h.Hub.GetRoom(roomName)
+	_, ok := h.Hub.FindRoom(roomName)
 	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
 	}
@@ -106,7 +107,7 @@ func (h BaseHandler) ConnectRoom() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		roomName := vars["roomName"]
-		room, ok := h.Hub.GetRoom(roomName)
+		room, ok := h.Hub.FindRoom(roomName)
 		if !ok {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte("Error Room Unknown"))

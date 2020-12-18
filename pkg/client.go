@@ -14,6 +14,8 @@ type client struct {
 	send chan []byte
 	// room is the room this client is chatting in.
 	room *room
+
+	user string
 }
 
 const (

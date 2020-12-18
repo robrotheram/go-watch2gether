@@ -19,14 +19,14 @@ var (
 	Token string
 )
 
-func init() {
+// func init() {
 
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
-	if Token == "" {
-		panic("Token not supplied")
-	}
-}
+// 	flag.StringVar(&Token, "t", "", "Bot Token")
+// 	flag.Parse()
+// 	if Token == "" {
+// 		panic("Token not supplied")
+// 	}
+// }
 
 func discord(hub pkg.Hub) {
 
