@@ -1,11 +1,37 @@
 version: '3'
 services:
-  watch2gther:
-    image: robrotheram/watch2gether:v0.1.1
-    container_name: watch2gether
-    deploy:
-      replicas: 1
-      restart_policy:
-        condition: any
+  # watch2gther:
+  #   image: robrotheram/watch2gether:v0.1.1
+  #   container_name: watch2gether
+  #   deploy:
+  #     replicas: 1
+  #     restart_policy:
+  #       condition: any
+  #   ports:
+  #     - 3000:8080
+
+  rethinkdb:
+    image: rethinkdb
     ports:
-      - 3000:8080
+     - "28015:28015"
+     - "8082:8080"
+    volumes:
+     - /data:/data
+    command: rethinkdb --bind all
+    
+  redis:
+    container_name: redis
+    hostname: redis
+    image: redis
+    ports: 
+      - "6379:6379"
+
+  redis-commander:
+    container_name: redis-commander
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+    - REDIS_HOSTS=local:redis:6379
+    ports:
+    - "8081:8081"

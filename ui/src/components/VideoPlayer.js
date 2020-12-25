@@ -76,14 +76,14 @@ class VideoPlayer extends React.Component {
     ref = player => { this.player = player }
 
     render(){
-            const {playing, current_video } = this.props
+            const {playing, url } = this.props
             return(
             <div style={{ "height":"600px", "width":"100%"}}>  
-            {current_video.url !== "" ? 
+            {url !== "" ? 
                <ReactPlayer 
                 ref={this.ref}
                 width="100%" height="600px"  
-                url={current_video.url} 
+                url={url} 
                 controls={true}
                 playing={playing}
                 onPause={this.handlePause}
@@ -97,7 +97,7 @@ class VideoPlayer extends React.Component {
     }
 }
 const mapStateToProps  = (state) =>{
-    return state.room
+    return state.video
   } 
 export default connect(mapStateToProps, {updateQueue, handleFinish, updateSeek})(VideoPlayer)
   

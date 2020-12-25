@@ -1,16 +1,16 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"os"
-	"os/signal"
-	"syscall"
-
-	"github.com/bwmarrin/discordgo"
 
 	"watch2gether/pkg"
+	"watch2gether/pkg/room"
+	"watch2gether/pkg/user"
+	"watch2gether/pkg/utils"
 
+	"github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -19,45 +19,21 @@ var (
 	Token string
 )
 
-// func init() {
+func init() {
 
-// 	flag.StringVar(&Token, "t", "", "Bot Token")
-// 	flag.Parse()
-// 	if Token == "" {
-// 		panic("Token not supplied")
-// 	}
-// }
+	flag.StringVar(&Token, "t", "", "Bot Token")
+	flag.Parse()
+}
 
-func discord(hub pkg.Hub) {
-
-	// Create a new Discord session using the provided bot token.
-	dg, err := discordgo.New("Bot " + Token)
+func ping(client *redis.Client) error {
+	pong, err := client.Ping(context.Background()).Result()
 	if err != nil {
-		fmt.Println("error creating Discord session,", err)
-		return
+		return err
 	}
+	fmt.Println(pong, err)
+	// Output: PONG <nil>
 
-	// Register the messageCreate func as a callback for MessageCreate events.
-	dg.AddHandler(hub.MessageCreate)
-
-	// In this example, we only care about receiving message events.
-	dg.Identify.Intents = discordgo.MakeIntent(discordgo.IntentsGuildMessages)
-
-	// Open a websocket connection to Discord and begin listening.
-	err = dg.Open()
-	if err != nil {
-		fmt.Println("error opening connection,", err)
-		return
-	}
-
-	// Wait here until CTRL-C or other term signal is received.
-	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
-	<-sc
-
-	// Cleanly close down the Discord session.
-	dg.Close()
+	return nil
 }
 
 func main() {
@@ -66,24 +42,64 @@ func main() {
 		FullTimestamp: true,
 	})
 
+	config, err := utils.LoadConfig(".")
+
+	// //Setup HUB
+	// hub := pkg.NewHub()
+
+	// if Token != "" {
+	// 	bot, err := pkg.NewDiscordBot(&hub, Token)
+	// 	if err != nil {
+	// 		log.Error(err)
+	// 	} else {
+	// 		bot.Start()
+	// 	}
+	// } else {
+	// 	log.Info("No Discord Bot token")
+	// }
+
+	// var addr = flag.String("addr", ":8080", "The addr of the  application.")
+	// flag.Parse() // parse the flags
+	// log.Println("Starting web server on", *addr)
+
+	// //go hub.CleanUP()
+
+	// if err := pkg.StartServer(*addr, &hub, userStore); err != nil {
+	// 	log.Fatal("ListenAndServe:", err)
+	// }
+
+	_, err = utils.DBConnect(config)
+	rethink, err := utils.RethinkDBConnect(config)
+
+	if err != nil {
+		log.Fatalf("DB Error: %v", err)
+	}
+
+	userStore := user.NewUserStore(rethink)
+	roomStore := room.NewRoomStore(rethink)
+
 	//Setup HUB
 	hub := pkg.NewHub()
+
+	if Token != "" {
+		bot, err := pkg.NewDiscordBot(&hub, roomStore, Token)
+		if err != nil {
+			log.Error(err)
+		} else {
+			bot.Start()
+		}
+	} else {
+		log.Info("No Discord Bot token")
+	}
 
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")
 	flag.Parse() // parse the flags
 	log.Println("Starting web server on", *addr)
 
 	go hub.CleanUP()
-	// go func() {
-	if err := pkg.StartServer(*addr, &hub); err != nil {
+
+	if err := pkg.StartServer(*addr, &hub, userStore, roomStore); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
-	// }()
-	//discord(hub)
-}
 
-// !w2g play
-// !w2g pause
-// !w2g / !w2g status
-// !w2g random
-// !w2g add url
+}

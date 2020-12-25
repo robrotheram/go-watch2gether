@@ -13,7 +13,8 @@ import {API_URL} from '../../store'
 export function VideoControlComponent (props) {
     const [url, setURL] = useState("");
     const [loading, setLoading] = useState(false);
-    const { queue, user } = props
+    const { queue } = props.room
+    const user = props.user
 
     const validURL = (str) => {
         var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
@@ -103,6 +104,6 @@ export function VideoControlComponent (props) {
 }
 
 const mapStateToProps  = (state) =>{
-    return state.room
+    return state
   } 
 export const VideoControls = connect(mapStateToProps, {updateQueue})(VideoControlComponent)

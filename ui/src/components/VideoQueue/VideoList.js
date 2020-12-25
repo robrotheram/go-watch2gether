@@ -10,7 +10,8 @@ const { Paragraph, Text } = Typography;
 
 export function VideoListComponent (props) {
 
-  const { queue, current_video } = props
+  const { queue } = props.room
+  const current_video = props.video
 
   const skipTo = (item) => {
     let videoList = [...queue];
@@ -100,7 +101,7 @@ export function VideoListComponent (props) {
 }
 const mapStateToProps  = (state) =>{
     
-    return state.room
+    return state
   } 
 export const VideoList = connect(mapStateToProps, {updateQueue})(VideoListComponent)
   

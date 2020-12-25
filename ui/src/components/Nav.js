@@ -17,16 +17,17 @@ import ShareModal from './ShareModal';
 const { Header} = Layout;
 
 function Navigation (props) {
-  const { isHost, controls, current_video} = props
+  const { isHost, controls, name } = props.room
+  const {title} = props.video
 
   useEffect(() => {
-    if (current_video.title === ""){
+    if (title === ""){
       document.title = "Watch2gether"
     }else {
-      document.title = "Watch2gether | Playing:"+current_video.title
+      document.title = "Watch2gether | Playing:"+title
     }
     
-  }, [current_video.title]);
+  }, [title]);
 
   const [isSettingsModalVisible, setIsSettingModalVisible] = useState(false);
   const showSettingsModal = () => {setIsSettingModalVisible(true);};
@@ -42,7 +43,8 @@ function Navigation (props) {
         <Header style={{"display":"block ruby", "zIndex": "1000", "position":"fixed", "left":0, "right":0, "top":0}}>
           <Button style={{"display": "inline-block", color: "white"}} type="link" size="large" icon={<ArrowLeftOutlined />} onClick={() => { props.leave()}}/> 
           <div className="logo" style={{"display": "inline-block"}}>
-            <h1 style={{"color":"white"}}>Watch2Gether { current_video.title !== "" ? `| Currently Playing: ${current_video.title}` : null} </h1>
+            {/* <h1 style={{"color":"white"}}>Watch2Gether { title !== "" ? `| Currently Playing: ${title}` : null} </h1> */}
+            <h1 style={{"color":"white"}}>Watch2Gether | {name} </h1>
           </div>
           <Space style={{"float":"right"}}>
          
@@ -61,6 +63,6 @@ function Navigation (props) {
 }
 const mapStateToProps  = (state) =>{
     
-  return state.room
+  return state
 } 
 export default connect(mapStateToProps, {leave, sinkToHost, sinkToME })(Navigation)

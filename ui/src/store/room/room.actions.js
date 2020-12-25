@@ -10,12 +10,12 @@ export const join = (room, user) => {
             console.log("Action", res)
             dispatch( {
                 type: JOIN_SUCCESSFUL,
-                room: room,
-                user: user
+                room: res.data.room_id,
+                user: res.data.user
             })
             dispatch(getMeta())
             console.log("WS_URL",WS_URL+"room/"+room+"/ws")
-            store.dispatch(Connect(room, user))
+            store.dispatch(Connect(res.data.room_id, res.data.user.id))
             history.push('/room/'+room);
         }).catch(e => {
             console.log(e)
@@ -78,8 +78,9 @@ export const leave = (room, user) => {
 
 
 export const getMeta = () => {
+    console.log("GETTING META", store.getState().room.id)
     return dispatch => {
-        axios.get(API_URL+`room/`+store.getState().room.name).then(res => {
+        axios.get(API_URL+`room/`+store.getState().room.id).then(res => {
             console.log("Action", res)
             dispatch( {
                 type: GET_META_SUCCESSFUL,
@@ -116,10 +117,17 @@ export const updateHost = (host) => {
 }
 
 export async function isAlive() {
-    let user= store.getState().room.user;
-    user.current_video = store.getState().room.current_video;
+    let user = store.getState().user;
+    let video = store.getState().video
+
     let evnt = {
-        action: "USER_UPADTE", user:user, 
+        action: "USER_UPDATE",
+        watcher: {
+            id: user.id,
+            seek: user.seek,
+            video_id: video.id
+
+        } 
     }
     return store.dispatch(send(evnt))   
 }
