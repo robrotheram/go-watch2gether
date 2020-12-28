@@ -98,6 +98,8 @@ func main() {
 
 	go hub.CleanUP()
 
+	pkg.SetupServer()
+
 	if err := pkg.StartServer(*addr, &hub, userStore, roomStore); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}

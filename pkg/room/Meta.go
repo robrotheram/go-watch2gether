@@ -18,6 +18,19 @@ type RoomWatcher struct {
 	LastSeen time.Time `json:"seen"`
 }
 
+type RoomSettings struct {
+	Controls bool `json:"controls"`
+	AutoSkip bool `json:"auto_skip"`
+}
+
+func NewRoomSettings() RoomSettings {
+	return RoomSettings{
+		Controls: true,
+		AutoSkip: true,
+	}
+
+}
+
 type Meta struct {
 	ID           string        `rethinkdb:"id,omitempty" json:"id"`
 	Name         string        `json:"name"`
@@ -26,11 +39,11 @@ type Meta struct {
 	History      []Video       `json:"history"`
 	CurrentVideo Video         `json:"current_video"`
 	Seek         float32       `json:"seek"`
-	Controls     bool          `json:"controls"`
 	Playing      bool          `json:"playing"`
 	Queue        []Video       `json:"queue"`
 	Watchers     []RoomWatcher `json:"watchers"`
 	Type         string        `json:"type"`
+	Settings     RoomSettings  `json:"settings"`
 }
 
 func (t *Meta) MarshalBinary() ([]byte, error) {
@@ -50,11 +63,11 @@ func NewMeta(name string, owner string) *Meta {
 		Watchers: []RoomWatcher{},
 		Queue:    []Video{},
 		History:  []Video{},
-		Controls: true,
 		ID:       ksuid.New().String(),
 		Owner:    owner,
 		Host:     owner,
 		Type:     "Basic",
+		Settings: NewRoomSettings(),
 	}
 
 }
@@ -86,6 +99,13 @@ func (meta *Meta) RemoveWatcher(watcherid string) {
 	}
 }
 
+func (meta *Meta) AddWatcher(rw RoomWatcher) {
+	if _, err := meta.FindWatcher(rw.ID); err == nil {
+		return
+	}
+	meta.Watchers = append(meta.Watchers, rw)
+}
+
 func (meta *Meta) UpdateWatcher(rw RoomWatcher) error {
 	for i := range meta.Watchers {
 		watcher := &meta.Watchers[i]
@@ -107,27 +127,27 @@ func NewWatcher(usr user.User) RoomWatcher {
 	return RoomWatcher{ID: usr.ID, Name: usr.Name}
 }
 
-func (m *Meta) Update(meta Meta) {
+// func (m *Meta) Update(meta Meta) {
 
-	if m.Name != meta.Name && meta.Name != "" {
-		m.Name = meta.Name
-	}
-	if m.Host != meta.Host && meta.Host != "" {
-		m.Host = meta.Host
-	}
-	if m.CurrentVideo != meta.CurrentVideo && meta.CurrentVideo.Url != "" {
-		m.CurrentVideo = meta.CurrentVideo
-	}
-	if m.Seek != meta.Seek {
-		m.Seek = meta.Seek
-	}
-	if m.Controls != meta.Controls {
-		m.Controls = meta.Controls
-	}
-	if m.Playing != meta.Playing {
-		m.Playing = meta.Playing
-	}
-	if meta.Queue != nil {
-		m.Queue = meta.Queue
-	}
-}
+// 	if m.Name != meta.Name && meta.Name != "" {
+// 		m.Name = meta.Name
+// 	}
+// 	if m.Host != meta.Host && meta.Host != "" {
+// 		m.Host = meta.Host
+// 	}
+// 	if m.CurrentVideo != meta.CurrentVideo && meta.CurrentVideo.Url != "" {
+// 		m.CurrentVideo = meta.CurrentVideo
+// 	}
+// 	if m.Seek != meta.Seek {
+// 		m.Seek = meta.Seek
+// 	}
+// 	if m.Settings != meta.Settings {
+// 		m.Settings = meta.Settings
+// 	}
+// 	if m.Playing != meta.Playing {
+// 		m.Playing = meta.Playing
+// 	}
+// 	if meta.Queue != nil {
+// 		m.Queue = meta.Queue
+// 	}
+// }

@@ -64,7 +64,7 @@ func (r *Room) Join(usr user.User) {
 		watcher.IsHost = true
 	}
 
-	meta.Watchers = append(meta.Watchers, watcher)
+	meta.AddWatcher(watcher)
 	r.Store.Update(meta)
 
 	r.SendClientEvent(
@@ -75,6 +75,9 @@ func (r *Room) Join(usr user.User) {
 }
 
 func (r *Room) SendClientEvent(evt Event) {
+	if evt.Watcher.ID == "" {
+		evt.Watcher = SERVER_USER
+	}
 	log.Infof("Sending event %s to all clients", evt.Action)
 	for client := range r.clients {
 		client.send <- evt.ToBytes()
@@ -131,9 +134,9 @@ func (r *Room) Run() {
 	}
 }
 
-func (r *Room) SetControls(controls bool) {
+func (r *Room) SetSettings(settings RoomSettings) {
 	meta, _ := r.Store.Find(r.ID)
-	meta.Controls = controls
+	meta.Settings = settings
 	r.Store.Update(meta)
 }
 
@@ -161,9 +164,9 @@ func (r *Room) SetQueue(queue []Video) bool {
 			v.ID = ksuid.New().String()
 		}
 	}
-
 	meta.Queue = queue
 	r.Store.Update(meta)
+
 	r.SendClientEvent(Event{
 		Action: EVNT_UPDATE_QUEUE,
 		Queue:  meta.Queue,
@@ -236,7 +239,14 @@ func (r *Room) SetSeek(seek float32) {
 }
 
 func (r *Room) HandleFinish(user RoomWatcher) {
+	user.Seek = float32(1)
 	meta, _ := r.Store.Find(r.ID)
+	meta.UpdateWatcher(user)
+
+	if !meta.Settings.AutoSkip {
+		return
+	}
+
 	if meta.GetLastVideo().ID == user.VideoID {
 		return
 	}
@@ -244,8 +254,6 @@ func (r *Room) HandleFinish(user RoomWatcher) {
 		u := &meta.Watchers[i]
 		if u.Seek < float32(1) && u.ID != user.ID {
 			return
-		} else if u.ID == user.ID {
-			u.Seek = float32(1)
 		}
 	}
 	r.Store.Update(meta)
@@ -278,7 +286,10 @@ func (r *Room) ChangeVideo() {
 
 func (r *Room) SeenUser(rw RoomWatcher) {
 	meta, _ := r.Store.Find(r.ID)
-	meta.UpdateWatcher(rw)
+	err := meta.UpdateWatcher(rw)
+	if err != nil {
+		meta.AddWatcher(rw)
+	}
 
 	if meta.Host == rw.ID {
 		meta.Seek = rw.Seek

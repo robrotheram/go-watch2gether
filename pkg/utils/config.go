@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/spf13/viper"
 )
 
@@ -9,17 +12,21 @@ import (
 type Config struct {
 	BaseURL         string `mapstructure:"BASE_URL"`
 	REDISURL        string `mapstructure:"REDIS_URL"`
-	RethinkDB       string `mapstructure:"RETHINKDB_URL"`
-	RethinkDatabase string `mapstructure:"RETHINKDB_DATABASE"`
+	RethinkDB       string `mapstructure:"RETHINKDB"`
+	RethinkDatabase string `mapstructure:"RETHINKDATABASE"`
 	ServerAddress   string `mapstructure:"SERVER_ADDRESS"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
 func LoadConfig(path string) (config Config, err error) {
+
+	for _, pair := range os.Environ() {
+		fmt.Println(pair)
+	}
+
 	viper.AddConfigPath(path)
 	viper.SetConfigName("app")
 	viper.SetConfigType("env")
-
 	viper.AutomaticEnv()
 
 	err = viper.ReadInConfig()

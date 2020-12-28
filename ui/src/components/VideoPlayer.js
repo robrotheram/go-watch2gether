@@ -20,7 +20,8 @@ class VideoPlayer extends React.Component {
     }
 
 
-    componentWillReceiveProps(nextProps) {
+    componentWillReceiveProps(props) {
+        let nextProps = props.video
         // You don't have to do this check first, but it can help prevent an unneeded render
         if (nextProps.seek !== this.state.played) {
             console.log("STATE_CHANGE",nextProps )
@@ -76,7 +77,8 @@ class VideoPlayer extends React.Component {
     ref = player => { this.player = player }
 
     render(){
-            const {playing, url } = this.props
+            const {url } = this.props.video
+            const {playing} = this.props.user
             return(
             <div style={{ "height":"600px", "width":"100%"}}>  
             {url !== "" ? 
@@ -97,7 +99,7 @@ class VideoPlayer extends React.Component {
     }
 }
 const mapStateToProps  = (state) =>{
-    return state.video
+    return state
   } 
 export default connect(mapStateToProps, {updateQueue, handleFinish, updateSeek})(VideoPlayer)
   

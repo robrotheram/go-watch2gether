@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/json"
 
+	"github.com/segmentio/ksuid"
 	log "github.com/sirupsen/logrus"
 )
 
-var SERVER_USER = ("W2G_SERVER")
+var SERVER_USER = RoomWatcher{ID: ksuid.New().String(), Name: "Server"}
 
 type Event struct {
 	Action       string        `json:"action"`
@@ -17,7 +18,7 @@ type Event struct {
 	CurrentVideo Video         `json:"current_video"`
 	Seek         float32       `json:"seek"`
 	Watchers     []RoomWatcher `json:"watchers"`
-	Controls     bool          `json:"controls"`
+	Settings     RoomSettings  `json:"settings"`
 }
 
 func (evt Event) ToBytes() []byte {
@@ -37,7 +38,7 @@ func processEvent(data []byte) (Event, error) {
 }
 
 func (r *Room) HandleEvent(evt Event) {
-	if evt.Watcher.ID == SERVER_USER {
+	if evt.Watcher.ID == SERVER_USER.ID {
 		return
 	}
 	switch evt.Action {
@@ -51,8 +52,8 @@ func (r *Room) HandleEvent(evt Event) {
 		r.ChangeVideo()
 	case EVNT_SEEK:
 		r.SetSeek(evt.Seek)
-	case EVNT_UPDATE_CONTROLS:
-		r.SetControls(evt.Controls)
+	case EVNT_UPDATE_SETTINGS:
+		r.SetSettings(evt.Settings)
 	case EVNT_SEEK_TO_ME:
 		r.SetSeek(evt.Watcher.Seek)
 	case EVNT_UPDATE_QUEUE:

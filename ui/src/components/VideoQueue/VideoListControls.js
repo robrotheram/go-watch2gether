@@ -11,9 +11,11 @@ import axios from 'axios';
 import {API_URL} from '../../store'
 
 export function VideoControlComponent (props) {
-    const [url, setURL] = useState("");
+    const [newurl, setURL] = useState("");
     const [loading, setLoading] = useState(false);
     const { queue } = props.room
+    const { url } = props.video
+
     const user = props.user
 
     const validURL = (str) => {
@@ -28,7 +30,6 @@ export function VideoControlComponent (props) {
 
     const getTitle = async (url) => {
         const result = await axios(API_URL+"scrape?url="+encodeURI(url),);
-        
         return (result.data.Title);
     };
 
@@ -46,14 +47,14 @@ export function VideoControlComponent (props) {
 
     
     const addToQueue = async () => {
-        if (validURL(url)){
+        if (validURL(newurl)){
             let videoList = [...queue]; 
 
             videoList.push({url:"", title:"", loading:true})
             updateLocalQueue(videoList)
             videoList = [...queue].filter(i => !i.loading); 
             
-            videoList.push(await createVideoItem(url));
+            videoList.push(await createVideoItem(newurl));
             updateQueue(videoList)            
             setURL("")
         } else {
@@ -81,7 +82,7 @@ export function VideoControlComponent (props) {
 
         for (var i=1; i < 100; i += 2){
             let randomElement = VideoList[Math.floor(Math.random() * VideoList.length)];
-            if (videoList.filter(e => e.url === randomElement).length === 0) {
+            if (videoList.filter(e => e.url === randomElement || url === randomElement).length === 0) {
                 videoList.push(await createVideoItem(randomElement));
                 break;
             }
@@ -92,7 +93,7 @@ export function VideoControlComponent (props) {
       
     return (
         <div>
-            <Input className="videoInput" defaultValue="mysite" value={url} onChange={e => setURL(e.target.value)} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>   
+            <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>   
             <Space size="small" style={{width:"100%", marginTop: "10px", marginBottom: "10px"}}>
                 <Button onClick={skipQueue} style={{width:"100%"}}> Skip To Next</Button>
                 <Button onClick={clearQueue} style={{width:"100%"}}>Clear Queue</Button>

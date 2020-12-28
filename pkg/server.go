@@ -10,6 +10,10 @@ import (
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
+
+	"github.com/gorilla/sessions"
+
+	"github.com/markbates/goth/gothic"
 	"github.com/prometheus/common/log"
 )
 
@@ -51,7 +55,7 @@ func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, req *http.Request) er
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
-	r.Update(meta)
+	//r.Update(meta)
 	h.Rooms.Update(r)
 	return nil
 }
@@ -74,11 +78,10 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 
 	}
 
-	// Check if the room existis in REDIS. Create if not
-	roomStr, err := h.Rooms.Find(roomMsg.Name)
+	roomStr, err := h.Rooms.Find(roomMsg.ID)
 	if err != nil {
-		roomStr, err := h.Rooms.FindByField("Name", roomMsg.Name)
-		if err != nil {
+		roomStr, err = h.Rooms.FindByField("Name", roomMsg.Name)
+		if err != nil || roomStr == nil {
 			log.Info("Room Not found. Making...")
 			roomStr = room.NewMeta(roomMsg.Name, usr.ID)
 			err := h.Rooms.Create(roomStr)
@@ -118,16 +121,28 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
 
-	room, ok := h.Hub.FindRoom(roomMsg.Name)
+	//Check user exists
+	usr, err := h.Users.FindByField("Name", roomMsg.Username)
+	if err != nil {
+		usr = user.NewUser(roomMsg.Username)
+		err := h.Users.Create(usr)
+		if err != nil {
+			log.Error(err)
+		}
+
+	}
+
+	room, ok := h.Hub.FindRoom(roomMsg.ID)
 	if !ok {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room does not exisit")}
 	}
 
-	if !room.ContainsUserID(roomMsg.ID) {
+	if !room.ContainsUserID(usr.ID) {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("User does not exisits")}
 	}
+
 	log.Info("USER LEFT")
-	room.Leave(roomMsg.Username)
+	room.Leave(usr.ID)
 	return nil
 }
 
@@ -191,18 +206,32 @@ func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(resp)
 }
 
+func SetupServer() {
+	key := ""            // Replace with your SESSION_SECRET or similar
+	maxAge := 86400 * 30 // 30 days
+	isProd := false      // Set to true when serving over https
+
+	store := sessions.NewCookieStore([]byte(key))
+	store.MaxAge(maxAge)
+	store.Options.Path = "/"
+	store.Options.HttpOnly = true // HttpOnly should always be enabled
+	store.Options.Secure = isProd
+
+	gothic.Store = store
+}
+
 func StartServer(connection string, hub *Hub, userDB *user.UserStore, rooms *room.RoomStore) error {
 	api := BaseHandler{Hub: hub, Users: userDB, Rooms: rooms}
 
 	r := mux.NewRouter()
 
+	r.Handle("/api/v1/room/join", Handler{api.JoinRoom}).Methods("POST")
+	r.Handle("/api/v1/room/leave", Handler{api.LeaveRoom}).Methods("POST")
+
 	r.Handle("/api/v1/room/{id}/ws", api.ConnectRoom())
 	r.Handle("/api/v1/room/{id}", Handler{api.GetRoomMeta}).Methods("GET")
 	r.Handle("/api/v1/room/{id}", Handler{api.UpdateRoomMeta}).Methods("POST")
 	r.Handle("/api/v1/room/{id}", Handler{api.DeleteRoom}).Methods("DELETE")
-
-	r.Handle("/api/v1/room/{roomName}/join", Handler{api.JoinRoom}).Methods("POST")
-	r.Handle("/api/v1/room/{roomName}/leave", Handler{api.LeaveRoom}).Methods("POST")
 
 	r.Handle("/api/v1/scrape", Handler{getPageInfo}).Methods("GET")
 

@@ -5,7 +5,6 @@ const INITIAL_STATE = {
   url: "",
   title: "",
   seek: "",
-  playing: false
 }
 export const videoReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
@@ -18,7 +17,6 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
         url: video.url,
         title: video.title,
         seek: action.payload.seek,
-        playing: action.payload.playing,
       };
 
     case "REDUX_WEBSOCKET::MESSAGE":
@@ -41,24 +39,6 @@ const process_websocket_event = (state, data) => {
     case "CHANGE_VIDEO":
       return {
         ...state, id: data.current_video.id, title: data.current_video.title, url: data.current_video.url
-      };
-    case "PLAYING":
-      if (state.playing !== data.playing) {
-        if (state.seek < 1) {
-          //openNotificationWithIcon("success", "User: " + data.user.name + " started video")
-        }
-      }
-      return {
-        ...state, playing: true,
-      };
-    case "PAUSING":
-      if (state.playing !== data.playing) {
-        if (state.seek < 1) {
-          //openNotificationWithIcon("success", "User: " + data.user.name + " has paused video")
-        }
-      }
-      return {
-        ...state, playing: false,
       };
     case "SEEK_TO_USER":
       return {

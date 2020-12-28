@@ -17,7 +17,8 @@ import ShareModal from './ShareModal';
 const { Header} = Layout;
 
 function Navigation (props) {
-  const { isHost, controls, name } = props.room
+  const { host, controls, name } = props.room
+  const {isHost} = props.user
   const {title} = props.video
 
   useEffect(() => {

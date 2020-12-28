@@ -10,7 +10,15 @@ function UserList(props){
     const listActions = (item) => {
       let actions = [] 
       if(isHost){
-        actions.push(<Button type="link" disabled={isHost  && host===item.name}  key="list-loadmore-edit" onClick={() => updateHost(item.name)}>Promote To Host</Button>)
+        actions.push(
+          <Button 
+            type="link" 
+            disabled={isHost  && host===item.id}  
+            key="list-loadmore-edit" 
+            onClick={() => updateHost(item.name)}>
+              {isHost  && host===item.id ?"You are the host": "Promote To Host"}
+          </Button>
+        )
       }
       return actions;
     }

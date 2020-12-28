@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { Modal } from 'antd';
 import { Form, Button } from 'antd';
 import { Switch } from 'antd';
 import {connect} from 'react-redux'
-import {updateControls, updateQueue} from '../store/room/room.actions'
+import {updateSettings, updateQueue} from '../store/room/room.actions'
 import {openNotificationWithIconKey} from "./notification"
 
 const layout = {
@@ -13,10 +13,18 @@ const layout = {
 
 function SettingsModal (props) {
     const {isModalVisible, handleOk, handleCancel, queue } = props
+
     const [controls, setControls] = useState(props.controls);
+    const [auto_skip, setAutoSkip] = useState(props.auto_skip);
+
+    useEffect(() => {
+        setControls(props.controls);
+        setAutoSkip(props.auto_skip)
+    }, [props.controls,props.auto_skip ])
+  
 
     const submitForm = () =>{
-        updateControls(controls)
+        updateSettings(controls, auto_skip)
         handleOk();
 
     }
@@ -54,6 +62,12 @@ function SettingsModal (props) {
                 <Switch checked={controls} onChange={()=>(setControls(!controls))} />
             </Form.Item>
             <Form.Item
+                label="Auto skip when everyone finishes"
+                name="auto skip"
+            >
+                <Switch checked={auto_skip} onChange={()=>(setAutoSkip(!auto_skip))} />
+            </Form.Item>
+            <Form.Item
                 label="Dark Mode"
                 name="controls"
             >
@@ -66,5 +80,5 @@ function SettingsModal (props) {
 const mapStateToProps  = (state) =>{
     return state.room
   } 
-export default connect(mapStateToProps, {updateControls})(SettingsModal)
+export default connect(mapStateToProps, {updateSettings})(SettingsModal)
   

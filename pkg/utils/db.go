@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/go-redis/redis/v8"
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -28,6 +29,8 @@ func DBConnect(config Config) (*redis.Client, error) {
 func RedisConnect() {}
 
 func RethinkDBConnect(config Config) (*rethinkdb.Session, error) {
+
+	log.Infof("DB connection: %s Database: %s", config.RethinkDB, config.RethinkDatabase)
 
 	session, err := rethinkdb.Connect(rethinkdb.ConnectOpts{
 		Address:  config.RethinkDB, // endpoint without http

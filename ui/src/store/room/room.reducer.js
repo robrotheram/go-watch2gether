@@ -7,6 +7,7 @@ import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, UPDATE_S
       "owner": "",
       "host":"",
       "controls":false,
+      "auto_skip":false,
       "queue":[],
       "watchers":[],
       "error": "",
@@ -23,14 +24,15 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
                 ...state, name: "", error: "", active: false,
               };
             case GET_META_SUCCESSFUL:
-
               return {
                 ...state, 
                 error: "", 
+                id: action.payload.id, 
                 name: action.payload.name, 
                 owner: action.payload.owner, 
                 host: action.payload.host, 
-                controls: action.payload.controls,
+                controls: action.payload.settings.controls,
+                auto_skip: action.payload.settings.auto_skip,
                 queue: action.payload.queue,
                 watchers: action.payload.watchers,
               };
@@ -53,9 +55,11 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
               }
               return state;
             case "REDUX_WEBSOCKET::CLOSED" :
+              window.location.href = '/?error=Server Disconnected';
               return {
                 ...state, active: false,
               };
+
             
             case "LOCAL_QUEUE_UPDATE":
               return {
@@ -76,8 +80,7 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
 
 
 const process_websocket_event = (state, data) => {
-  // console.log("Procees_Event", data)
-  console.log("room_reducer action", data.action, data)
+  //console.log("room_reducer action", data.action, data)
   switch(data.action){
     case "ROOM_EXIT":
       openNotificationWithIcon("success", "Room has closed")   
@@ -85,7 +88,7 @@ const process_websocket_event = (state, data) => {
         ...state, active:false, room:""
       };
     case "UPDATE_QUEUE":             
-      //openNotificationWithIcon("success", "Queue Updated by "+data.user.name)   
+      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.name)   
       return {
         ...state, queue: data.queue
       };
@@ -100,8 +103,15 @@ const process_websocket_event = (state, data) => {
       // };
     case "UPDATE_CONTROLS":
       return {
-        ...state, controls: data.controls,
+        ...state, controls: data.settings.controls,
       };
+
+      case "UPDATE_SKIP":
+        return {
+          ...state, auto_skip: data.settings.auto_skip,
+        };
+
+
     case "ON_PROGRESS_UPDATE":
       // let userList = [...state.watchers];
       // userList = userList.map(user => {

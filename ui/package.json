@@ -43,7 +43,7 @@
     "yarn": "^1.22.10"
   },
   "scripts": {
-    "start": "craco start",
+    "start": "craco start --hostname 0.0.0.0",
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject"
