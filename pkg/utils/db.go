@@ -36,6 +36,9 @@ func RethinkDBConnect(config Config) (*rethinkdb.Session, error) {
 		Address:  config.RethinkDB, // endpoint without http
 		Database: config.RethinkDatabase,
 	})
+
+	rethinkdb.DBCreate(config.RethinkDatabase).Exec(session)
+
 	rethinkdb.DB(config.RethinkDatabase).TableCreate("user").Exec(session)
 	rethinkdb.DB(config.RethinkDatabase).TableCreate("room").Exec(session)
 	rethinkdb.DB(config.RethinkDatabase).TableCreate("hub").Exec(session)
