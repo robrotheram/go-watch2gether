@@ -3,7 +3,7 @@ import './home.less';
 import logo from './logo.jpg'
 
 import { useEffect } from "react"
-import { Layout, Button, Divider, Image, Typography } from 'antd';
+import { Layout, Button, Divider, Image, Typography, Checkbox } from 'antd';
 import { Form, Input } from 'antd';
 import { Alert } from 'antd';
 import { connect } from 'react-redux'
@@ -35,9 +35,9 @@ function Home(props) {
   const onFinish = values => {
     console.log("Valuse", values, id)
     if (values.roomname === name){
-      props.join(id, values.roomname, values.username)
+      props.join(id, values.roomname, values.username, values.anonymous)
     } else {
-      props.join("", values.roomname, values.username)
+      props.join("", values.roomname, values.username, values.anonymous)
     }
 
     
@@ -96,6 +96,7 @@ function Home(props) {
               {...layout}
               name="basic"
               form={form}
+              initialValues={{ anonymous: true }}
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
             >
@@ -121,6 +122,10 @@ function Home(props) {
                 style={{ "marginTop": "20px" }}
               >
                 <Input size="large" />
+              </Form.Item>
+
+              <Form.Item {...tailLayout} name="anonymous" valuePropName="checked">
+                <Checkbox>be anonymous </Checkbox>
               </Form.Item>
 
               <Form.Item {...tailLayout}>

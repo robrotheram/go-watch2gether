@@ -4,9 +4,9 @@ import store, {API_URL, WS_URL, history} from '../index'
 import { connect } from '@giantmachines/redux-websocket';
 import { send } from '@giantmachines/redux-websocket';
 
-export const join = (roomid, room, user) => {
+export const join = (roomid, room, user, anonymous) => {
     return dispatch => {
-        axios.post(API_URL+`room/join`, {"id": roomid, "name":room, "username":user}).then(res => {
+        axios.post(API_URL+`room/join`, {"id": roomid, "name":room, "username":user, "anonymous": anonymous}).then(res => {
             console.log("Action", res)
             dispatch( {
                 type: JOIN_SUCCESSFUL,
@@ -58,6 +58,18 @@ export const reJoin = (room) => {
     }
 }
 
+export const sinkToHost = () => {
+    return dispatch => {
+        axios.get(API_URL+`room/`+store.getState().room.id).then(res => {
+            console.log("SEEK_TO_HOST", res.data.seek)
+            store.dispatch({
+                type: "SEEK_TO_HOST",
+                seek: res.data.seek,
+            })
+        });
+    }
+}
+
 export const leave = (room, user) => {
     return dispatch => {
         axios.post(API_URL+`room/leave`, {
@@ -88,7 +100,7 @@ export const getMeta = (id) => {
     return dispatch => {
         axios.get(API_URL+`room/`+id).then(res => {
             console.log("Action", res)
-            dispatch( {
+            store.dispatch( {
                 type: GET_META_SUCCESSFUL,
                 payload: res.data,
             })
@@ -150,16 +162,6 @@ export const sinkToME = (seek) => {
     store.dispatch(send(evnt))   
 }
 
-export const sinkToHost = () => {
-    //console.log("SINGK")
-    axios.get(API_URL+`room/`+store.getState().room.name).then(res => {
-        console.log("SINasdasdasdsadasdGK")
-        store.dispatch( {
-            type: SEEK_TO_HOST,
-            seek: res.data.seek,
-        })
-    });
-}
 
 export const clearError = () => {
     console.log("Action", CLEAR_ERROR)
@@ -174,6 +176,7 @@ export const play = () => {
 }
 
 export const pause = () => {
+    console.log("sending PAUSE")
     let evnt = {action: "PAUSING", watcher:store.getState().user}
     store.dispatch(send(evnt))
 }

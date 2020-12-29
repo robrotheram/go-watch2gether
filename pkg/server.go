@@ -18,9 +18,10 @@ import (
 )
 
 type joinMessage struct {
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Username string `json:"username"`
+	ID        string `json:"id"`
+	Name      string `json:"name"`
+	Username  string `json:"username"`
+	Anonymous bool   `json:"anonymous"`
 }
 
 type BaseHandler struct {
@@ -70,7 +71,12 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	//Check user exists
 	usr, err := h.Users.FindByField("Name", roomMsg.Username)
 	if err != nil {
-		usr = user.NewUser(roomMsg.Username)
+		if roomMsg.Anonymous {
+			usr = user.NewUser(roomMsg.Username, user.USER_TYPE_ANON)
+		} else {
+			usr = user.NewUser(roomMsg.Username, user.USER_TYPE_BASIC)
+		}
+
 		err := h.Users.Create(usr)
 		if err != nil {
 			log.Error(err)
@@ -83,7 +89,7 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 		roomStr, err = h.Rooms.FindByField("Name", roomMsg.Name)
 		if err != nil || roomStr == nil {
 			log.Info("Room Not found. Making...")
-			roomStr = room.NewMeta(roomMsg.Name, usr.ID)
+			roomStr = room.NewMeta(roomMsg.Name, usr)
 			err := h.Rooms.Create(roomStr)
 			if err != nil {
 				log.Errorf("Room Create error:  %w", err)
@@ -92,17 +98,24 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 		}
 	}
 
+	_, err = roomStr.FindWatcher(usr.ID)
+	if err == nil {
+		return fmt.Errorf("User Already existis")
+	}
+
 	//Check that this server is hosting the room
 	hubRoom, ok := h.Hub.GetRoom(roomStr.ID)
 	if !ok {
 		hubRoom = room.New(roomStr, h.Rooms)
+		hubRoom.Join(usr)
 		h.Hub.AddRoom(hubRoom)
+	} else {
+		hubRoom.Join(usr)
 	}
+
 	if hubRoom.Status != "Running" {
 		h.Hub.StartRoom(roomStr.ID)
 	}
-
-	hubRoom.Join(usr)
 
 	resp := map[string]interface{}{}
 	resp["user"] = usr
@@ -124,11 +137,8 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 	//Check user exists
 	usr, err := h.Users.FindByField("Name", roomMsg.Username)
 	if err != nil {
-		usr = user.NewUser(roomMsg.Username)
-		err := h.Users.Create(usr)
-		if err != nil {
-			log.Error(err)
-		}
+
+		log.Error(err)
 
 	}
 
@@ -193,6 +203,7 @@ func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) {
 			users = append(users, map[string]interface{}{
 				"id":   v.ID,
 				"name": v.Name,
+				"type": v.Type,
 			})
 		}
 	} else {

@@ -43,14 +43,14 @@ class VideoPlayer extends React.Component {
     }
 
     handlePlay = () => {
-        if(!this.props.playing){
+        if(!this.props.user.playing){
             play();
         }
         
     }
 
     handlePause = () => {
-        if(this.props.playing){
+        if(this.props.user.playing){
             pause();
         }
     }

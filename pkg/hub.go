@@ -3,6 +3,7 @@ package pkg
 import (
 	"time"
 	"watch2gether/pkg/room"
+	"watch2gether/pkg/user"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -13,8 +14,8 @@ type Hub struct {
 }
 
 // NewHub Creates a new instaiation of the hub
-func NewHub() Hub {
-	return Hub{rooms: make(map[string]*room.Room)}
+func NewHub() *Hub {
+	return &Hub{rooms: make(map[string]*room.Room)}
 }
 
 // Hub Global var storing all rooms.
@@ -77,7 +78,7 @@ func (h *Hub) StartRoom(roomID string) {
 
 //CleanUP Every 5 seconds go through each room and check to see if there was a delete
 
-func (hub *Hub) CleanUP() {
+func (hub *Hub) CleanUP(usrStore *user.UserStore) {
 	log.Info("Staring Cleanup Routine")
 	for {
 		time.Sleep(5 * time.Second)
@@ -86,6 +87,19 @@ func (hub *Hub) CleanUP() {
 			isEmpty := room.PurgeUsers()
 			if isEmpty && room.GetType() != "DISCORD" {
 				go hub.DeleteRoom(room.ID)
+			}
+		}
+		users, _ := usrStore.FindAllByField("Type", user.USER_TYPE_ANON)
+		for _, u := range users {
+			found := false
+			for _, room := range hub.rooms {
+				if room.ContainsUserID(u.ID) {
+					found = true
+				}
+			}
+			if !found {
+				log.Infof("Removing user: %s, due to being annon", u.Name)
+				go usrStore.Delete(u.ID)
 			}
 		}
 	}

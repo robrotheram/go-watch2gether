@@ -44,8 +44,10 @@ func (r *Room) HandleEvent(evt Event) {
 	switch evt.Action {
 	case EVNT_PLAYING:
 		r.SetPlaying(true)
+		r.SendClientEvent(evt)
 	case EVNT_PAUSING:
 		r.SetPlaying(false)
+		r.SendClientEvent(evt)
 	case EVNT_UPDATE_HOST:
 		r.SetHost(evt.Host)
 	case EVNT_NEXT_VIDEO:
@@ -63,6 +65,7 @@ func (r *Room) HandleEvent(evt Event) {
 	case EVNT_USER_UPDATE:
 		r.SeenUser(evt.Watcher)
 	case EVT_ROOM_EXIT:
+		r.DeleteIfEmpty()
 	}
 }
 

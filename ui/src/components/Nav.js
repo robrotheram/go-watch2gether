@@ -49,7 +49,7 @@ function Navigation (props) {
           </div>
           <Space style={{"float":"right"}}>
          
-                { !isHost ? <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => sinkToHost()}>Sync to host</Button> : null}
+                { !isHost ? <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> : null}
            
                 { controls || isHost ? <Button type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>: null}
       

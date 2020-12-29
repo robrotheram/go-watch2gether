@@ -12,7 +12,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-var DiscordUser = user.NewUser("DiscordBot")
+var DiscordUser user.User
 
 type DiscordBot struct {
 	hub       *Hub
@@ -20,14 +20,17 @@ type DiscordBot struct {
 	status    string
 	session   *discordgo.Session
 	roomStore *room.RoomStore
+	baseurl   string
 }
 
-func NewDiscordBot(h *Hub, roomStore *room.RoomStore, token string) (*DiscordBot, error) {
+func NewDiscordBot(h *Hub, roomStore *room.RoomStore, token string, baseurl string) (*DiscordBot, error) {
+	DiscordUser = user.NewUser("DiscordBot", user.USER_TYPE_DISCORD)
 	bot := DiscordBot{
 		hub:       h,
 		token:     token,
 		status:    "INIT",
 		roomStore: roomStore,
+		baseurl:   baseurl,
 	}
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -74,14 +77,14 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 	}
 
 	if args[1] == "start" {
-		meta := room.NewMeta(guild.Name, s.State.User.ID)
+		meta := room.NewMeta(guild.Name, user.User{ID: s.State.User.ID, Type: user.USER_TYPE_BASIC})
 		meta.ID = m.ChannelID
 		meta.Type = "DISCORD"
 		db.roomStore.Create(meta)
 		r := room.New(meta, db.roomStore)
 		//room.AddDiscord(s, m.ChannelID)
 		db.hub.AddRoom(r)
-		s.ChannelMessageSend(m.ChannelID, "You room has been created: https://watch2gether.exceptionerror.io/room/"+m.ChannelID)
+		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You room has been created: https://%s/room/%s", db.baseurl, m.ChannelID))
 		return
 	}
 

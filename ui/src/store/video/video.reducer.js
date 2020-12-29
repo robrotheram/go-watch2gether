@@ -27,7 +27,10 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
         console.log("Parse Error", action.payload.message, e)
       }
       return state;
-
+    case "SEEK_TO_HOST":
+      return {
+        ...state, seek: action.seek,
+      };
     default: return state;
   }
 };
@@ -41,6 +44,10 @@ const process_websocket_event = (state, data) => {
         ...state, id: data.current_video.id, title: data.current_video.title, url: data.current_video.url
       };
     case "SEEK_TO_USER":
+      return {
+        ...state, seek: data.seek,
+      };
+    case "SEEK_TO_HOST":
       return {
         ...state, seek: data.seek,
       };

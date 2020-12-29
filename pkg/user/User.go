@@ -9,6 +9,12 @@ import (
 	rethinkdb "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
+const (
+	USER_TYPE_DISCORD = "DISCORD"
+	USER_TYPE_ANON    = "ANONYMOUS"
+	USER_TYPE_BASIC   = "BASIC"
+)
+
 type User struct {
 	ID   string `rethinkdb:"id,omitempty" json:"id"`
 	Name string `json:"name"`
@@ -49,12 +55,13 @@ func (t *User) UnmarshalBinary(data []byte) error {
 // 	}
 // }
 
-func NewUser(name string) User {
+func NewUser(name string, _type string) User {
 	id := ksuid.New().String()
 	log.Infof("Creating User with ID %s, Name: %s", id, name)
 	return User{
 		ID:   id,
 		Name: name,
+		Type: _type,
 	}
 }
 
@@ -69,7 +76,9 @@ func (u *UserStore) GetKey(id string) string {
 }
 
 func NewUserStore(session *rethinkdb.Session) *UserStore {
-	return &UserStore{session: session}
+	us := &UserStore{session: session}
+	us.Cleanup()
+	return us
 }
 
 func (udb *UserStore) Create(user User) error {
@@ -120,6 +129,35 @@ func (udb *UserStore) FindByField(feild, value string) (User, error) {
 	res.One(&user)
 	res.Close()
 	return user, nil
+}
+
+func (udb *UserStore) FindAllByField(feild, value string) ([]User, error) {
+	res, err := rethinkdb.Table(PREFIX).Filter(rethinkdb.Row.Field(feild).Eq(value)).Run(udb.session)
+	users := []User{}
+	if err != nil {
+		return users, err
+	}
+
+	if res.IsNil() {
+		return users, fmt.Errorf("User not found")
+	}
+
+	res.All(&users)
+	res.Close()
+
+	return users, nil
+}
+
+func (udb *UserStore) Delete(id string) error {
+	_, err := rethinkdb.Table(PREFIX).Get(id).Delete().RunWrite(udb.session)
+	return err
+}
+
+func (udb *UserStore) Cleanup() {
+	users, _ := udb.FindAllByField("Type", USER_TYPE_ANON)
+	for _, u := range users {
+		udb.Delete(u.ID)
+	}
 }
 
 // func (udb *UserStore) Create(user User) error {

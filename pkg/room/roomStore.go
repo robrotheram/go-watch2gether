@@ -17,7 +17,9 @@ func (u *RoomStore) GetRedisKey(id string) string {
 }
 
 func NewRoomStore(session *rethinkdb.Session) *RoomStore {
-	return &RoomStore{session: session}
+	rs := &RoomStore{session: session}
+	rs.Cleanup()
+	return rs
 }
 
 func (udb *RoomStore) Create(room *Meta) error {
@@ -72,6 +74,23 @@ func (udb *RoomStore) FindByField(feild, value string) (*Meta, error) {
 func (udb *RoomStore) Update(meta *Meta) error {
 	_, err := rethinkdb.Table(PREFIX).Get(meta.ID).Update(meta).RunWrite(udb.session)
 	return err
+}
+
+func (udb *RoomStore) Delete(id string) error {
+	_, err := rethinkdb.Table(PREFIX).Get(id).Delete().RunWrite(udb.session)
+	return err
+}
+
+func (udb *RoomStore) Cleanup() {
+	rooms, err := udb.GetAll()
+	if err != nil {
+		return
+	}
+	for _, r := range rooms {
+		if r.Owner == "" {
+			udb.Delete(r.ID)
+		}
+	}
 }
 
 // func NewRoomStore(client *redis.Client) *RoomStore {

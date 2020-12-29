@@ -15,15 +15,6 @@ import (
 )
 
 // Variables used for command line parameters
-var (
-	Token string
-)
-
-func init() {
-
-	flag.StringVar(&Token, "t", "", "Bot Token")
-	flag.Parse()
-}
 
 func ping(client *redis.Client) error {
 	pong, err := client.Ping(context.Background()).Result()
@@ -43,32 +34,10 @@ func main() {
 	})
 
 	config, err := utils.LoadConfig(".")
+	if err != nil {
+		log.Fatalf("Config Error: %v", err)
+	}
 
-	// //Setup HUB
-	// hub := pkg.NewHub()
-
-	// if Token != "" {
-	// 	bot, err := pkg.NewDiscordBot(&hub, Token)
-	// 	if err != nil {
-	// 		log.Error(err)
-	// 	} else {
-	// 		bot.Start()
-	// 	}
-	// } else {
-	// 	log.Info("No Discord Bot token")
-	// }
-
-	// var addr = flag.String("addr", ":8080", "The addr of the  application.")
-	// flag.Parse() // parse the flags
-	// log.Println("Starting web server on", *addr)
-
-	// //go hub.CleanUP()
-
-	// if err := pkg.StartServer(*addr, &hub, userStore); err != nil {
-	// 	log.Fatal("ListenAndServe:", err)
-	// }
-
-	_, err = utils.DBConnect(config)
 	rethink, err := utils.RethinkDBConnect(config)
 
 	if err != nil {
@@ -81,8 +50,34 @@ func main() {
 	//Setup HUB
 	hub := pkg.NewHub()
 
-	if Token != "" {
-		bot, err := pkg.NewDiscordBot(&hub, roomStore, Token)
+	SetupDiscordBot(config, hub, roomStore)
+
+	var addr = flag.String("addr", ":8080", "The addr of the  application.")
+	flag.Parse() // parse the flags
+	log.Println("Starting web server on", *addr)
+
+	go hub.CleanUP(userStore)
+
+	pkg.SetupServer()
+
+	if err := pkg.StartServer(*addr, hub, userStore, roomStore); err != nil {
+		log.Fatal("ListenAndServe:", err)
+	}
+
+}
+
+func SetupDiscordBot(config utils.Config, hub *pkg.Hub, roomStore *room.RoomStore) {
+
+	var token = ""
+	flag.StringVar(&token, "t", "", "Bot Token")
+	flag.Parse()
+
+	if config.DiscordToken != "" && token == "" {
+		token = config.DiscordToken
+	}
+
+	if token != "" {
+		bot, err := pkg.NewDiscordBot(hub, roomStore, token, config.BaseURL)
 		if err != nil {
 			log.Error(err)
 		} else {
@@ -91,17 +86,4 @@ func main() {
 	} else {
 		log.Info("No Discord Bot token")
 	}
-
-	var addr = flag.String("addr", ":8080", "The addr of the  application.")
-	flag.Parse() // parse the flags
-	log.Println("Starting web server on", *addr)
-
-	go hub.CleanUP()
-
-	pkg.SetupServer()
-
-	if err := pkg.StartServer(*addr, &hub, userStore, roomStore); err != nil {
-		log.Fatal("ListenAndServe:", err)
-	}
-
 }

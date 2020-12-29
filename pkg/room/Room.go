@@ -41,12 +41,9 @@ func New(meta *Meta, rs *RoomStore) *Room {
 
 func (r *Room) ContainsUserID(id string) bool {
 	meta, _ := r.Store.Find(r.ID)
-	for _, user := range meta.Watchers {
-		if id == user.ID {
-			return true
-		}
-	}
-	return false
+	_, err := meta.FindWatcher(id)
+	return err == nil
+
 }
 
 func (r *Room) Join(usr user.User) {
@@ -106,6 +103,13 @@ func (r *Room) PurgeUsers() bool {
 	}
 	return size == 0
 }
+func (r *Room) DeleteIfEmpty() {
+	meta, _ := r.Store.Find(r.ID)
+	if meta.Owner == "" {
+		log.Infof("No Owner was created annon deleting")
+		r.Store.Delete(r.ID)
+	}
+}
 
 func (r *Room) Run() {
 	r.Status = ROOM_STATUS_RUNNING
@@ -129,7 +133,7 @@ func (r *Room) Run() {
 			}
 			log.Infof("sendind message: %v", evnt)
 			r.HandleEvent(evnt)
-			r.SendClientEvent(evnt)
+			//r.SendClientEvent(evnt)
 		}
 	}
 }
@@ -167,16 +171,14 @@ func (r *Room) SetQueue(queue []Video) bool {
 	meta.Queue = queue
 	r.Store.Update(meta)
 
-	r.SendClientEvent(Event{
-		Action: EVNT_UPDATE_QUEUE,
-		Queue:  meta.Queue,
-	})
-
 	if meta.CurrentVideo.ID == "" {
 		r.ChangeVideo()
 		return false
 	}
-
+	r.SendClientEvent(Event{
+		Action: EVNT_UPDATE_QUEUE,
+		Queue:  meta.Queue,
+	})
 	return true
 }
 
@@ -214,6 +216,9 @@ func (r *Room) SetPlaying(state bool) {
 
 func (r *Room) Leave(id string) {
 	meta, _ := r.Store.Find(r.ID)
+	if meta == nil {
+		return
+	}
 	meta.RemoveWatcher(id)
 	r.Store.Update(meta)
 

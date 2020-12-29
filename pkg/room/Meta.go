@@ -57,15 +57,28 @@ func (t *Meta) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-func NewMeta(name string, owner string) *Meta {
+func NewMeta(name string, usr user.User) *Meta {
+	if usr.Type == user.USER_TYPE_ANON {
+		return &Meta{
+			Name:     name,
+			Watchers: []RoomWatcher{},
+			Queue:    []Video{},
+			History:  []Video{},
+			ID:       ksuid.New().String(),
+			Owner:    "",
+			Host:     usr.ID,
+			Type:     "Basic",
+			Settings: NewRoomSettings(),
+		}
+	}
 	return &Meta{
 		Name:     name,
 		Watchers: []RoomWatcher{},
 		Queue:    []Video{},
 		History:  []Video{},
 		ID:       ksuid.New().String(),
-		Owner:    owner,
-		Host:     owner,
+		Owner:    usr.ID,
+		Host:     usr.ID,
 		Type:     "Basic",
 		Settings: NewRoomSettings(),
 	}
@@ -79,6 +92,9 @@ func (meta *Meta) GetLastVideo() Video {
 }
 
 func (meta *Meta) UpdateHistory(v Video) {
+	if v.ID == "" {
+		return
+	}
 	meta.History = append(meta.History, v)
 }
 
