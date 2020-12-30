@@ -84,7 +84,7 @@ class App extends React.Component {
           </Col>
         </Row>
       </Content>
-      <PageFooter/>
+      <PageFooter style={{ textAlign: 'center', position: "absolute", bottom:"0px", left:"0px", right:"0px", height:"50px", padding: "15px 50px 28px 50px" }}/>
     </Layout>
     );
   }

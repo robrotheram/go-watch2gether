@@ -1,79 +1,49 @@
+import store from "..";
 import {openNotificationWithIcon} from "../../components/notification"
 import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, UPDATE_SEEK, SEEK_TO_HOST, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE} from './room.types';
     const INITIAL_STATE = {
+      "id": "",
       "name":"",
-      "user":{
-        "name":"",
-        "seek":0,
-        is_host: false
-      },
+      "owner": "",
       "host":"",
-      "current_video":{},
-      "seek":0,
       "controls":false,
-      "playing":false,
+      "auto_skip":false,
       "queue":[],
-      "users":[],
+      "watchers":[],
       "error": "",
-      "active": false,
     }
-
-function NewUser (name) {
-  return {
-    name: name,
-    seek: 0.0,
-    current_video: {url:""}
-  }
-}
-
-function isHost (users, user){
-  let u = users.filter(u => u.name === user)
-  console.log(u, users, user)
-  if (u.length !== 1){
-    return false
-  }
-  
-  return u[0].is_host
-}
-
 export const roomReducer = (state = INITIAL_STATE, action) => {
-        // console.log("room_reducer", action)
+        
         switch (action.type) {
             case JOIN_SUCCESSFUL:
                return {
-                 ...state, name: action.room, user: NewUser(action.user), error: "", active: true,
+                 ...state, id: action.room, error: "", active: true,
                };
             case LEAVE_SUCCESSFUL:
               return {
-                ...state, name: "", user: {}, error: "", active: false,
+                ...state, name: "", error: "", active: false,
               };
             case GET_META_SUCCESSFUL:
-              console.log("USER_META", action.payload.users.filter(u => u.name === state.user.name))
               return {
                 ...state, 
                 error: "", 
+                id: action.payload.id, 
+                name: action.payload.name, 
+                owner: action.payload.owner, 
                 host: action.payload.host, 
-                isHost: isHost(action.payload.users, state.user.name), 
-                current_video: action.payload.current_video,
-                seek: action.payload.seek,
-                controls: action.payload.controls,
-                playing: action.payload.playing,
+                controls: action.payload.settings.controls,
+                auto_skip: action.payload.settings.auto_skip,
                 queue: action.payload.queue,
-                users: action.payload.users,
+                watchers: action.payload.watchers,
               };
             case REJOIN_SUCCESSFUL:
-              console.log("USER_META", action.payload.users.filter(u => u.name === state.user.name))
               return {
                 ...state, 
                 error: "", 
                 host: action.payload.host, 
-                isHost: isHost(action.payload.users, state.user.name), 
-                current_video: action.payload.current_video,
-                seek: action.payload.seek,
                 controls: action.payload.controls,
-                playing: action.payload.playing,
                 queue: action.payload.queue,
-                users: action.payload.users,
+                watchers: action.payload.watchers,
                 active: true
               };
             case "REDUX_WEBSOCKET::MESSAGE":
@@ -85,33 +55,21 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
               }
               return state;
             case "REDUX_WEBSOCKET::CLOSED" :
+              window.location.href = '/?error=Server Disconnected';
               return {
                 ...state, active: false,
               };
-            case UPDATE_SEEK: 
-              return {
-                ...state, seek: action.seek,
-              };
 
+            
             case "LOCAL_QUEUE_UPDATE":
               return {
                 ...state, queue: action.queue
               }
-            case PROGRESS_UPDATE: 
-              let user = state.user
-              user.seek = action.seek
-              return {
-                ...state, user: user,
-              };
-
             case ROOM_ERROR:
                return {
                   ...state, error: action.error,
                };
-            case SEEK_TO_HOST:
-              return {
-                ...state, seek: action.seek,
-             };
+            
             case CLEAR_ERROR:
                 return {
                    ...state, error: "",
@@ -122,7 +80,7 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
 
 
 const process_websocket_event = (state, data) => {
-  // console.log("Procees_Event", data)
+  //console.log("room_reducer action", data.action, data)
   switch(data.action){
     case "ROOM_EXIT":
       openNotificationWithIcon("success", "Room has closed")   
@@ -130,52 +88,32 @@ const process_websocket_event = (state, data) => {
         ...state, active:false, room:""
       };
     case "UPDATE_QUEUE":             
-      openNotificationWithIcon("success", "Queue Updated by "+data.user.name)   
+      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.name)   
       return {
         ...state, queue: data.queue
       };
     case "UPDATE_HOST":                
       return {
-        ...state, host: data.host, isHost: data.host===state.user.name
+        ...state, host: data.host
       };
-    case "CHANGE_VIDEO":
-      return {
-        ...state, queue: data.queue, current_video: data.current_video
-      };
-    case "PLAYING": 
-      if (state.user.seek >= 1){
-        return state
-      }
-      if (state.playing !== data.playing){
-        if (state.seek < 1){
-          openNotificationWithIcon("success", "User: "+data.user.name+" started video")
-        }
-      }
-      return {
-        ...state, playing: true,
-      };
-    case "PAUSING": 
-      if (state.user.seek >= 1){
-        return state
-      }
-      if (state.playing !== data.playing){
-        if (state.seek < 1){
-          openNotificationWithIcon("success", "User: "+data.user.name+" has paused video")
-        }
-      }
-      return {
-        ...state, playing: false,
-      };
-    case "USER_UPDATED":
-      return {
-        ...state, users: data.users,
-      };
+
+    case "USER_UPADTE":
+      // return {
+      //   ...state, watchers: data.watchers,
+      // };
     case "UPDATE_CONTROLS":
       return {
-        ...state, controls: data.controls,
+        ...state, controls: data.settings.controls,
       };
+
+      case "UPDATE_SKIP":
+        return {
+          ...state, auto_skip: data.settings.auto_skip,
+        };
+
+
     case "ON_PROGRESS_UPDATE":
-      // let userList = [...state.users];
+      // let userList = [...state.watchers];
       // userList = userList.map(user => {
       //   if(user.name === data.user) {
       //     return {...user, seek: data.seek};
@@ -183,13 +121,31 @@ const process_websocket_event = (state, data) => {
       //   return {...user};
       // });
       return {
-        ...state, users: data.users,
+        ...state, watchers: data.watchers,
       };
-    case "SEEK_TO_USER":
-        return {
-          ...state, seek: data.seek,
-        };
+    
     default:
       return state;
   }
 }
+
+
+
+// function NewUser (usr) {
+//   return {
+//     id: usr.id,
+//     name: usr.name,
+//     seek: 0.0,
+//     current_video: {url:""}
+//   }
+// }
+
+// function isHost (watchers, user){
+//   let u = watchers.filter(u => u.name === user)
+//   console.log(u, watchers, user)
+//   if (u.length !== 1){
+//     return false
+//   }
+  
+//   return u[0].is_host
+// }

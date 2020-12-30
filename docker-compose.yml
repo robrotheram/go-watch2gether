@@ -1,11 +1,25 @@
 version: '3'
 services:
   watch2gther:
-    image: robrotheram/watch2gether:v0.1.1
+    image: robrotheram/watch2gether:latest
     container_name: watch2gether
+    depends_on: 
+      - rethinkdb
     deploy:
       replicas: 1
       restart_policy:
         condition: any
+    environment: 
+      - RETHINK_URL=rethinkdb:28015
+      - RETHINK_DATABASE=watch2gether
+      - DISCORD_TOKEN=<TOKEN>
+      - BASE_URL=watch2gether.io
     ports:
       - 3000:8080
+
+  rethinkdb:
+    image: rethinkdb
+    hostname: rethinkdb
+    volumes:
+     - /data:/data
+    command: rethinkdb --bind all

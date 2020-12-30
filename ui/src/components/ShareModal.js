@@ -2,7 +2,6 @@ import React from 'react';
 import { Modal } from 'antd';
 import { Input, Button } from 'antd';
 import {connect} from 'react-redux'
-import {updateControls} from '../store/room/room.actions'
 import {openNotificationWithIconKey} from "./notification"
 import {
     CopyOutlined
@@ -40,5 +39,5 @@ function ShareModal (props) {
 const mapStateToProps  = (state) =>{
     return state.room
   } 
-export default connect(mapStateToProps, {updateControls})(ShareModal)
+export default connect(mapStateToProps, {})(ShareModal)
   

@@ -1,6 +1,9 @@
 import {createStore, applyMiddleware} from 'redux'
 import { combineReducers } from 'redux';
+
 import {roomReducer} from './room/room.reducer';
+import {videoReducer} from './video/video.reducer'
+import {userReducer}from './user/user.reducer'
 
 import thunk from 'redux-thunk'
 import {composeWithDevTools} from 'redux-devtools-extension'
@@ -8,6 +11,7 @@ import { connectRouter } from 'connected-react-router'
 import { routerMiddleware } from 'connected-react-router'
 import reduxWebsocket from '@giantmachines/redux-websocket';
 import {createBrowserHistory} from "history"
+
 export const history  = createBrowserHistory();
 
 const URL = "/api/v1/"
@@ -25,6 +29,8 @@ const getWSURL = () => {
 
 const rootReducer = (history) => combineReducers({
     room: roomReducer,
+    video: videoReducer,
+    user: userReducer,
     router: connectRouter(history),
 });
 
@@ -42,6 +48,7 @@ export const getStoreFromLocalStore = () => {
         store.room.error = "";
         store.room.active = false;
     }
+    return {};
     return store;
 }
 const store = createStore(rootReducer(history), getStoreFromLocalStore(), composeWithDevTools(applyMiddleware(...middleware)))
