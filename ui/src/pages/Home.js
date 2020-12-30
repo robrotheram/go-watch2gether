@@ -110,7 +110,17 @@ function Home(props) {
               <Form.Item
                 label="Room Name"
                 name="roomname"
-                rules={[{ required: true, message: 'Please input your room Name!' }, { min: 4, message: 'Room name must be minimum 4 characters.' }]}
+                rules={[
+                  { required: true, message: 'Please input your room Name!' }, 
+                  { min: 4, message: 'Room name must be minimum 4 characters.'},
+                  {
+                    pattern: new RegExp(
+                      /^[a-zA-Z0-9@~`!@#$%^&*()_=+\\\\';:\"\\/?>.<,-]+$/i
+                    ),
+                    message: "Valid characters are letters, numbers"
+                  }
+                
+                ]}
               >
                 <Input size="large" />
               </Form.Item>
@@ -118,14 +128,23 @@ function Home(props) {
               <Form.Item
                 label="Username"
                 name="username"
-                rules={[{ required: true, message: 'Please input your username!' }, { min: 4, message: 'Username must be minimum 4 characters.' }]}
+                rules={[
+                  { required: true, message: 'Please input your username!' }, 
+                  { min: 4, message: 'Username must be minimum 4 characters.'},
+                  {
+                    pattern: new RegExp(
+                      /^[a-zA-Z0-9@~`!@#$%^&*()_=+\\\\';:\"\\/?>.<,-]+$/i
+                    ),
+                    message: "Valid characters are letters, numbers"
+                  }
+                ]}
                 style={{ "marginTop": "20px" }}
               >
                 <Input size="large" />
               </Form.Item>
 
               <Form.Item {...tailLayout} name="anonymous" valuePropName="checked">
-                <Checkbox>be anonymous </Checkbox>
+                <Checkbox disabled>Be anonymous </Checkbox>
               </Form.Item>
 
               <Form.Item {...tailLayout}>
