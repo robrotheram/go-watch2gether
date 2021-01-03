@@ -119,6 +119,7 @@ func (meta *Meta) AddWatcher(rw RoomWatcher) {
 	if _, err := meta.FindWatcher(rw.ID); err == nil {
 		return
 	}
+	rw.LastSeen = time.Now()
 	meta.Watchers = append(meta.Watchers, rw)
 }
 
@@ -142,28 +143,3 @@ func (meta *Meta) UpdateWatcher(rw RoomWatcher) error {
 func NewWatcher(usr user.User) RoomWatcher {
 	return RoomWatcher{ID: usr.ID, Name: usr.Name}
 }
-
-// func (m *Meta) Update(meta Meta) {
-
-// 	if m.Name != meta.Name && meta.Name != "" {
-// 		m.Name = meta.Name
-// 	}
-// 	if m.Host != meta.Host && meta.Host != "" {
-// 		m.Host = meta.Host
-// 	}
-// 	if m.CurrentVideo != meta.CurrentVideo && meta.CurrentVideo.Url != "" {
-// 		m.CurrentVideo = meta.CurrentVideo
-// 	}
-// 	if m.Seek != meta.Seek {
-// 		m.Seek = meta.Seek
-// 	}
-// 	if m.Settings != meta.Settings {
-// 		m.Settings = meta.Settings
-// 	}
-// 	if m.Playing != meta.Playing {
-// 		m.Playing = meta.Playing
-// 	}
-// 	if meta.Queue != nil {
-// 		m.Queue = meta.Queue
-// 	}
-// }
