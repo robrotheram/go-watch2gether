@@ -113,7 +113,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 		}
 
 		video := room.Video{ID: ksuid.New().String(), Title: document.Preview.Title, Url: u.String(), User: DiscordUser.Name}
-		r.AddVideo(video)
+		r.AddVideo(video, room.NewWatcher(user.NewUser(DiscordUser.Name, user.USER_TYPE_DISCORD)))
 
 		log.Infof("Vidoe Envent sent : %v", video)
 		s.ChannelMessageSend(m.ChannelID, "Video Added ID:"+video.ID)
@@ -126,7 +126,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 			s.ChannelMessageSend(m.ChannelID, "Room not found")
 			return
 		}
-		r.ChangeVideo()
+		r.ChangeVideo(room.NewWatcher(user.NewUser(DiscordUser.Name, user.USER_TYPE_DISCORD)))
 		s.ChannelMessageSend(m.ChannelID, "Video Skiped")
 		return
 	}

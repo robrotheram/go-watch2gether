@@ -51,7 +51,7 @@ func (r *Room) HandleEvent(evt Event) {
 	case EVNT_UPDATE_HOST:
 		r.SetHost(evt.Host)
 	case EVNT_NEXT_VIDEO:
-		r.ChangeVideo()
+		r.ChangeVideo(evt.Watcher)
 	case EVNT_SEEK:
 		r.SetSeek(evt.Seek)
 	case EVNT_UPDATE_SETTINGS:
@@ -59,7 +59,7 @@ func (r *Room) HandleEvent(evt Event) {
 	case EVNT_SEEK_TO_ME:
 		r.SetSeek(evt.Watcher.Seek)
 	case EVNT_UPDATE_QUEUE:
-		r.SetQueue(evt.Queue)
+		r.SetQueue(evt.Queue, evt.Watcher)
 	case ENVT_FINSH:
 		r.HandleFinish(evt.Watcher)
 	case EVNT_USER_UPDATE:
