@@ -93,14 +93,15 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 			err := h.Rooms.Create(roomStr)
 			if err != nil {
 				log.Errorf("Room Create error:  %w", err)
-				return err
+				return StatusError{http.StatusBadRequest, err}
+
 			}
 		}
 	}
 
 	_, err = roomStr.FindWatcher(usr.ID)
 	if err == nil {
-		return fmt.Errorf("User Already existis")
+		return StatusError{http.StatusBadRequest, fmt.Errorf("User Already existis")}
 	}
 
 	//Check that this server is hosting the room

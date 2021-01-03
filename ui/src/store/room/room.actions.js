@@ -28,7 +28,7 @@ export const join = (roomid, room, user, anonymous) => {
             }else{
                 dispatch( {
                     type: ROOM_ERROR,
-                    error: "Oh Dear something happened when user: "+user+" tried to joining room: "+room+" Error: "+e.response.data,
+                    error: e.response.data,
                 })
             }
         })
