@@ -45,7 +45,12 @@ export function VideoControlComponent (props) {
         }
     }
 
-    
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            addToQueue()
+          }
+    }
+
     const addToQueue = async () => {
         if (validURL(newurl)){
             let videoList = [...queue]; 
@@ -93,7 +98,7 @@ export function VideoControlComponent (props) {
       
     return (
         <div>
-            <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>   
+            <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)}  onKeyDown={handleKeyDown} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>   
             <Space size="small" style={{width:"100%", marginTop: "10px", marginBottom: "10px"}}>
                 <Button onClick={skipQueue} style={{width:"100%"}}> Skip To Next</Button>
                 <Button onClick={clearQueue} style={{width:"100%"}}>Clear Queue</Button>
