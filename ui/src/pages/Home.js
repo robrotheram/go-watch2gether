@@ -12,7 +12,8 @@ import { withRouter } from "react-router";
 import queryString from 'query-string'
 import {PageFooter} from '../components/PageFooter'
 
-
+import store from '../store'
+import {ROOM_ERROR} from '../store/room/room.types'
 const { Content } = Layout;
 const { Title, Paragraph, Text } = Typography;
 
@@ -56,10 +57,23 @@ function Home(props) {
 
   useEffect(() => {
     const values = queryString.parse(props.location.search);
+    const err = values.error
     console.log("QUETR", values.room);
+
+    console.log("Error", err);
+    
+    if (err !== undefined && err !== "") {
+      store.dispatch( {
+        type: ROOM_ERROR,
+        error:err,
+    })
+    }
+
     if(values.room !== undefined && values.room !== ""){
       props.getMeta(values.room)
     }
+
+
   }, [props.location.search]);
 
   useEffect(() => {
