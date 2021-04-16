@@ -16,9 +16,11 @@ const (
 )
 
 type User struct {
-	ID   string `rethinkdb:"id,omitempty" json:"id"`
-	Name string `json:"name"`
-	Type string `json:"type"`
+	ID         string `rethinkdb:"id,omitempty" json:"id"`
+	Username   string `json:"username"`
+	Type       string `json:"type"`
+	Avatar     string `json:"avatar"`
+	AvatarIcon string `json:"avatar_icon"`
 }
 
 func (t *User) MarshalBinary() ([]byte, error) {
@@ -32,36 +34,13 @@ func (t *User) UnmarshalBinary(data []byte) error {
 	return nil
 }
 
-// func (u *User) AddRoom(id string) {
-// 	u.Rooms = append(u.Rooms, id)
-// }
-
-// func (u *User) ConstainsRoom(id string) bool {
-// 	for _, u := range u.Rooms {
-// 		if u == id {
-// 			return true
-// 		}
-// 	}
-// 	return false
-// }
-
-// func (u *User) RemoveRoom(id string) {
-// 	for i := range u.Rooms {
-// 		room := u.Rooms[i]
-// 		if room == id {
-// 			u.Rooms = append(u.Rooms[:i], u.Rooms[i+1:]...)
-// 			break
-// 		}
-// 	}
-// }
-
 func NewUser(name string, _type string) User {
 	id := ksuid.New().String()
 	log.Infof("Creating User with ID %s, Name: %s", id, name)
 	return User{
-		ID:   id,
-		Name: name,
-		Type: _type,
+		ID:       id,
+		Username: name,
+		Type:     _type,
 	}
 }
 
@@ -159,57 +138,3 @@ func (udb *UserStore) Cleanup() {
 		udb.Delete(u.ID)
 	}
 }
-
-// func (udb *UserStore) Create(user User) error {
-// 	ctx := context.Background()
-// 	if _, err := udb.client.HSetNX(ctx, udb.GetRedisKey(user.ID), "id", &user).Result(); err != nil {
-// 		log.Errorf("create: redis error: %w", err)
-// 		return fmt.Errorf("create: redis error: %w", err)
-// 	}
-// 	return nil
-// }
-
-// func (udb *UserStore) Find(userID string, usePrefix bool) (*User, error) {
-// 	ctx := context.Background()
-// 	if usePrefix {
-// 		userID = udb.GetRedisKey(userID)
-// 	}
-// 	result, err := udb.client.HGet(ctx, userID, "id").Result()
-// 	if err != nil && err != redis.Nil {
-// 		return nil, fmt.Errorf("find: redis error: %w", err)
-// 	}
-// 	if result == "" {
-// 		return nil, fmt.Errorf("find: not found")
-// 	}
-
-// 	user := &User{}
-// 	if err := user.UnmarshalBinary([]byte(result)); err != nil {
-// 		return nil, fmt.Errorf("find: unmarshal error: %w", err)
-// 	}
-
-// 	return user, nil
-// }
-
-// func (udb *UserStore) GetAll() ([]*User, error) {
-// 	ctx := context.Background()
-// 	iter := udb.client.Scan(ctx, 0, PREFIX+"*", 0).Iterator()
-// 	users := []*User{}
-// 	for iter.Next(ctx) {
-// 		if user, err := udb.Find(iter.Val(), false); err == nil {
-// 			users = append(users, user)
-// 		}
-// 	}
-// 	return users, nil
-// }
-
-// func (udb *UserStore) Update(ctx context.Context, user User) error {
-// 	// Find token:     a.rds.HGet()
-// 	// Override token: a.rds.HSet()
-// 	return nil
-// }
-
-// func (udb *UserStore) Delete(ctx context.Context, tokenID string) error {
-// 	// Find token:   a.rds.HGet()
-// 	// Delete token: a.rds.Del()
-// 	return nil
-// }

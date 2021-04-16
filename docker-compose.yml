@@ -19,7 +19,6 @@ services:
 
   rethinkdb:
     image: rethinkdb
-    hostname: rethinkdb
     volumes:
      - /data:/data
     command: rethinkdb --bind all

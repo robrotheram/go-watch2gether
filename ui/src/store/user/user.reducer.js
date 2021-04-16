@@ -1,8 +1,13 @@
 import { GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE } from '../room/room.types';
-import {openNotificationWithIcon} from "../../components/notification"
+import {AUTH_LOGIN} from "./user.types"
+import {openNotificationWithIcon} from "../../components/common/notification"
 const INITIAL_STATE = {
   id: "",
-  name: "",
+  auth : false,
+  username: "",
+  icon: "",
+  guilds: [],
+
   seek: 0.0,
   video_id: "",
   isHost: false,
@@ -12,6 +17,10 @@ const INITIAL_STATE = {
 
 export const userReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case AUTH_LOGIN:
+      return {
+        ...state, id: action.id, auth: action.auth, username: action.username, icon: action.icon, guilds: action.guilds
+      };
     case JOIN_SUCCESSFUL:
       return {
         ...state, id: action.user.id, name: action.user.name,

@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, SEEK_TO_HOST, REJOIN_SUCCESSFUL, PROGRESS_UPDATE } from './room.types';
+import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE } from './room.types';
 import store, {API_URL, WS_URL, history} from '../index'
 import { connect } from '@giantmachines/redux-websocket';
 import { send } from '@giantmachines/redux-websocket';
@@ -16,7 +16,7 @@ export const join = (roomid, room, user, anonymous) => {
             dispatch(getMeta(res.data.room_id))
             console.log("WS_URL",WS_URL+"room/"+room+"/ws")
             store.dispatch(Connect(res.data.room_id, res.data.user.id))
-            history.push('/room/'+res.data.room_id);
+            history.push('/app/room/'+res.data.room_id);
         }).catch(e => {
             console.log(e)
             history.push('/');
@@ -51,7 +51,7 @@ export const reJoin = (room) => {
             console.log(e)
             history.push('/');
             dispatch( {
-                type: ROOM_ERROR,
+                historytype: ROOM_ERROR,
                 error: e.response.data,
             })
         })

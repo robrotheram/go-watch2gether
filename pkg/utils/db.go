@@ -39,5 +39,6 @@ func RethinkDBConnect(config Config) (*rethinkdb.Session, error) {
 	rethinkdb.DB(config.RethinkDatabase).TableCreate("user").Exec(session)
 	rethinkdb.DB(config.RethinkDatabase).TableCreate("room").Exec(session)
 	rethinkdb.DB(config.RethinkDatabase).TableCreate("hub").Exec(session)
+	rethinkdb.DB(config.RethinkDatabase).TableCreate("playlist").Exec(session)
 	return session, err
 }

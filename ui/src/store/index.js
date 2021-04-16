@@ -4,6 +4,9 @@ import { combineReducers } from 'redux';
 import {roomReducer} from './room/room.reducer';
 import {videoReducer} from './video/video.reducer'
 import {userReducer}from './user/user.reducer'
+import {playlistsReducer}from './playlists/playlists.reducer'
+
+
 
 import thunk from 'redux-thunk'
 import {composeWithDevTools} from 'redux-devtools-extension'
@@ -31,6 +34,7 @@ const rootReducer = (history) => combineReducers({
     room: roomReducer,
     video: videoReducer,
     user: userReducer,
+    playlist: playlistsReducer,
     router: connectRouter(history),
 });
 
@@ -43,12 +47,13 @@ export const getStoreFromLocalStore = () => {
     }
     if (store.version !== window.w2g_version) {
         return {}
+    }else{
+        delete store.version;
     }
     if (store.room !== undefined){
         store.room.error = "";
         store.room.active = false;
     }
-    return {};
     return store;
 }
 const store = createStore(rootReducer(history), getStoreFromLocalStore(), composeWithDevTools(applyMiddleware(...middleware)))
@@ -62,12 +67,14 @@ store.subscribe(()=>{
 
 let apiUrl = URL
 let wsUrl = getWSURL();
-
+let base = ""
 if ( process.env.NODE_ENV === "development"){
-    apiUrl = "http://localhost:8080"+URL
+    base = "http://localhost:8080"
+    apiUrl = base+URL
     wsUrl = "ws://localhost:8080"+URL
 } 
 
+export const BASE_URL = base
 export const API_URL = apiUrl
 export const WS_URL = wsUrl
 

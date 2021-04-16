@@ -1,0 +1,39 @@
+.row-dragging {
+    background: #484848;
+    border: 1px solid #ccc;
+    z-index: 9999;
+  }
+  
+  .row-dragging td {
+    padding: 16px;
+  }
+  
+  .row-dragging .drag-visible {
+    visibility: visible;
+    z-index: "9999";
+  }
+
+
+  .editable-cell {
+    position: relative;
+  }
+  
+  .editable-cell-value-wrap {
+    //padding: 5px 12px;
+    cursor: pointer;
+  }
+  
+  .editable-row:hover .editable-cell-value-wrap {
+    padding: 4px 11px;
+    border: 1px solid #d9d9d9;
+    border-radius: 4px;
+  }
+  
+  [data-theme='dark'] .editable-row:hover .editable-cell-value-wrap {
+    border: 1px solid #434343;
+  }
+
+
+  .editable-row > td:first-child {
+    text-align: center;
+  }

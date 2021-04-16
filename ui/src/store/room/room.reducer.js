@@ -1,6 +1,5 @@
-import store from "..";
-import {openNotificationWithIcon} from "../../components/notification"
-import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, UPDATE_SEEK, SEEK_TO_HOST, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE} from './room.types';
+import {openNotificationWithIcon} from "../../components/common/notification"
+import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL} from './room.types';
     const INITIAL_STATE = {
       "id": "",
       "name":"",
@@ -55,7 +54,7 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
               }
               return state;
             case "REDUX_WEBSOCKET::CLOSED" :
-              window.location.href = '/?error=Server Disconnected';
+              //TODO: Show Error mesasge
               return {
                 ...state, active: false,
               };
@@ -98,6 +97,7 @@ const process_websocket_event = (state, data) => {
       };
 
     case "USER_UPADTE":
+      break
       // return {
       //   ...state, watchers: data.watchers,
       // };

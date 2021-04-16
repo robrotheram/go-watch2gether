@@ -4,6 +4,9 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	events "watch2gether/pkg/events"
+	"watch2gether/pkg/media"
+	"watch2gether/pkg/roombot"
 	"watch2gether/pkg/user"
 
 	"github.com/segmentio/ksuid"
@@ -22,6 +25,9 @@ type Room struct {
 	quit    chan bool
 	clients map[*Client]bool
 	Status  string
+	//Discode Bot
+	bot *roombot.AudioBot
+
 	// clients holds all current clients in this room.
 	ID    string
 	Store *RoomStore
@@ -42,20 +48,21 @@ func New(meta *Meta, rs *RoomStore) *Room {
 }
 
 func (r *Room) ContainsUserID(id string) bool {
-	r.mutex.Lock()
 	meta, _ := r.Store.Find(r.ID)
 	_, err := meta.FindWatcher(id)
-	r.mutex.Unlock()
 	return err == nil
+}
 
+func (r *Room) RegisterBot(bot *roombot.AudioBot) {
+	r.bot = bot
 }
 
 func (r *Room) Join(usr user.User) {
-	r.mutex.Lock()
+
 	meta, _ := r.Store.Find(r.ID)
 	watcher, err := meta.FindWatcher(usr.ID)
 	if err == nil {
-		r.mutex.Unlock()
+
 		return
 	}
 	watcher = NewWatcher(usr)
@@ -70,35 +77,37 @@ func (r *Room) Join(usr user.User) {
 	meta.AddWatcher(watcher)
 	r.Store.Update(meta)
 
-	r.mutex.Unlock()
 	r.SendClientEvent(
-		Event{
-			Action:   EVNT_USER_UPDATE,
+		events.Event{
+			Action:   events.EVNT_USER_UPDATE,
 			Watchers: meta.Watchers,
 		})
 }
 
-func (r *Room) SendClientEvent(evt Event) {
+func (r *Room) SendClientEvent(evt events.Event) {
 	if evt.Watcher.ID == "" {
-		evt.Watcher = SERVER_USER
+		evt.Watcher = events.SERVER_USER
 	}
 	log.Infof("Sending event %s to all clients", evt.Action)
 	for client := range r.clients {
 		client.send <- evt.ToBytes()
 	}
+	if r.bot != nil {
+		r.bot.Send(evt)
+	}
 }
 
 func (r *Room) Stop() {
 	log.Info("Room Stopping")
-	r.Status = ROOM_STATUS_STOPPING
+	r.Status = events.ROOM_STATUS_STOPPING
 	for client := range r.clients {
 		delete(r.clients, client)
 	}
-	r.Status = ROOM_STATUS_STOPPED
+	r.Status = events.ROOM_STATUS_STOPPED
 }
 
 func (r *Room) PurgeUsers() bool {
-	r.mutex.Lock()
+
 	meta, _ := r.Store.Find(r.ID)
 	size := len(meta.Watchers)
 
@@ -109,21 +118,53 @@ func (r *Room) PurgeUsers() bool {
 			size = size - 1
 		}
 	}
-	r.mutex.Unlock()
+
 	return size == 0
 }
 func (r *Room) DeleteIfEmpty() {
-	r.mutex.Lock()
+
 	meta, _ := r.Store.Find(r.ID)
 	if meta.Owner == "" {
 		log.Infof("No Owner was created annon deleting")
 		r.Store.Delete(r.ID)
 	}
-	r.mutex.Unlock()
+
+}
+
+func (r *Room) HandleEvent(evt events.Event) {
+	if evt.Watcher.ID == events.SERVER_USER.ID {
+		return
+	}
+	switch evt.Action {
+	case events.EVNT_PLAYING:
+		r.SetPlaying(true)
+		r.SendClientEvent(evt)
+	case events.EVNT_PAUSING:
+		r.SetPlaying(false)
+		r.SendClientEvent(evt)
+	case events.EVNT_UPDATE_HOST:
+		r.SetHost(evt.Host)
+	case events.EVNT_NEXT_VIDEO:
+		r.ChangeVideo(evt.Watcher)
+	case events.EVNT_SEEK:
+		r.SetSeek(evt.Seek)
+	case events.EVNT_UPDATE_SETTINGS:
+		r.SetSettings(evt.Settings)
+	case events.EVNT_SEEK_TO_ME:
+		r.SetSeek(evt.Watcher.Seek)
+	case events.EVNT_UPDATE_QUEUE:
+		r.SetQueue(evt.Queue, evt.Watcher)
+	case events.ENVT_FINSH:
+		r.HandleFinish(evt.Watcher)
+	case events.EVNT_USER_UPDATE:
+		r.SeenUser(evt.Watcher)
+	case events.EVT_ROOM_EXIT:
+		r.DeleteIfEmpty()
+	}
 }
 
 func (r *Room) Run() {
-	r.Status = ROOM_STATUS_RUNNING
+	r.Status = events.ROOM_STATUS_RUNNING
 	for {
 		select {
 		case <-r.quit:
@@ -138,7 +179,7 @@ func (r *Room) Run() {
 			close(client.send)
 		case msg := <-r.forward:
 			// forward message to all clients
-			evnt, err := processEvent(msg)
+			evnt, err := events.ProcessEvent(msg)
 			if err != nil {
 				return
 			}
@@ -149,37 +190,42 @@ func (r *Room) Run() {
 	}
 }
 
-func (r *Room) SetSettings(settings RoomSettings) {
-	r.mutex.Lock()
+func (r *Room) SetSettings(settings events.RoomSettings) {
+
 	meta, _ := r.Store.Find(r.ID)
 	meta.Settings = settings
 	r.Store.Update(meta)
-	r.mutex.Unlock()
+
 }
 
-func (r *Room) AddVideo(video Video, rw RoomWatcher) {
-	r.mutex.Lock()
+func (r *Room) AddVideo(video media.Video, rw events.RoomWatcher) {
+
 	meta, _ := r.Store.Find(r.ID)
 	meta.Queue = append(meta.Queue, video)
 	r.SetQueue(meta.Queue, rw)
-	r.mutex.Unlock()
+
 }
-func (r *Room) GetVideo() Video {
-	r.mutex.Lock()
+func (r *Room) GetVideo() media.Video {
+
 	meta, _ := r.Store.Find(r.ID)
-	r.mutex.Unlock()
+
 	return meta.CurrentVideo
 }
 
 func (r *Room) GetType() string {
-	r.mutex.Lock()
+
 	meta, _ := r.Store.Find(r.ID)
-	r.mutex.Unlock()
+
 	return meta.Type
 }
 
-func (r *Room) SetQueue(queue []Video, rw RoomWatcher) bool {
-	r.mutex.Lock()
+func (r *Room) GetQueue() []media.Video {
+	meta, _ := r.Store.Find(r.ID)
+	return meta.Queue
+}
+
+func (r *Room) SetQueue(queue []media.Video, rw events.RoomWatcher) bool {
+
 	meta, _ := r.Store.Find(r.ID)
 
 	for i := range queue {
@@ -190,14 +236,13 @@ func (r *Room) SetQueue(queue []Video, rw RoomWatcher) bool {
 	}
 	meta.Queue = queue
 	r.Store.Update(meta)
-	r.mutex.Unlock()
 
 	if meta.CurrentVideo.ID == "" {
 		r.ChangeVideo(rw)
 		return false
 	}
-	r.SendClientEvent(Event{
-		Action:  EVNT_UPDATE_QUEUE,
+	r.SendClientEvent(events.Event{
+		Action:  events.EVNT_UPDATE_QUEUE,
 		Queue:   meta.Queue,
 		Watcher: rw,
 	})
@@ -205,7 +250,7 @@ func (r *Room) SetQueue(queue []Video, rw RoomWatcher) bool {
 }
 
 func (r *Room) SetHost(id string) {
-	r.mutex.Lock()
+
 	meta, _ := r.Store.Find(r.ID)
 	meta.Host = id
 	for i := range meta.Watchers {
@@ -214,24 +259,21 @@ func (r *Room) SetHost(id string) {
 		}
 	}
 	r.Store.Update(meta)
-	r.mutex.Unlock()
-	r.SendClientEvent(Event{
-		Action: EVNT_UPDATE_HOST,
+
+	r.SendClientEvent(events.Event{
+		Action: events.EVNT_UPDATE_HOST,
 		Host:   meta.Host,
 	})
 }
 
-func (r *Room) GetUser(id string) (RoomWatcher, error) {
-	r.mutex.Lock()
+func (r *Room) GetUser(id string) (events.RoomWatcher, error) {
 	meta, _ := r.Store.Find(r.ID)
 	for _, user := range meta.Watchers {
 		if user.ID == id {
-			r.mutex.Unlock()
 			return user, nil
 		}
 	}
-	r.mutex.Unlock()
-	return RoomWatcher{}, fmt.Errorf("User Not found with id: %s", id)
+	return events.RoomWatcher{}, fmt.Errorf("User Not found with id: %s", id)
 }
 
 func (r *Room) SetPlaying(state bool) {
@@ -254,8 +296,8 @@ func (r *Room) Leave(id string) {
 
 	log.Infof("User: %s Has left the room: %s", id, meta.Name)
 
-	r.SendClientEvent(Event{
-		Action:   EVNT_USER_UPDATE,
+	r.SendClientEvent(events.Event{
+		Action:   events.EVNT_USER_UPDATE,
 		Watchers: meta.Watchers,
 	})
 }
@@ -263,46 +305,45 @@ func (r *Room) SetSeek(seek float32) {
 	meta, _ := r.Store.Find(r.ID)
 	meta.Seek = seek
 	r.Store.Update(meta)
-	r.SendClientEvent(Event{
-		Action: EVNT_SEEK_TO_USER,
+	r.SendClientEvent(events.Event{
+		Action: events.EVNT_SEEK_TO_USER,
 		Seek:   meta.Seek,
 	})
 }
 
-func (r *Room) HandleFinish(user RoomWatcher) {
+func (r *Room) HandleFinish(user events.RoomWatcher) {
 	log.Infof("User %, Has finished! Seek = %f", user.Name, user.Seek)
-	r.mutex.Lock()
+
 	user.Seek = float32(1)
 	meta, _ := r.Store.Find(r.ID)
 	meta.UpdateWatcher(user)
 
 	if !meta.Settings.AutoSkip {
-		r.mutex.Unlock()
+
 		return
 	}
 
 	if meta.GetLastVideo().ID == user.VideoID {
-		r.mutex.Unlock()
+
 		return
 	}
 
 	for i := range meta.Watchers {
 		u := &meta.Watchers[i]
 		if u.Seek < float32(1) && u.ID != user.ID {
-			r.mutex.Unlock()
 			return
 		}
 	}
 	r.Store.Update(meta)
-	r.mutex.Unlock()
+
 	r.ChangeVideo(user)
 }
 
-func (r *Room) ChangeVideo(rw RoomWatcher) {
+func (r *Room) ChangeVideo(rw events.RoomWatcher) {
 	meta, _ := r.Store.Find(r.ID)
 	if len(meta.Queue) == 0 {
 		meta.UpdateHistory(meta.CurrentVideo)
-		meta.CurrentVideo = Video{}
+		meta.CurrentVideo = media.Video{}
 	} else {
 		video := meta.Queue[0]
 		meta.Queue = meta.Queue[1:]
@@ -311,20 +352,21 @@ func (r *Room) ChangeVideo(rw RoomWatcher) {
 	}
 	r.Store.Update(meta)
 
-	r.SendClientEvent(Event{
-		Action:       EVT_VIDEO_CHANGE,
+	r.SendClientEvent(events.Event{
+		Action:       events.EVT_VIDEO_CHANGE,
 		CurrentVideo: meta.CurrentVideo,
 		Watcher:      rw,
 	})
-	r.SendClientEvent(Event{
-		Action:  EVNT_UPDATE_QUEUE,
+	r.SendClientEvent(events.Event{
+		Action:  events.EVNT_UPDATE_QUEUE,
 		Queue:   meta.Queue,
 		Watcher: rw,
 	})
 
 }
 
-func (r *Room) SeenUser(rw RoomWatcher) {
+func (r *Room) SeenUser(rw events.RoomWatcher) {
+
 	meta, _ := r.Store.Find(r.ID)
 
 	err := meta.UpdateWatcher(rw)
@@ -337,8 +379,9 @@ func (r *Room) SeenUser(rw RoomWatcher) {
 	}
 
 	r.Store.Update(meta)
-	r.SendClientEvent(Event{
-		Action:   EVT_ON_PROGRESS_UPDATE,
+
+	r.SendClientEvent(events.Event{
+		Action:   events.EVT_ON_PROGRESS_UPDATE,
 		Watchers: meta.Watchers,
 	})
 }

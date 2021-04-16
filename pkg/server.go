@@ -4,254 +4,60 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"watch2gether/pkg/room"
-	client "watch2gether/pkg/room"
+	"watch2gether/pkg/api"
+
 	user "watch2gether/pkg/user"
+	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
-
-	"github.com/gorilla/sessions"
-
-	"github.com/markbates/goth/gothic"
-	"github.com/prometheus/common/log"
 )
 
-type joinMessage struct {
-	ID        string `json:"id"`
-	Name      string `json:"name"`
-	Username  string `json:"username"`
-	Anonymous bool   `json:"anonymous"`
+var config *utils.Config
+
+func SetupServer(c *utils.Config) {
+	config = c
 }
 
-type BaseHandler struct {
-	Hub   *Hub
-	Users *user.UserStore
-	Rooms *room.RoomStore
-}
-
-func (h BaseHandler) GetRoomMeta(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	room, err := h.Rooms.Find(id)
-	if err != nil {
-		return StatusError{http.StatusNotFound, fmt.Errorf("Room Does not exisit")}
-	}
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(room)
-	return nil
-}
-
-func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, req *http.Request) error {
-	vars := mux.Vars(req)
-	w.Header().Set("Content-Type", "application/json")
-	id := vars["id"]
-	r, err := h.Rooms.Find(id)
-	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
-	}
-
-	var meta = room.Meta{}
-	err = json.NewDecoder(req.Body).Decode(&meta)
-	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
-	}
-	//r.Update(meta)
-	h.Rooms.Update(r)
-	return nil
-}
-
-func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
-	var roomMsg = joinMessage{}
-	err := json.NewDecoder(r.Body).Decode(&roomMsg)
-	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
-	}
-
-	//Check user exists
-	usr, err := h.Users.FindByField("Name", roomMsg.Username)
-	if err != nil {
-		if roomMsg.Anonymous {
-			usr = user.NewUser(roomMsg.Username, user.USER_TYPE_ANON)
-		} else {
-			usr = user.NewUser(roomMsg.Username, user.USER_TYPE_BASIC)
-		}
-
-		err := h.Users.Create(usr)
-		if err != nil {
-			log.Error(err)
-		}
-
-	}
-
-	roomStr, err := h.Rooms.Find(roomMsg.ID)
-	if err != nil {
-		roomStr, err = h.Rooms.FindByField("Name", roomMsg.Name)
-		if err != nil || roomStr == nil {
-			log.Info("Room Not found. Making...")
-			roomStr = room.NewMeta(roomMsg.Name, usr)
-			err := h.Rooms.Create(roomStr)
-			if err != nil {
-				log.Errorf("Room Create error:  %w", err)
-				return StatusError{http.StatusBadRequest, err}
-
-			}
-		}
-	}
-
-	_, err = roomStr.FindWatcher(usr.ID)
-	if err == nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("User Already existis")}
-	}
-
-	//Check that this server is hosting the room
-	hubRoom, ok := h.Hub.GetRoom(roomStr.ID)
-	if !ok {
-		hubRoom = room.New(roomStr, h.Rooms)
-		hubRoom.Join(usr)
-		h.Hub.AddRoom(hubRoom)
-	} else {
-		hubRoom.Join(usr)
-	}
-
-	if hubRoom.Status != "Running" {
-		h.Hub.StartRoom(roomStr.ID)
-	}
-
-	resp := map[string]interface{}{}
-	resp["user"] = usr
-	resp["room_id"] = hubRoom.ID
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-
-	return nil
-}
-
-func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
-	var roomMsg = joinMessage{}
-	err := json.NewDecoder(r.Body).Decode(&roomMsg)
-	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
-	}
-
-	//Check user exists
-	usr, err := h.Users.FindByField("Name", roomMsg.Username)
-	if err != nil {
-
-		log.Error(err)
-
-	}
-
-	room, ok := h.Hub.FindRoom(roomMsg.ID)
-	if !ok {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room does not exisit")}
-	}
-
-	if !room.ContainsUserID(usr.ID) {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("User does not exisits")}
-	}
-
-	log.Info("USER LEFT")
-	room.Leave(usr.ID)
-	return nil
-}
-
-func (h BaseHandler) DeleteRoom(w http.ResponseWriter, r *http.Request) error {
-	vars := mux.Vars(r)
-	id := vars["id"]
-
-	_, ok := h.Hub.FindRoom(id)
-	if !ok {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
-	}
-	h.Hub.DeleteRoom(id)
-	return nil
-}
-
-func (h BaseHandler) ConnectRoom() http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		id := vars["id"]
-		room, ok := h.Hub.FindRoom(id)
-		if !ok {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Error Room Unknown"))
-			return
-		}
-		StartWebSocket(w, r, room)
-	})
-}
-
-// HubStatus Return status of all rooms
-func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) {
-	resp := map[string]interface{}{}
-	rooms := []map[string]interface{}{}
-	users := []map[string]interface{}{}
-
-	for _, v := range h.Hub.rooms {
-		meta, _ := h.Rooms.Find(v.ID)
-		rooms = append(rooms, map[string]interface{}{
-			"id":     v.ID,
-			"status": v.Status,
-			"meta":   meta,
-		})
-	}
-
-	usrs, err := h.Users.GetAll()
-	if err == nil {
-		for _, v := range usrs {
-			users = append(users, map[string]interface{}{
-				"id":   v.ID,
-				"name": v.Name,
-				"type": v.Type,
-			})
-		}
-	} else {
-		log.Errorf("DB Find error %v", err)
-	}
-
-	resp["rooms"] = rooms
-	resp["users"] = users
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-}
-
-func SetupServer() {
-	key := ""            // Replace with your SESSION_SECRET or similar
-	maxAge := 86400 * 30 // 30 days
-	isProd := false      // Set to true when serving over https
-
-	store := sessions.NewCookieStore([]byte(key))
-	store.MaxAge(maxAge)
-	store.Options.Path = "/"
-	store.Options.HttpOnly = true // HttpOnly should always be enabled
-	store.Options.Secure = isProd
-
-	gothic.Store = store
-}
-
-func StartServer(connection string, hub *Hub, userDB *user.UserStore, rooms *room.RoomStore) error {
-	api := BaseHandler{Hub: hub, Users: userDB, Rooms: rooms}
+func StartServer(connection string, userDB *user.UserStore, hndlr *api.BaseHandler) error {
+	auth := user.NewDiscordAuth(config, userDB)
 
 	r := mux.NewRouter()
 
-	r.Handle("/api/v1/room/join", Handler{api.JoinRoom}).Methods("POST")
-	r.Handle("/api/v1/room/leave", Handler{api.LeaveRoom}).Methods("POST")
+	r.HandleFunc("/auth/login", auth.HandleLogin).Methods("GET")
+	r.HandleFunc("/auth/logout", auth.HandleLogout).Methods("GET")
+	r.HandleFunc("/auth/callback", auth.HandleCallback).Methods("GET")
+	r.Handle("/auth/user", auth.Middleware(auth.HandleUser)).Methods("GET")
 
-	r.Handle("/api/v1/room/{id}/ws", api.ConnectRoom())
-	r.Handle("/api/v1/room/{id}", Handler{api.GetRoomMeta}).Methods("GET")
-	r.Handle("/api/v1/room/{id}", Handler{api.UpdateRoomMeta}).Methods("POST")
-	r.Handle("/api/v1/room/{id}", Handler{api.DeleteRoom}).Methods("DELETE")
+	r.Handle("/api/v1/room/join", api.Handler{hndlr.JoinRoom}).Methods("POST")
+	r.Handle("/api/v1/room/leave", api.Handler{hndlr.LeaveRoom}).Methods("POST")
 
-	r.Handle("/api/v1/scrape", Handler{getPageInfo}).Methods("GET")
+	r.Handle("/api/v1/room/{room_id}/playlist/{id}/load", api.Handler{hndlr.LoadPlaylist}).Methods("GET")
+	r.Handle("/api/v1/room/{room_id}/playlist/{id}", api.Handler{hndlr.UpdatePlaylist}).Methods("POST")
+	r.Handle("/api/v1/room/{room_id}/playlist/{id}", api.Handler{hndlr.DeletePlaylist}).Methods("DELETE")
+	r.Handle("/api/v1/room/{room_id}/playlist/{id}", api.Handler{hndlr.GetRoomPlaylist}).Methods("GET")
+	r.Handle("/api/v1/room/{id}/playlist", api.Handler{hndlr.CretePlaylist}).Methods("PUT")
+	r.Handle("/api/v1/room/{id}/playlist", api.Handler{hndlr.GetAllRoomPlaylists}).Methods("GET")
 
-	r.Handle("/api/v1/status/{roomName}", Handler{api.GetRoomMeta})
-	r.HandleFunc("/api/v1/status", api.HubStatus)
+	r.Handle("/api/v1/room/{id}/ws", hndlr.ConnectRoom())
+	r.Handle("/api/v1/room/{id}", api.Handler{hndlr.GetRoomMeta}).Methods("GET")
+	r.Handle("/api/v1/room/{id}", api.Handler{hndlr.UpdateRoomMeta}).Methods("POST")
+	r.Handle("/api/v1/room/{id}", api.Handler{hndlr.DeleteRoom}).Methods("DELETE")
 
-	spa := spaHandler{staticPath: "ui/build", indexPath: "index.html"}
-	r.PathPrefix("/").Handler(spa)
+	r.Handle("/api/v1/scrape", api.Handler{getPageInfo}).Methods("GET")
+
+	r.Handle("/api/v1/status/{roomName}", api.Handler{hndlr.GetRoomMeta})
+	r.HandleFunc("/api/v1/status", hndlr.HubStatus)
+
+	if config.Dev {
+		fmt.Println("Starting in dev mode")
+		dp := newProxy()
+		r.PathPrefix("/").Handler(dp)
+
+	} else {
+		spa := spaHandler{staticPath: "ui/build", indexPath: "index.html"}
+		r.PathPrefix("/").Handler(spa)
+	}
 
 	headers := handlers.AllowedHeaders([]string{"X-Requested-With", "Content-Type", "Authorization"})
 	methods := handlers.AllowedMethods([]string{"GET", "POST", "DELETE", "PUT", "HEAD", "OPTIONS"})
@@ -264,30 +70,12 @@ func getPageInfo(w http.ResponseWriter, r *http.Request) error {
 	vars := r.URL.Query()
 	url := vars["url"][0]
 
-	s, err := Scrape(url, 1)
+	s, err := utils.Scrape(url, 1)
 	if err != nil {
 		return err
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(s.Preview)
 
-	return nil
-}
-
-func enableCors(w *http.ResponseWriter) {
-	(*w).Header().Set("Access-Control-Allow-Origin", "*")
-}
-func StartWebSocket(w http.ResponseWriter, req *http.Request, r *room.Room) error {
-	enableCors(&w)
-	vars := req.URL.Query()
-	token := vars["token"][0]
-
-	log.Info("TOKEN: " + token)
-
-	socket, err := client.Upgrader.Upgrade(w, req, nil)
-	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Connection is not using the websocket protocol")}
-	}
-	client.NewClient(r, socket, token)
 	return nil
 }
