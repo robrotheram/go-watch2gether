@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"watch2gether/pkg/events"
 	"watch2gether/pkg/room"
 	"watch2gether/pkg/user"
 
@@ -183,6 +182,6 @@ func (h BaseHandler) LoadPlaylist(w http.ResponseWriter, r *http.Request) error 
 	}
 	queue := room.GetQueue()
 	queue = append(queue, playlist.Videos...)
-	room.SetQueue(queue, events.SERVER_USER)
+	room.SetQueue(queue, user.SERVER_USER)
 	return nil
 }

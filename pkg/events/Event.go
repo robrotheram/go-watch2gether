@@ -4,22 +4,20 @@ import (
 	"bytes"
 	"encoding/json"
 	"watch2gether/pkg/media"
+	"watch2gether/pkg/user"
 
-	"github.com/segmentio/ksuid"
 	log "github.com/sirupsen/logrus"
 )
 
-var SERVER_USER = RoomWatcher{ID: ksuid.New().String(), Name: "Server"}
-
 type Event struct {
-	Action       string        `json:"action"`
-	Host         string        `json:"host"`
-	Watcher      RoomWatcher   `json:"watcher"`
-	Queue        []media.Video `json:"queue"`
-	CurrentVideo media.Video   `json:"current_video"`
-	Seek         float32       `json:"seek"`
-	Watchers     []RoomWatcher `json:"watchers"`
-	Settings     RoomSettings  `json:"settings"`
+	Action       string         `json:"action"`
+	Host         string         `json:"host"`
+	Watcher      user.Watcher   `json:"watcher"`
+	Queue        []media.Video  `json:"queue"`
+	CurrentVideo media.Video    `json:"current_video"`
+	Seek         float32        `json:"seek"`
+	Watchers     []user.Watcher `json:"watchers"`
+	Settings     RoomSettings   `json:"settings"`
 }
 
 func (evt Event) ToBytes() []byte {

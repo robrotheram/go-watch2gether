@@ -1,5 +1,6 @@
 import axios from 'axios'
 import {API_URL, history} from '../index'
+import { GetUsername } from '../user'
 
 export const getPlaylists = (room_id) => {
     return dispatch => {
@@ -15,6 +16,7 @@ export const getPlaylists = (room_id) => {
     }
 }
 export const createPlaylists = (room_id, playlist) => {
+    playlist.username = GetUsername()
     return dispatch => {
         axios.put(API_URL+"room/"+room_id+"/playlist", playlist).then(res => {
             console.log("auth", res.data)
@@ -29,6 +31,7 @@ export const createPlaylists = (room_id, playlist) => {
 }
 
 export const updatePlaylists = (room_id, playlist) => {
+    playlist.username = GetUsername()
     return dispatch => {
         axios.post(API_URL+"room/"+room_id+"/playlist/"+playlist.id, playlist).then(res => {
             console.log("auth", res.data)

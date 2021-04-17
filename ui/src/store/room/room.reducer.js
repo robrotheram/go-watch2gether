@@ -2,7 +2,6 @@ import {openNotificationWithIcon} from "../../components/common/notification"
 import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL} from './room.types';
     const INITIAL_STATE = {
       "id": "",
-      "name":"",
       "owner": "",
       "host":"",
       "controls":false,
@@ -87,7 +86,7 @@ const process_websocket_event = (state, data) => {
         ...state, active:false, room:""
       };
     case "UPDATE_QUEUE":             
-      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.name)   
+      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.username)   
       return {
         ...state, queue: data.queue
       };

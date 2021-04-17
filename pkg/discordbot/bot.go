@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"watch2gether/pkg/events"
 	"watch2gether/pkg/hub"
 	"watch2gether/pkg/media"
 	"watch2gether/pkg/room"
@@ -67,6 +66,17 @@ func (db *DiscordBot) Start() error {
 	return nil
 }
 
+func (db *DiscordBot) GetUserVoiceChannel(user string) (string, error) {
+	for _, g := range db.session.State.Guilds {
+		for _, v := range g.VoiceStates {
+			if v.UserID == user {
+				return v.ChannelID, nil
+			}
+		}
+	}
+	return "", fmt.Errorf("Channel Not found")
+}
+
 func (db *DiscordBot) Close() {
 	db.session.Close()
 }
@@ -116,7 +126,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 			if playlist.Name == playlistName {
 				queue := r.GetQueue()
 				queue = append(queue, playlist.Videos...)
-				r.SetQueue(queue, events.SERVER_USER)
+				r.SetQueue(queue, user.DISCORD_BOT)
 				return
 			}
 		}
@@ -175,7 +185,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 		}
 
 		video := media.Video{ID: ksuid.New().String(), Title: document.Preview.Title, Url: u.String(), User: DiscordUser.Username}
-		r.AddVideo(video, room.NewWatcher(user.NewUser(DiscordUser.Username, user.USER_TYPE_DISCORD)))
+		r.AddVideo(video, user.DISCORD_BOT)
 
 		log.Infof("Vidoe Envent sent : %v", video)
 		s.ChannelMessageSend(m.ChannelID, "Video Added ID:"+video.ID)
@@ -188,7 +198,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 			s.ChannelMessageSend(m.ChannelID, "Room not found")
 			return
 		}
-		r.ChangeVideo(room.NewWatcher(user.NewUser(DiscordUser.Username, user.USER_TYPE_DISCORD)))
+		r.ChangeVideo(user.DISCORD_BOT)
 		s.ChannelMessageSend(m.ChannelID, "Video Skiped")
 		return
 	}

@@ -10,7 +10,7 @@ import {updateHost} from '../../../store/room/room.actions'
 function UserList(props){
     const {watchers, host } = props.room;
     const {isHost} = props.user;
-
+    
     const listActions = (item) => {
       let actions = [] 
       if(isHost){
@@ -19,13 +19,14 @@ function UserList(props){
             type="link" 
             disabled={isHost  && host===item.id}  
             key="list-loadmore-edit" 
-            onClick={() => updateHost(item.name)}>
+            onClick={() => updateHost(item.username)}>
               {isHost  && host===item.id ?"You are the host": "Promote To Host"}
           </Button>
         )
       }
       return actions;
     }
+    console.log("room",props.room.watchers)
     return (
       // <Card type="inner" title="Users Progress" className="list">
       //   <div className="container .sc2 userlist">
@@ -38,7 +39,7 @@ function UserList(props){
               <List.Item className={item.id === host ? "userListActive" : null}>
                   <Row style={{"width":"100%", "padding":"5px"}}>
                     <Col flex="100px" style={{"textAlign":"left", "paddingRight":"10px"}}>
-                      {item.name}  
+                      {item.username}  
                     </Col>
                     <Col flex="auto" >
                       <div style={{"display":"inline-block", "width":"100%"}}><Progress percent={(item.seek)*100} showInfo={false}size="small"/></div>

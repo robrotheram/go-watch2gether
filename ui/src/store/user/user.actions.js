@@ -9,6 +9,7 @@ export const checklogin = () => {
             dispatch({
                 type: AUTH_LOGIN,
                 auth: true,
+                id: res.data.user.id,
                 username: res.data.user.username,
                 icon: res.data.user.avatar_icon,
                 guilds: res.data.guilds,

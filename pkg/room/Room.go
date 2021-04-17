@@ -65,7 +65,7 @@ func (r *Room) Join(usr user.User) {
 
 		return
 	}
-	watcher = NewWatcher(usr)
+	watcher = user.NewWatcher(usr)
 	watcher.Seek = meta.Seek
 	watcher.VideoID = meta.CurrentVideo.ID
 
@@ -86,7 +86,7 @@ func (r *Room) Join(usr user.User) {
 
 func (r *Room) SendClientEvent(evt events.Event) {
 	if evt.Watcher.ID == "" {
-		evt.Watcher = events.SERVER_USER
+		evt.Watcher = user.SERVER_USER
 	}
 	log.Infof("Sending event %s to all clients", evt.Action)
 	for client := range r.clients {
@@ -132,7 +132,7 @@ func (r *Room) DeleteIfEmpty() {
 }
 
 func (r *Room) HandleEvent(evt events.Event) {
-	if evt.Watcher.ID == events.SERVER_USER.ID {
+	if evt.Watcher.ID == user.SERVER_USER.ID {
 		return
 	}
 	switch evt.Action {
@@ -198,7 +198,7 @@ func (r *Room) SetSettings(settings events.RoomSettings) {
 
 }
 
-func (r *Room) AddVideo(video media.Video, rw events.RoomWatcher) {
+func (r *Room) AddVideo(video media.Video, rw user.Watcher) {
 
 	meta, _ := r.Store.Find(r.ID)
 	meta.Queue = append(meta.Queue, video)
@@ -224,7 +224,7 @@ func (r *Room) GetQueue() []media.Video {
 	return meta.Queue
 }
 
-func (r *Room) SetQueue(queue []media.Video, rw events.RoomWatcher) bool {
+func (r *Room) SetQueue(queue []media.Video, rw user.Watcher) bool {
 
 	meta, _ := r.Store.Find(r.ID)
 
@@ -266,14 +266,14 @@ func (r *Room) SetHost(id string) {
 	})
 }
 
-func (r *Room) GetUser(id string) (events.RoomWatcher, error) {
+func (r *Room) GetUser(id string) (user.Watcher, error) {
 	meta, _ := r.Store.Find(r.ID)
 	for _, user := range meta.Watchers {
 		if user.ID == id {
 			return user, nil
 		}
 	}
-	return events.RoomWatcher{}, fmt.Errorf("User Not found with id: %s", id)
+	return user.Watcher{}, fmt.Errorf("User Not found with id: %s", id)
 }
 
 func (r *Room) SetPlaying(state bool) {
@@ -311,8 +311,8 @@ func (r *Room) SetSeek(seek float32) {
 	})
 }
 
-func (r *Room) HandleFinish(user events.RoomWatcher) {
-	log.Infof("User %, Has finished! Seek = %f", user.Name, user.Seek)
+func (r *Room) HandleFinish(user user.Watcher) {
+	log.Infof("User %, Has finished! Seek = %f", user.Username, user.Seek)
 
 	user.Seek = float32(1)
 	meta, _ := r.Store.Find(r.ID)
@@ -339,7 +339,7 @@ func (r *Room) HandleFinish(user events.RoomWatcher) {
 	r.ChangeVideo(user)
 }
 
-func (r *Room) ChangeVideo(rw events.RoomWatcher) {
+func (r *Room) ChangeVideo(rw user.Watcher) {
 	meta, _ := r.Store.Find(r.ID)
 	if len(meta.Queue) == 0 {
 		meta.UpdateHistory(meta.CurrentVideo)
@@ -365,7 +365,7 @@ func (r *Room) ChangeVideo(rw events.RoomWatcher) {
 
 }
 
-func (r *Room) SeenUser(rw events.RoomWatcher) {
+func (r *Room) SeenUser(rw user.Watcher) {
 
 	meta, _ := r.Store.Find(r.ID)
 

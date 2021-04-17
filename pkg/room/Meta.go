@@ -12,19 +12,19 @@ import (
 )
 
 type Meta struct {
-	ID           string               `rethinkdb:"id,omitempty" json:"id"`
-	Name         string               `json:"name"`
-	Owner        string               `json:"owner"`
-	Host         string               `json:"host"`
-	Icon         string               `json:"icon"`
-	History      []media.Video        `json:"history"`
-	CurrentVideo media.Video          `json:"current_video"`
-	Seek         float32              `json:"seek"`
-	Playing      bool                 `json:"playing"`
-	Queue        []media.Video        `json:"queue"`
-	Watchers     []events.RoomWatcher `json:"watchers"`
-	Type         string               `json:"type"`
-	Settings     events.RoomSettings  `json:"settings"`
+	ID           string              `rethinkdb:"id,omitempty" json:"id"`
+	Name         string              `json:"name"`
+	Owner        string              `json:"owner"`
+	Host         string              `json:"host"`
+	Icon         string              `json:"icon"`
+	History      []media.Video       `json:"history"`
+	CurrentVideo media.Video         `json:"current_video"`
+	Seek         float32             `json:"seek"`
+	Playing      bool                `json:"playing"`
+	Queue        []media.Video       `json:"queue"`
+	Watchers     []user.Watcher      `json:"watchers"`
+	Type         string              `json:"type"`
+	Settings     events.RoomSettings `json:"settings"`
 }
 
 func (t *Meta) MarshalBinary() ([]byte, error) {
@@ -42,7 +42,7 @@ func NewMeta(name string, usr user.User) *Meta {
 	if usr.Type == user.USER_TYPE_ANON {
 		return &Meta{
 			Name:     name,
-			Watchers: []events.RoomWatcher{},
+			Watchers: []user.Watcher{},
 			Queue:    []media.Video{},
 			History:  []media.Video{},
 			ID:       ksuid.New().String(),
@@ -54,7 +54,7 @@ func NewMeta(name string, usr user.User) *Meta {
 	}
 	return &Meta{
 		Name:     name,
-		Watchers: []events.RoomWatcher{},
+		Watchers: []user.Watcher{},
 		Queue:    []media.Video{},
 		History:  []media.Video{},
 		ID:       ksuid.New().String(),
@@ -79,13 +79,13 @@ func (meta *Meta) UpdateHistory(v media.Video) {
 	meta.History = append(meta.History, v)
 }
 
-func (meta *Meta) FindWatcher(id string) (events.RoomWatcher, error) {
+func (meta *Meta) FindWatcher(id string) (user.Watcher, error) {
 	for _, w := range meta.Watchers {
 		if w.ID == id {
 			return w, nil
 		}
 	}
-	return events.RoomWatcher{}, fmt.Errorf("Watcher not found")
+	return user.Watcher{}, fmt.Errorf("Watcher not found")
 }
 func (meta *Meta) RemoveWatcher(watcherid string) {
 	for i, v := range meta.Watchers {
@@ -96,7 +96,7 @@ func (meta *Meta) RemoveWatcher(watcherid string) {
 	}
 }
 
-func (meta *Meta) AddWatcher(rw events.RoomWatcher) {
+func (meta *Meta) AddWatcher(rw user.Watcher) {
 	if _, err := meta.FindWatcher(rw.ID); err == nil {
 		return
 	}
@@ -104,7 +104,7 @@ func (meta *Meta) AddWatcher(rw events.RoomWatcher) {
 	meta.Watchers = append(meta.Watchers, rw)
 }
 
-func (meta *Meta) UpdateWatcher(rw events.RoomWatcher) error {
+func (meta *Meta) UpdateWatcher(rw user.Watcher) error {
 	for i := range meta.Watchers {
 		watcher := &meta.Watchers[i]
 		if rw.ID == watcher.ID {
@@ -119,8 +119,4 @@ func (meta *Meta) UpdateWatcher(rw events.RoomWatcher) error {
 		}
 	}
 	return fmt.Errorf("Watcher not found")
-}
-
-func NewWatcher(usr user.User) events.RoomWatcher {
-	return events.RoomWatcher{ID: usr.ID, Name: usr.Username}
 }

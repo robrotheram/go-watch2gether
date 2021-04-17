@@ -3,11 +3,11 @@ import {AUTH_LOGIN} from "./user.types"
 import {openNotificationWithIcon} from "../../components/common/notification"
 const INITIAL_STATE = {
   id: "",
+  room: "",
   auth : false,
   username: "",
   icon: "",
   guilds: [],
-
   seek: 0.0,
   video_id: "",
   isHost: false,
@@ -23,7 +23,7 @@ export const userReducer = (state = INITIAL_STATE, action) => {
       };
     case JOIN_SUCCESSFUL:
       return {
-        ...state, id: action.user.id, name: action.user.name,
+        ...state, room: action.room,
       };
 
     case PROGRESS_UPDATE:
@@ -68,7 +68,7 @@ const process_websocket_event = (state, data) => {
     case "PLAYING":
       if (state.playing !== data.playing) {
         if (state.seek < 1) {
-          openNotificationWithIcon("success", "User: " + data.watcher.name + " started video")
+          openNotificationWithIcon("success", "User: " + data.watcher.username + " started video")
           return {
             ...state, playing: true,
           };
@@ -78,7 +78,7 @@ const process_websocket_event = (state, data) => {
     case "PAUSING":
       if (state.playing !== data.playing) {
         if (state.seek < 1) {
-          openNotificationWithIcon("success", "User: " + data.watcher.name + " has paused video")
+          openNotificationWithIcon("success", "User: " + data.watcher.username + " has paused video")
           return {
             ...state, playing: false,
           };

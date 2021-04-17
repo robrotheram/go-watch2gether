@@ -82,7 +82,7 @@ func (ab *AudioBot) sendToChannel(msg string) {
 func (ab *AudioBot) handleEvent(evt events.Event) {
 	switch evt.Action {
 	case events.EVNT_UPDATE_QUEUE:
-		ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Name))
+		ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
 	case events.EVT_VIDEO_CHANGE:
 		ab.PlayAudio(evt.CurrentVideo)
 	case events.EVT_ROOM_EXIT:
@@ -93,10 +93,10 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 		} else {
 			ab.audio.Unpause()
 		}
-		ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Name))
+		ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Username))
 	case events.EVNT_PAUSING:
 		ab.audio.Paused()
-		ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Name))
+		ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
 	}
 }
 
