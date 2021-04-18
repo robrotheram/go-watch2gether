@@ -8,7 +8,10 @@ const INITIAL_STATE = {
   username: "",
   icon: "",
   guilds: [],
-  seek: 0.0,
+  seek: {
+      progress_percent: 0.0,
+      progress_seconds: 0
+  } ,
   video_id: "",
   isHost: false,
   playing: false
@@ -67,7 +70,7 @@ const process_websocket_event = (state, data) => {
       };
     case "PLAYING":
       if (state.playing !== data.playing) {
-        if (state.seek < 1) {
+        if (state.seek.progress_percent < 1) {
           openNotificationWithIcon("success", "User: " + data.watcher.username + " started video")
           return {
             ...state, playing: true,
@@ -77,7 +80,7 @@ const process_websocket_event = (state, data) => {
       return state
     case "PAUSING":
       if (state.playing !== data.playing) {
-        if (state.seek < 1) {
+        if (state.seek.progress_percent < 1) {
           openNotificationWithIcon("success", "User: " + data.watcher.username + " has paused video")
           return {
             ...state, playing: false,

@@ -14,6 +14,8 @@ func init() {
 	Commands["add"] = &AddCmd{BaseCommand{"Add Video to Queue"}}
 	Commands["status"] = &StatusCmd{BaseCommand{"Current Status of what is playing"}}
 	Commands["skip"] = &SkipCmd{BaseCommand{"Skip to next video in the Queue"}}
+	Commands["queue"] = &listCmd{BaseCommand{"List videos in the Queue"}}
+	Commands["history"] = &historyCmd{BaseCommand{"List videos alreay played"}}
 }
 
 type AddCmd struct{ BaseCommand }
@@ -60,4 +62,34 @@ func (cmd *SkipCmd) Execute(ctx CommandCtx) error {
 
 	r.ChangeVideo(user.DISCORD_BOT)
 	return ctx.Reply("Video Skipped")
+}
+
+type listCmd struct{ BaseCommand }
+
+func (cmd *listCmd) Execute(ctx CommandCtx) error {
+	r, ok := ctx.GetHubRoom()
+	if !ok {
+		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+	}
+	msg := "Watch2Gether Queue: \n"
+	for i, v := range r.GetQueue() {
+		msg = msg + fmt.Sprintf(" -%d %s \n", i+1, v.Title)
+	}
+	return ctx.Reply(msg)
+}
+
+type historyCmd struct{ BaseCommand }
+
+func (cmd *historyCmd) Execute(ctx CommandCtx) error {
+	r, ok := ctx.GetHubRoom()
+	if !ok {
+		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+	}
+
+	msg := "Watch2Gether Room history: \n"
+	for i, v := range r.GetHistory() {
+		msg = msg + fmt.Sprintf(" -%d %s \n", i+1, v.Title)
+	}
+	msg = msg[:1900] + "..."
+	return ctx.Reply(msg)
 }

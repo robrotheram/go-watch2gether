@@ -82,7 +82,7 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 		ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
 
 	case events.EVT_VIDEO_CHANGE:
-		ab.PlayAudio(evt.CurrentVideo)
+		ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
 		if !evt.Playing {
 			if ab.audio != nil {
 				ab.audio.Paused()
@@ -90,7 +90,7 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 		}
 	case events.EVNT_PLAYING:
 		if ab.audio == nil {
-			ab.PlayAudio(evt.CurrentVideo)
+			ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
 		} else {
 			ab.audio.Unpause()
 		}
@@ -101,19 +101,25 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 		}
 		ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
 
+	case events.EVNT_SEEK:
+		ab.audio.Stop()
+		ab.audio = nil
+		ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
+		ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f%", evt.Watcher.Username, evt.Seek.ProgressPct*100))
+
 	case events.EVT_ROOM_EXIT:
 		ab.sendToChannel(fmt.Sprintf("Room has closed down"))
 	}
 }
 
-func (ab *AudioBot) PlayAudio(video media.Video) {
+func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
 	fmt.Println(video)
 	switch video.GetType() {
 	case media.VIDEO_TYPE_YT:
-		ab.PlayYoutube(video.Url)
+		ab.PlayYoutube(video.Url, starttime)
 		break
 	case media.VIDEO_TYPE_MP4:
-		ab.PlayAudioFile(video.Url)
+		ab.PlayAudioFile(video.Url, starttime)
 		break
 	default:
 		if ab.audio != nil {
@@ -124,19 +130,19 @@ func (ab *AudioBot) PlayAudio(video media.Video) {
 	}
 }
 
-func (ab *AudioBot) PlayYoutube(videoURL string) {
+func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
 	client := youtube.Client{}
 	video, _ := client.GetVideo(videoURL)
 	downloadURL, _ := client.GetStreamURL(video, &video.Formats[0])
-	ab.PlayAudioFile(downloadURL)
+	ab.PlayAudioFile(downloadURL, starttime)
 }
 
-func (ab *AudioBot) PlayAudioFile(url string) {
+func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
 	if ab.audio != nil {
 		ab.audio.Stop()
 		ab.audio = nil
 	}
-	audio, err := NewAudio(url, ab.VoiceConnection, ab.RoomChannel)
+	audio, err := NewAudio(url, ab.VoiceConnection, ab.RoomChannel, starttime)
 	if err != nil {
 		fmt.Println("ERROR!!!!")
 	}

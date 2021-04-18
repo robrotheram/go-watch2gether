@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"sync"
 	"time"
+	"watch2gether/pkg/media"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
@@ -52,10 +53,11 @@ func ParseDuration(url string) (time.Duration, error) {
 	return time.ParseDuration(d.Format.Duration + "s")
 }
 
-func NewAudio(url string, voice *discordgo.VoiceConnection, roomChannel chan []byte) (*Audio, error) {
+func NewAudio(url string, voice *discordgo.VoiceConnection, roomChannel chan []byte, starttime int) (*Audio, error) {
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
 	opts.Bitrate = 120
+	opts.StartTime = starttime
 
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
@@ -127,7 +129,10 @@ func (audio *Audio) PlayStream() {
 			if audio.Duration > 0 && audio.progress > 0 {
 				progress = audio.progress.Seconds() / audio.Duration.Seconds()
 			}
-			SendToChannel(CreateBotUpdateEvent(progress), audio.RoomChannel)
+			SendToChannel(CreateBotUpdateEvent(media.Seek{
+				ProgressPct: progress,
+				ProgressSec: audio.progress.Seconds(),
+			}), audio.RoomChannel)
 		}
 	}
 }

@@ -42,7 +42,7 @@ function UserList(props){
                       {item.username}  
                     </Col>
                     <Col flex="auto" >
-                      <div style={{"display":"inline-block", "width":"100%"}}><Progress percent={(item.seek)*100} showInfo={false}size="small"/></div>
+                      <div style={{"display":"inline-block", "width":"100%"}}><Progress percent={(item.seek.progress_percent)*100} showInfo={false}size="small"/></div>
                     </Col>
                 </Row>
               </List.Item>

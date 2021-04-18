@@ -116,7 +116,12 @@ export const getMeta = (id) => {
     }
 }
 
-export const updateSeek = (seek) => {
+export const updateSeek = (percent, seconds) => {
+    let seek = {
+        "progress_percent": percent,
+        "progress_seconds": seconds
+    }
+
     store.dispatch( {
         type: PROGRESS_UPDATE,
         seek: seek,

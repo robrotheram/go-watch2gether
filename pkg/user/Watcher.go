@@ -2,14 +2,15 @@ package user
 
 import (
 	"time"
+	"watch2gether/pkg/media"
 )
 
 type Watcher struct {
 	User
-	Seek     float64   `json:"seek"`
-	VideoID  string    `json:"video_id"`
-	IsHost   bool      `json:"is_host"`
-	LastSeen time.Time `json:"seen"`
+	Seek     media.Seek `json:"seek"`
+	VideoID  string     `json:"video_id"`
+	IsHost   bool       `json:"is_host"`
+	LastSeen time.Time  `json:"seen"`
 }
 
 func NewWatcher(usr User) Watcher {

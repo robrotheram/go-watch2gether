@@ -98,6 +98,7 @@ func (r *Room) SendClientEvent(evt events.Event) {
 
 	if r.bot != nil {
 		evt.CurrentVideo = r.GetVideo()
+		evt.Seek = r.GetSeek()
 		r.bot.Send(evt)
 	}
 }
@@ -214,9 +215,20 @@ func (r *Room) AddVideo(video media.Video, rw user.Watcher) {
 	r.SetQueue(meta.Queue, rw)
 
 }
+
 func (r *Room) GetVideo() media.Video {
 	meta, _ := r.Store.Find(r.ID)
 	return meta.CurrentVideo
+}
+
+func (r *Room) GetSeek() media.Seek {
+	meta, _ := r.Store.Find(r.ID)
+	return meta.Seek
+}
+
+func (r *Room) GetHistory() []media.Video {
+	meta, _ := r.Store.Find(r.ID)
+	return meta.History
 }
 
 func (r *Room) GetType() string {
@@ -308,7 +320,7 @@ func (r *Room) Leave(id string) {
 		Watchers: meta.Watchers,
 	})
 }
-func (r *Room) SetSeek(seek float64) {
+func (r *Room) SetSeek(seek media.Seek) {
 	meta, _ := r.Store.Find(r.ID)
 	meta.Seek = seek
 	r.Store.Update(meta)
@@ -321,7 +333,7 @@ func (r *Room) SetSeek(seek float64) {
 func (r *Room) HandleFinish(user user.Watcher) {
 	log.Infof("User %, Has finished! Seek = %f", user.Username, user.Seek)
 
-	user.Seek = float64(1)
+	user.Seek = media.SEEK_FINISHED
 	meta, _ := r.Store.Find(r.ID)
 	meta.UpdateWatcher(user)
 
@@ -337,7 +349,7 @@ func (r *Room) HandleFinish(user user.Watcher) {
 
 	for i := range meta.Watchers {
 		u := &meta.Watchers[i]
-		if u.Seek < float64(1) && u.ID != user.ID {
+		if u.Seek.Done() && u.ID != user.ID {
 			return
 		}
 	}

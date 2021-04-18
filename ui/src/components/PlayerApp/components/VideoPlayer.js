@@ -23,7 +23,7 @@ class VideoPlayer extends React.Component {
     componentWillReceiveProps(props) {
         let nextProps = props.video
         // You don't have to do this check first, but it can help prevent an unneeded render
-        if (nextProps.seek !== this.state.played) {
+        if (nextProps.seek.progress_percent !== this.state.played) {
             console.log("STATE_CHANGE",nextProps )
           this.setState({ played: nextProps.seek });
           if (this.player !== undefined) {
@@ -56,7 +56,7 @@ class VideoPlayer extends React.Component {
     }
 
     handleEnded = () => {
-        updateSeek(1)
+        updateSeek(1,0)
         handleFinish()
     }
 
@@ -64,7 +64,7 @@ class VideoPlayer extends React.Component {
         // console.log('onProgress', state)
         // console.log("PLAYER!", this.player)
         this.setState({ seek: state.playedSeconds })
-        updateSeek(state.played)
+        updateSeek(state.played, state.playedSeconds )
         
     }
 

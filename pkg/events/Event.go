@@ -16,7 +16,7 @@ type Event struct {
 	Queue        []media.Video  `json:"queue"`
 	Playing      bool           `json:"playing"`
 	CurrentVideo media.Video    `json:"current_video"`
-	Seek         float64        `json:"seek"`
+	Seek         media.Seek     `json:"seek"`
 	Watchers     []user.Watcher `json:"watchers"`
 	Settings     RoomSettings   `json:"settings"`
 }

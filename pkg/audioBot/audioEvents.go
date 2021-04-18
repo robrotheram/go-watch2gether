@@ -2,6 +2,7 @@ package audioBot
 
 import (
 	"watch2gether/pkg/events"
+	"watch2gether/pkg/media"
 	"watch2gether/pkg/user"
 )
 
@@ -12,7 +13,7 @@ func CreateBotJoinEvent() events.Event {
 	}
 }
 
-func CreateBotUpdateEvent(seek float64) events.Event {
+func CreateBotUpdateEvent(seek media.Seek) events.Event {
 	evt := events.Event{
 		Action:  events.EVNT_USER_UPDATE,
 		Watcher: user.DISCORD_BOT,
@@ -26,6 +27,6 @@ func CreateBotFinishEvent() events.Event {
 		Action:  events.ENVT_FINSH,
 		Watcher: user.DISCORD_BOT,
 	}
-	evt.Watcher.Seek = float64(1)
+	evt.Watcher.Seek = media.SEEK_FINISHED
 	return evt
 }
