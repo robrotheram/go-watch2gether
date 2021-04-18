@@ -38,11 +38,10 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 		ctx.Reply("User not connected to voice channel")
 	}
 	bot := audioBot.NewAudioBot("", ctx.Channel.ID, voice, ctx.Session)
-	err = bot.Start()
+	err = r.RegisterBot(bot)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("Bot error %v", err))
 	}
-	r.RegisterBot(bot)
 	ctx.Reply(fmt.Sprintf("Bot added to voice channel"))
 	//_, err = ctx.Session.ChannelVoiceJoin(ctx.Guild.ID, vc, false, true)
 	return nil

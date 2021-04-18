@@ -26,7 +26,7 @@ function UserList(props){
       }
       return actions;
     }
-    console.log("room",props.room.watchers)
+    //console.log("room",props.room.watchers)
     return (
       // <Card type="inner" title="Users Progress" className="list">
       //   <div className="container .sc2 userlist">

@@ -1,9 +1,11 @@
 package audioBot
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 	"log"
+	"os/exec"
 	"sync"
 	"time"
 
@@ -18,11 +20,39 @@ type Audio struct {
 	wg       sync.WaitGroup
 	session  *dca.EncodeSession
 	progress time.Duration
-	url      string
+	Url      string
+	Duration time.Duration
 	sync.Mutex
+	RoomChannel chan []byte
 }
 
-func NewAudio(url string, voice *discordgo.VoiceConnection) (*Audio, error) {
+func ParseDuration(url string) (time.Duration, error) {
+	cmd := exec.Command(
+		"ffprobe",
+		"-i", url,
+		"-show_entries", "format=duration",
+		"-v", "quiet",
+		"-of", "json",
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return 0, err
+	}
+
+	type duration struct {
+		Format struct {
+			Duration string `json:"duration"`
+		} `json:"format"`
+	}
+	var d = duration{}
+	err = json.Unmarshal(out, &d)
+	if err != nil {
+		return 0, err
+	}
+	return time.ParseDuration(d.Format.Duration + "s")
+}
+
+func NewAudio(url string, voice *discordgo.VoiceConnection, roomChannel chan []byte) (*Audio, error) {
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
 	opts.Bitrate = 120
@@ -31,30 +61,33 @@ func NewAudio(url string, voice *discordgo.VoiceConnection) (*Audio, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Failed creating an encoding session: ", err)
 	}
-	return &Audio{
-		url:     url,
-		session: encodeSession,
-		done:    make(chan error),
-		voice:   voice,
-	}, nil
-
+	audio := Audio{
+		Url:         url,
+		session:     encodeSession,
+		done:        make(chan error),
+		voice:       voice,
+		RoomChannel: roomChannel,
+	}
+	go func() {
+		audio.Duration, _ = ParseDuration(audio.Url)
+	}()
+	return &audio, nil
 }
 
 func (audio *Audio) Unpause() {
 	if audio.stream == nil {
 		return
 	}
-	if audio.stream.Paused() {
-		audio.voice.Speaking(true)
-		audio.stream.SetPaused(true)
-	}
+	audio.voice.Speaking(true)
+	audio.stream.SetPaused(true)
 }
 
 func (audio *Audio) Paused() {
-	if !audio.stream.Paused() {
-		audio.voice.Speaking(false)
-		audio.stream.SetPaused(true)
+	if audio.stream == nil {
+		return
 	}
+	audio.voice.Speaking(false)
+	audio.stream.SetPaused(true)
 }
 
 func (audio *Audio) Play() {
@@ -69,8 +102,8 @@ func (audio *Audio) Stop() {
 	if audio.session == nil {
 		return
 	}
-	audio.session.Stop()
-	<-audio.done
+	audio.session.Cleanup()
+	SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
 }
 
 func (audio *Audio) PlayStream() {
@@ -84,11 +117,17 @@ func (audio *Audio) PlayStream() {
 			}
 			// Clean up incase something happened and ffmpeg is still running
 			audio.session.Truncate()
+			SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
 			return
 		case <-ticker.C:
-			stats := audio.session.Stats()
+			//stats := audio.session.Stats()
 			audio.progress = audio.stream.PlaybackPosition()
-			fmt.Printf("Playback: %10s, Transcode Stats: Time: %5s, Size: %5dkB, Bitrate: %6.2fkB, Speed: %5.1fx\r", audio.progress, stats.Duration.String(), stats.Size, stats.Bitrate, stats.Speed)
+			//fmt.Printf("Playback: %10s, Transcode Stats: Time: %5s, Size: %5dkB, Bitrate: %6.2fkB, Speed: %5.1fx\r", audio.progress, stats.Duration.String(), stats.Size, stats.Bitrate, stats.Speed)
+			progress := float64(0)
+			if audio.Duration > 0 && audio.progress > 0 {
+				progress = audio.progress.Seconds() / audio.Duration.Seconds()
+			}
+			SendToChannel(CreateBotUpdateEvent(progress), audio.RoomChannel)
 		}
 	}
 }

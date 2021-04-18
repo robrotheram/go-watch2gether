@@ -53,8 +53,11 @@ func (r *Room) ContainsUserID(id string) bool {
 	return err == nil
 }
 
-func (r *Room) RegisterBot(bot *audioBot.AudioBot) {
+func (r *Room) RegisterBot(bot *audioBot.AudioBot) error {
+	bot.RoomChannel = r.forward
 	r.bot = bot
+	return nil //r.bot.Start()
+
 }
 
 func (r *Room) Join(usr user.User) {
@@ -92,7 +95,9 @@ func (r *Room) SendClientEvent(evt events.Event) {
 	for client := range r.clients {
 		client.send <- evt.ToBytes()
 	}
+
 	if r.bot != nil {
+		evt.CurrentVideo = r.GetVideo()
 		r.bot.Send(evt)
 	}
 }
@@ -113,9 +118,11 @@ func (r *Room) PurgeUsers() bool {
 
 	for i := range meta.Watchers {
 		wtchr := &meta.Watchers[i]
-		if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
-			r.Leave(wtchr.ID)
-			size = size - 1
+		if wtchr.Type != user.USER_TYPE_DISCORD {
+			if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
+				r.Leave(wtchr.ID)
+				size = size - 1
+			}
 		}
 	}
 
@@ -132,15 +139,18 @@ func (r *Room) DeleteIfEmpty() {
 }
 
 func (r *Room) HandleEvent(evt events.Event) {
+	//log.Info(evt)
 	if evt.Watcher.ID == user.SERVER_USER.ID {
 		return
 	}
 	switch evt.Action {
 	case events.EVNT_PLAYING:
 		r.SetPlaying(true)
+		evt.Playing = true
 		r.SendClientEvent(evt)
 	case events.EVNT_PAUSING:
 		r.SetPlaying(false)
+		evt.Playing = false
 		r.SendClientEvent(evt)
 	case events.EVNT_UPDATE_HOST:
 		r.SetHost(evt.Host)
@@ -205,9 +215,7 @@ func (r *Room) AddVideo(video media.Video, rw user.Watcher) {
 
 }
 func (r *Room) GetVideo() media.Video {
-
 	meta, _ := r.Store.Find(r.ID)
-
 	return meta.CurrentVideo
 }
 
@@ -300,7 +308,7 @@ func (r *Room) Leave(id string) {
 		Watchers: meta.Watchers,
 	})
 }
-func (r *Room) SetSeek(seek float32) {
+func (r *Room) SetSeek(seek float64) {
 	meta, _ := r.Store.Find(r.ID)
 	meta.Seek = seek
 	r.Store.Update(meta)
@@ -313,7 +321,7 @@ func (r *Room) SetSeek(seek float32) {
 func (r *Room) HandleFinish(user user.Watcher) {
 	log.Infof("User %, Has finished! Seek = %f", user.Username, user.Seek)
 
-	user.Seek = float32(1)
+	user.Seek = float64(1)
 	meta, _ := r.Store.Find(r.ID)
 	meta.UpdateWatcher(user)
 
@@ -329,7 +337,7 @@ func (r *Room) HandleFinish(user user.Watcher) {
 
 	for i := range meta.Watchers {
 		u := &meta.Watchers[i]
-		if u.Seek < float32(1) && u.ID != user.ID {
+		if u.Seek < float64(1) && u.ID != user.ID {
 			return
 		}
 	}

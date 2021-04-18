@@ -19,7 +19,7 @@ type Meta struct {
 	Icon         string              `json:"icon"`
 	History      []media.Video       `json:"history"`
 	CurrentVideo media.Video         `json:"current_video"`
-	Seek         float32             `json:"seek"`
+	Seek         float64             `json:"seek"`
 	Playing      bool                `json:"playing"`
 	Queue        []media.Video       `json:"queue"`
 	Watchers     []user.Watcher      `json:"watchers"`

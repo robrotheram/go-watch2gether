@@ -42,7 +42,7 @@ export function VideoControlComponent (props) {
         return {
             "url":url, 
             "title": title,
-            "user":user.name, 
+            "user":user.username, 
             "uid": uid(16)
         }
     }

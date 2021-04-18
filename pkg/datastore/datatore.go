@@ -42,4 +42,5 @@ func NewDatastore(config utils.Config) *Datastore {
 
 func (datastore *Datastore) StartCleanUP() {
 	go datastore.Users.Cleanup()
+	go datastore.Hub.CleanUP(datastore.Users)
 }

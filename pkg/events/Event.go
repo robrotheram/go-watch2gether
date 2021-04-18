@@ -14,8 +14,9 @@ type Event struct {
 	Host         string         `json:"host"`
 	Watcher      user.Watcher   `json:"watcher"`
 	Queue        []media.Video  `json:"queue"`
+	Playing      bool           `json:"playing"`
 	CurrentVideo media.Video    `json:"current_video"`
-	Seek         float32        `json:"seek"`
+	Seek         float64        `json:"seek"`
 	Watchers     []user.Watcher `json:"watchers"`
 	Settings     RoomSettings   `json:"settings"`
 }

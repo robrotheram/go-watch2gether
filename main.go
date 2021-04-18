@@ -29,6 +29,7 @@ func ping(client *redis.Client) error {
 }
 
 func main() {
+
 	log.SetFormatter(&log.TextFormatter{
 		DisableColors: true,
 		FullTimestamp: true,
