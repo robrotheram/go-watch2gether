@@ -1,4 +1,4 @@
-package roombot
+package audioBot
 
 import (
 	"fmt"
@@ -95,7 +95,9 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 		}
 		ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Username))
 	case events.EVNT_PAUSING:
-		ab.audio.Paused()
+		if ab.audio != nil {
+			ab.audio.Paused()
+		}
 		ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
 	}
 }
@@ -109,7 +111,9 @@ func (ab *AudioBot) PlayAudio(video media.Video) {
 		ab.PlayAudioFile(video.Url)
 		break
 	default:
-		ab.audio.Stop()
+		if ab.audio != nil {
+			ab.audio.Stop()
+		}
 	}
 }
 

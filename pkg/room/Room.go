@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"sync"
 	"time"
+	"watch2gether/pkg/audioBot"
 	events "watch2gether/pkg/events"
 	"watch2gether/pkg/media"
-	"watch2gether/pkg/roombot"
 	"watch2gether/pkg/user"
 
 	"github.com/segmentio/ksuid"
@@ -26,7 +26,7 @@ type Room struct {
 	clients map[*Client]bool
 	Status  string
 	//Discode Bot
-	bot *roombot.AudioBot
+	bot *audioBot.AudioBot
 
 	// clients holds all current clients in this room.
 	ID    string
@@ -53,7 +53,7 @@ func (r *Room) ContainsUserID(id string) bool {
 	return err == nil
 }
 
-func (r *Room) RegisterBot(bot *roombot.AudioBot) {
+func (r *Room) RegisterBot(bot *audioBot.AudioBot) {
 	r.bot = bot
 }
 
@@ -88,7 +88,7 @@ func (r *Room) SendClientEvent(evt events.Event) {
 	if evt.Watcher.ID == "" {
 		evt.Watcher = user.SERVER_USER
 	}
-	log.Infof("Sending event %s to all clients", evt.Action)
+	//log.Infof("Sending event %s to all clients", evt.Action)
 	for client := range r.clients {
 		client.send <- evt.ToBytes()
 	}
@@ -183,7 +183,6 @@ func (r *Room) Run() {
 			if err != nil {
 				return
 			}
-			log.Infof("sendind message: %v", evnt)
 			r.HandleEvent(evnt)
 			//r.SendClientEvent(evnt)
 		}

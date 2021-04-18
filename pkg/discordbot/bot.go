@@ -1,18 +1,13 @@
-package discord
+package discordbot
 
 import (
 	"fmt"
-	"net/url"
 	"strings"
 	"watch2gether/pkg/datastore"
-	"watch2gether/pkg/media"
-	"watch2gether/pkg/room"
-	"watch2gether/pkg/roombot"
+	"watch2gether/pkg/discordbot/command"
 	user "watch2gether/pkg/user"
-	"watch2gether/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/segmentio/ksuid"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -62,157 +57,49 @@ func (db *DiscordBot) Start() error {
 	return nil
 }
 
-func (db *DiscordBot) GetUserVoiceChannel(user string) (string, error) {
-	for _, g := range db.session.State.Guilds {
-		for _, v := range g.VoiceStates {
-			if v.UserID == user {
-				return v.ChannelID, nil
-			}
-		}
-	}
-	return "", fmt.Errorf("Channel Not found")
-}
-
 func (db *DiscordBot) Close() {
 	db.session.Close()
 }
 
-func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
+var PREFIX = "!w2g"
 
-	if m.Author.ID == s.State.User.ID {
-		return
-	}
-	guild, err := db.session.Guild(m.GuildID)
+func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
+	guild, err := db.session.Guild(message.GuildID)
 	if err != nil {
+		s.ChannelMessageSend(message.ChannelID, "Guild not found")
 		return
 	}
+	channel, err := db.session.Channel(message.ChannelID)
+	user := message.Author
 
-	args := strings.Fields(m.Content)
-	if args[0] != "!w2g" || len(args) < 2 {
-		log.Warn("Discord command not reconsied")
+	content := message.Content
+	if len(content) <= len(PREFIX) {
 		return
 	}
-
-	if args[1] == "start" {
-		meta := room.NewMeta(guild.Name, user.User{ID: m.Author.ID, Type: user.USER_TYPE_BASIC})
-		meta.ID = m.ChannelID
-		meta.Type = "DISCORD"
-		db.Rooms.Create(meta)
-		r := room.New(meta, db.Rooms)
-		//room.AddDiscord(s, m.ChannelID)
-		db.Hub.AddRoom(r)
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You room has been created: https://%s/room/%s", db.baseurl, m.ChannelID))
+	if content[:len(PREFIX)] != PREFIX {
 		return
 	}
-	if args[1] == "load" {
-		r, ok := db.Hub.GetRoom(m.GuildID)
-		if !ok {
-			s.ChannelMessageSend(m.ChannelID, "Room not found")
-			return
-		}
-		playlists, err := db.Playlist.FindByField("RoomID", m.GuildID)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Playlists not found")
-			return
-		}
-
-		playlistName := strings.TrimSuffix(strings.Join(args[2:], " "), " ")
-		fmt.Printf("Searching for playlist %s: \n", playlistName)
-		for _, playlist := range playlists {
-			if playlist.Name == playlistName {
-				queue := r.GetQueue()
-				queue = append(queue, playlist.Videos...)
-				r.SetQueue(queue, user.DISCORD_BOT)
-				return
-			}
-		}
-	}
-
-	if args[1] == "join" {
-
-		r, ok := db.Hub.GetRoom(m.GuildID)
-		if !ok {
-			s.ChannelMessageSend(m.ChannelID, "Room not found")
-			return
-		}
-		vc, err := db.GetUserVoiceChannel(m.Author.ID)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User not connected to voice channel"))
-		}
-		voice, err := db.session.ChannelVoiceJoin(m.GuildID, vc, false, true)
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("User not connected to voice channel"))
-		}
-		bot := roombot.NewAudioBot("", m.ChannelID, voice, s)
-		err = bot.Start()
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Bot error %w", err))
-		}
-		r.RegisterBot(bot)
-
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Guild ID: %s, Channel ID: %s", m.GuildID, vc))
-		db.voice, err = db.session.ChannelVoiceJoin(m.GuildID, vc, false, true)
-
+	content = content[len(PREFIX):]
+	if len(content) < 1 {
 		return
 	}
-
-	if args[1] == "stop" {
-		room, _ := db.Hub.GetRoom(m.GuildID)
-		db.Hub.DeleteRoom(room.ID)
+	args := strings.Fields(content)
+	name := strings.ToLower(args[0])
+	ctx := command.CommandCtx{
+		Datastore: db.Datastore,
+		Session:   s,
+		Guild:     guild,
+		Channel:   channel,
+		User:      user,
+		Args:      args[1:],
+	}
+	cmd, found := command.Commands[name]
+	if !found {
+		ctx.Reply(fmt.Sprintf("Error: Command %s not found", name))
 		return
 	}
-
-	if args[1] == "add" && len(args) == 3 {
-		u, err := url.ParseRequestURI(args[2])
-		if err != nil {
-			s.ChannelMessageSend(m.ChannelID, "Not a valid URL")
-			return
-		}
-		r, ok := db.Hub.GetRoom(m.GuildID)
-		if !ok {
-			s.ChannelMessageSend(m.ChannelID, "Room not found: "+m.GuildID)
-			return
-		}
-		document, err := utils.Scrape(u.String(), 1)
-		if err != nil {
-			log.Error(err)
-			s.ChannelMessageSend(m.ChannelID, "Video Error not found")
-			return
-		}
-
-		video := media.Video{ID: ksuid.New().String(), Title: document.Preview.Title, Url: u.String(), User: DiscordUser.Username}
-		r.AddVideo(video, user.DISCORD_BOT)
-
-		log.Infof("Vidoe Envent sent : %v", video)
-		s.ChannelMessageSend(m.ChannelID, "Video Added ID:"+video.ID)
-		return
+	err = cmd.Execute(ctx)
+	if err != nil {
+		ctx.Reply(fmt.Sprintf("Error: %v", err))
 	}
-
-	if args[1] == "skip" {
-		r, ok := db.Hub.GetRoom(m.GuildID)
-		if !ok {
-			s.ChannelMessageSend(m.ChannelID, "Room not found")
-			return
-		}
-		r.ChangeVideo(user.DISCORD_BOT)
-		s.ChannelMessageSend(m.ChannelID, "Video Skiped")
-		return
-	}
-
-	if args[1] == "status" {
-		r, ok := db.Hub.GetRoom(m.GuildID)
-		if !ok {
-			s.ChannelMessageSend(m.ChannelID, "Room not found")
-			return
-		}
-		vidoe := r.GetVideo()
-		if vidoe.ID == "" {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("No Video Playing"))
-			return
-		}
-		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Currently Playing: %s", vidoe.Title))
-		return
-	}
-
-	s.ChannelMessageSend(m.ChannelID, "Command Not reconsided:"+m.Content)
 }

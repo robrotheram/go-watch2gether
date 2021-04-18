@@ -1,4 +1,4 @@
-package roombot
+package audioBot
 
 import (
 	"fmt"
@@ -51,9 +51,6 @@ func (audio *Audio) Unpause() {
 }
 
 func (audio *Audio) Paused() {
-	if audio.stream == nil {
-		return
-	}
 	if !audio.stream.Paused() {
 		audio.voice.Speaking(false)
 		audio.stream.SetPaused(true)
@@ -69,6 +66,9 @@ func (audio *Audio) Play() {
 }
 
 func (audio *Audio) Stop() {
+	if audio.session == nil {
+		return
+	}
 	audio.session.Stop()
 	<-audio.done
 }
