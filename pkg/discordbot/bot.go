@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/url"
 	"strings"
-	"watch2gether/pkg/hub"
+	"watch2gether/pkg/datastore"
 	"watch2gether/pkg/media"
 	"watch2gether/pkg/room"
 	"watch2gether/pkg/roombot"
@@ -19,24 +19,20 @@ import (
 var DiscordUser user.User
 
 type DiscordBot struct {
-	hub       *hub.Hub
-	token     string
-	status    string
-	session   *discordgo.Session
-	roomStore *room.RoomStore
-	playlists *media.PlayistStore
-	baseurl   string
-	voice     *discordgo.VoiceConnection
+	*datastore.Datastore
+	token   string
+	status  string
+	session *discordgo.Session
+	baseurl string
+	voice   *discordgo.VoiceConnection
 }
 
-func NewDiscordBot(h *hub.Hub, roomStore *room.RoomStore, playlists *media.PlayistStore, token string, baseurl string) (*DiscordBot, error) {
+func NewDiscordBot(datastore *datastore.Datastore, token string, baseurl string) (*DiscordBot, error) {
 	DiscordUser = user.NewUser("DiscordBot", user.USER_TYPE_DISCORD)
 	bot := DiscordBot{
-		hub:       h,
+		Datastore: datastore,
 		token:     token,
 		status:    "INIT",
-		roomStore: roomStore,
-		playlists: playlists,
 		baseurl:   baseurl,
 	}
 	dg, err := discordgo.New("Bot " + token)
@@ -101,20 +97,20 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 		meta := room.NewMeta(guild.Name, user.User{ID: m.Author.ID, Type: user.USER_TYPE_BASIC})
 		meta.ID = m.ChannelID
 		meta.Type = "DISCORD"
-		db.roomStore.Create(meta)
-		r := room.New(meta, db.roomStore)
+		db.Rooms.Create(meta)
+		r := room.New(meta, db.Rooms)
 		//room.AddDiscord(s, m.ChannelID)
-		db.hub.AddRoom(r)
+		db.Hub.AddRoom(r)
 		s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("You room has been created: https://%s/room/%s", db.baseurl, m.ChannelID))
 		return
 	}
 	if args[1] == "load" {
-		r, ok := db.hub.GetRoom(m.GuildID)
+		r, ok := db.Hub.GetRoom(m.GuildID)
 		if !ok {
 			s.ChannelMessageSend(m.ChannelID, "Room not found")
 			return
 		}
-		playlists, err := db.playlists.FindByField("RoomID", m.GuildID)
+		playlists, err := db.Playlist.FindByField("RoomID", m.GuildID)
 		if err != nil {
 			s.ChannelMessageSend(m.ChannelID, "Playlists not found")
 			return
@@ -134,7 +130,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 
 	if args[1] == "join" {
 
-		r, ok := db.hub.GetRoom(m.GuildID)
+		r, ok := db.Hub.GetRoom(m.GuildID)
 		if !ok {
 			s.ChannelMessageSend(m.ChannelID, "Room not found")
 			return
@@ -161,8 +157,8 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 	}
 
 	if args[1] == "stop" {
-		room, _ := db.hub.GetRoom(m.GuildID)
-		db.hub.DeleteRoom(room.ID)
+		room, _ := db.Hub.GetRoom(m.GuildID)
+		db.Hub.DeleteRoom(room.ID)
 		return
 	}
 
@@ -172,7 +168,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 			s.ChannelMessageSend(m.ChannelID, "Not a valid URL")
 			return
 		}
-		r, ok := db.hub.GetRoom(m.GuildID)
+		r, ok := db.Hub.GetRoom(m.GuildID)
 		if !ok {
 			s.ChannelMessageSend(m.ChannelID, "Room not found: "+m.GuildID)
 			return
@@ -193,7 +189,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 	}
 
 	if args[1] == "skip" {
-		r, ok := db.hub.GetRoom(m.GuildID)
+		r, ok := db.Hub.GetRoom(m.GuildID)
 		if !ok {
 			s.ChannelMessageSend(m.ChannelID, "Room not found")
 			return
@@ -204,7 +200,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, m *discordgo.MessageCr
 	}
 
 	if args[1] == "status" {
-		r, ok := db.hub.GetRoom(m.GuildID)
+		r, ok := db.Hub.GetRoom(m.GuildID)
 		if !ok {
 			s.ChannelMessageSend(m.ChannelID, "Room not found")
 			return

@@ -2,17 +2,11 @@ package api
 
 import (
 	"net/http"
-	"watch2gether/pkg/hub"
-	"watch2gether/pkg/media"
-	"watch2gether/pkg/room"
-	"watch2gether/pkg/user"
+	"watch2gether/pkg/datastore"
 )
 
 type BaseHandler struct {
-	Hub      *hub.Hub
-	Users    *user.UserStore
-	Rooms    *room.RoomStore
-	Playlist *media.PlayistStore
+	*datastore.Datastore
 }
 
 // The Handler struct that takes a configured Env and a function matching

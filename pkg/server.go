@@ -19,8 +19,8 @@ func SetupServer(c *utils.Config) {
 	config = c
 }
 
-func StartServer(connection string, userDB *user.UserStore, hndlr *api.BaseHandler) error {
-	auth := user.NewDiscordAuth(config, userDB)
+func StartServer(connection string, hndlr *api.BaseHandler) error {
+	auth := user.NewDiscordAuth(config, hndlr.Users)
 
 	r := mux.NewRouter()
 

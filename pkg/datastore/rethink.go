@@ -1,6 +1,8 @@
-package utils
+package datastore
 
 import (
+	"watch2gether/pkg/utils"
+
 	log "github.com/sirupsen/logrus"
 	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
@@ -25,7 +27,7 @@ import (
 
 func RedisConnect() {}
 
-func RethinkDBConnect(config Config) (*rethinkdb.Session, error) {
+func createSession(config utils.Config) (*rethinkdb.Session, error) {
 
 	log.Infof("DB connection: %s Database: %s", config.RethinkURL, config.RethinkDatabase)
 
@@ -33,12 +35,10 @@ func RethinkDBConnect(config Config) (*rethinkdb.Session, error) {
 		Address:  config.RethinkURL, // endpoint without http
 		Database: config.RethinkDatabase,
 	})
-
 	rethinkdb.DBCreate(config.RethinkDatabase).Exec(session)
-
-	rethinkdb.DB(config.RethinkDatabase).TableCreate("user").Exec(session)
-	rethinkdb.DB(config.RethinkDatabase).TableCreate("room").Exec(session)
-	rethinkdb.DB(config.RethinkDatabase).TableCreate("hub").Exec(session)
-	rethinkdb.DB(config.RethinkDatabase).TableCreate("playlist").Exec(session)
 	return session, err
+}
+
+func createTable(session *rethinkdb.Session, config utils.Config, table string) error {
+	return rethinkdb.DB(config.RethinkDatabase).TableCreate(table).Exec(session)
 }
