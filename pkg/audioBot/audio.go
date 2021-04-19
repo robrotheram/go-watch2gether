@@ -3,8 +3,6 @@ package audioBot
 import (
 	"encoding/json"
 	"fmt"
-	"io"
-	"log"
 	"os/exec"
 	"sync"
 	"time"
@@ -12,6 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
+	"github.com/prometheus/common/log"
 )
 
 type Audio struct {
@@ -23,6 +22,7 @@ type Audio struct {
 	progress time.Duration
 	Url      string
 	Duration time.Duration
+	Playing  bool
 	sync.Mutex
 	RoomChannel chan []byte
 }
@@ -53,7 +53,20 @@ func ParseDuration(url string) (time.Duration, error) {
 	return time.ParseDuration(d.Format.Duration + "s")
 }
 
-func NewAudio(url string, voice *discordgo.VoiceConnection, roomChannel chan []byte, starttime int) (*Audio, error) {
+func NewAudio(roomChannel chan []byte, voice *discordgo.VoiceConnection) *Audio {
+	audio := Audio{
+		done:        make(chan error),
+		voice:       voice,
+		RoomChannel: roomChannel,
+	}
+	return &audio
+}
+
+func (audio *Audio) Play(url string, starttime int) error {
+	if audio.Playing {
+		return fmt.Errorf("Playing already started")
+	}
+	audio.Stop()
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
 	opts.Bitrate = 120
@@ -61,19 +74,36 @@ func NewAudio(url string, voice *discordgo.VoiceConnection, roomChannel chan []b
 
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
-		return nil, fmt.Errorf("Failed creating an encoding session: ", err)
-	}
-	audio := Audio{
-		Url:         url,
-		session:     encodeSession,
-		done:        make(chan error),
-		voice:       voice,
-		RoomChannel: roomChannel,
+		return fmt.Errorf("Failed creating an encoding session: %v", err)
 	}
 	go func() {
 		audio.Duration, _ = ParseDuration(audio.Url)
 	}()
-	return &audio, nil
+	audio.session = encodeSession
+	audio.Url = url
+	return nil
+}
+
+func (audio *Audio) Start() error {
+	audio.Lock()
+	start := !audio.Playing
+	audio.Playing = true
+	audio.Unlock()
+	if start {
+		audio.wg.Add(1)
+		go func() {
+			audio.voice.Speaking(true)
+			defer audio.voice.Speaking(false)
+			audio.PlayStream()
+			audio.Lock()
+			audio.Playing = false
+			defer audio.wg.Done()
+			audio.Unlock()
+		}()
+		return nil
+	} else {
+		return fmt.Errorf("Playing already started")
+	}
 }
 
 func (audio *Audio) Unpause() {
@@ -81,7 +111,7 @@ func (audio *Audio) Unpause() {
 		return
 	}
 	audio.voice.Speaking(true)
-	audio.stream.SetPaused(true)
+	audio.stream.SetPaused(false)
 }
 
 func (audio *Audio) Paused() {
@@ -92,34 +122,38 @@ func (audio *Audio) Paused() {
 	audio.stream.SetPaused(true)
 }
 
-func (audio *Audio) Play() {
-	go func() {
-		audio.voice.Speaking(true)
-		defer audio.voice.Speaking(false)
-		audio.PlayStream()
-	}()
-}
-
 func (audio *Audio) Stop() {
+	audio.Paused()
 	if audio.session == nil {
 		return
 	}
+	err := audio.session.Stop()
+	if err != nil {
+		fmt.Printf("Error Stoppin Session %v \n", err)
+	}
+	audio.Lock()
+	audio.Playing = false
 	audio.session.Cleanup()
+	audio.Unlock()
 	SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
+
 }
 
 func (audio *Audio) PlayStream() {
+
 	audio.stream = dca.NewStream(audio.session, audio.voice, audio.done)
 	ticker := time.NewTicker(time.Second)
 	for {
-		select {
-		case err := <-audio.done:
-			if err != nil && err != io.EOF {
-				log.Fatal("An error occured", err)
-			}
-			// Clean up incase something happened and ffmpeg is still running
+		if !audio.Playing {
 			audio.session.Truncate()
+			return
+		}
+		select {
+		case <-audio.done:
+			// Clean up incase something happened and ffmpeg is still running
 			SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
+			audio.session.Truncate()
+			audio.Playing = false
 			return
 		case <-ticker.C:
 			//stats := audio.session.Stats()
@@ -129,6 +163,7 @@ func (audio *Audio) PlayStream() {
 			if audio.Duration > 0 && audio.progress > 0 {
 				progress = audio.progress.Seconds() / audio.Duration.Seconds()
 			}
+			log.Info(progress)
 			SendToChannel(CreateBotUpdateEvent(media.Seek{
 				ProgressPct: progress,
 				ProgressSec: audio.progress.Seconds(),

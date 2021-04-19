@@ -32,7 +32,6 @@ class Routes extends Component {
     console.log('==== Routes mounted!');
   }
   render() {
-    console.log('Routes props', this.props.auth.auth);
     return (
       <ConnectedRouter history={history}>
       <Switch>

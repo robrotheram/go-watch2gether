@@ -48,7 +48,6 @@ class RoomPage extends React.Component {
   render() {
     const { collapsed } = this.state;
     const {guilds} =this.props
-    console.log("GUILDS",guilds)
     return (
       <Layout style={{ minHeight: '100vh' }}>
         <Sider collapsed={collapsed} onCollapse={this.onCollapse} >

@@ -23,20 +23,20 @@ class VideoPlayer extends React.Component {
     componentWillReceiveProps(props) {
         let nextProps = props.video
         // You don't have to do this check first, but it can help prevent an unneeded render
-        if (nextProps.seek.progress_percent !== this.state.played) {
-            console.log("STATE_CHANGE",nextProps )
+        if (nextProps.seek.progress_seconds !== this.state.played.progress_seconds) {
           this.setState({ played: nextProps.seek });
           if (this.player !== undefined) {
-            this.player.seekTo(parseFloat(nextProps.seek))
+            this.player.seekTo(parseFloat(nextProps.seek.progress_seconds))
           }
         }
       }
 
     componentDidMount() {
         let _this = this
+        let {seek} = this.props.video
         setTimeout(function(){
             if (_this.player !== undefined && _this.player !== null){
-                _this.player.seekTo(parseFloat(_this.props.seek)) 
+                _this.player.seekTo(parseFloat(seek.progress_seconds)) 
             }
         }, 200);
         
@@ -61,9 +61,9 @@ class VideoPlayer extends React.Component {
     }
 
     handleProgress = state => {
-        // console.log('onProgress', state)
-        // console.log("PLAYER!", this.player)
-        this.setState({ seek: state.playedSeconds })
+        this.setState({ seek: {
+            progress_percent: state.played,
+            progress_seconds: state.playedSeconds}});
         updateSeek(state.played, state.playedSeconds )
         
     }

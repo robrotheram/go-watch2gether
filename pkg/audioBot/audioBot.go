@@ -39,33 +39,10 @@ func SendToChannel(evt events.Event, roomChannel chan []byte) {
 	roomChannel <- evt.ToBytes()
 }
 
-// func (ab *AudioBot) Start() error {
-// 	ab.Lock()
-// 	start := !ab.Running
-// 	ab.Running = true
-// 	ab.Unlock()
-// 	if start {
-// 		ab.wg.Add(1)
-// 		go func() {
-// 			SendToChannel(CreateBotJoinEvent(), ab.RoomChannel)
-// 			ab.Watcher()
-// 			ab.Lock()
-// 			ab.Running = false
-// 			defer ab.wg.Done()
-// 			ab.Unlock()
-// 		}()
-// 		return nil
-// 	} else {
-// 		return fmt.Errorf("Bot already started")
-// 	}
-
-// }
-
-// func (ab *AudioBot) Stop() {
-// 	if ab.Running {
-// 		ab.wg.Wait()
-// 	}
-// }
+func (ab *AudioBot) RegisterToRoom(rc chan []byte) {
+	ab.RoomChannel = rc
+	ab.audio = NewAudio(rc, ab.VoiceConnection)
+}
 
 func (ab *AudioBot) Send(evt events.Event) {
 	go func() { ab.handleEvent(evt) }()
@@ -76,36 +53,31 @@ func (ab *AudioBot) sendToChannel(msg string) {
 }
 
 func (ab *AudioBot) handleEvent(evt events.Event) {
-	fmt.Println(evt.Action)
+	if ab.audio == nil {
+		return
+	}
 	switch evt.Action {
 	case events.EVNT_UPDATE_QUEUE:
 		ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
 
 	case events.EVT_VIDEO_CHANGE:
-		ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
-		if !evt.Playing {
-			if ab.audio != nil {
-				ab.audio.Paused()
-			}
-		}
+		ab.PlayAudio(evt.CurrentVideo, 0)
+
 	case events.EVNT_PLAYING:
-		if ab.audio == nil {
-			ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
+		if !ab.audio.Playing {
+			ab.PlayAudio(evt.CurrentVideo, 0)
 		} else {
 			ab.audio.Unpause()
 		}
 		ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Username))
 	case events.EVNT_PAUSING:
-		if ab.audio != nil {
-			ab.audio.Paused()
-		}
+		ab.audio.Paused()
 		ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
 
-	case events.EVNT_SEEK:
+	case events.EVNT_SEEK_TO_USER:
 		ab.audio.Stop()
-		ab.audio = nil
 		ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
-		ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f%", evt.Watcher.Username, evt.Seek.ProgressPct*100))
+		ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.Seek.ProgressPct*100))
 
 	case events.EVT_ROOM_EXIT:
 		ab.sendToChannel(fmt.Sprintf("Room has closed down"))
@@ -138,14 +110,28 @@ func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
 }
 
 func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
+	if ab.audio == nil {
+		fmt.Println("Bot not connected to Room")
+	}
+	if ab.audio.Playing {
+		ab.audio.Stop()
+		fmt.Println("Stopping Audio")
+	}
+	err := ab.audio.Play(url, starttime)
+	if err != nil {
+		fmt.Printf("Error Encoding URL : %v \n", err)
+		return
+	}
+	err = ab.audio.Start()
+	if err != nil {
+		fmt.Printf("Error Starting Audio : %v \n", err)
+		return
+	}
+}
+
+func (ab *AudioBot) Disconnect() error {
 	if ab.audio != nil {
 		ab.audio.Stop()
-		ab.audio = nil
 	}
-	audio, err := NewAudio(url, ab.VoiceConnection, ab.RoomChannel, starttime)
-	if err != nil {
-		fmt.Println("ERROR!!!!")
-	}
-	ab.audio = audio
-	ab.audio.Play()
+	return ab.VoiceConnection.Disconnect()
 }

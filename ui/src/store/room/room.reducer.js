@@ -119,7 +119,7 @@ const process_websocket_event = (state, data) => {
       //   }
       //   return {...user};
       // });
-      console.log("watchers", data.watchers)
+      //console.log("watchers", data.watchers)
       return {
         ...state, watchers: data.watchers,
       };

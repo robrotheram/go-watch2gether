@@ -26,7 +26,7 @@ type Room struct {
 	clients map[*Client]bool
 	Status  string
 	//Discode Bot
-	bot *audioBot.AudioBot
+	Bot *audioBot.AudioBot
 
 	// clients holds all current clients in this room.
 	ID    string
@@ -54,8 +54,8 @@ func (r *Room) ContainsUserID(id string) bool {
 }
 
 func (r *Room) RegisterBot(bot *audioBot.AudioBot) error {
-	bot.RoomChannel = r.forward
-	r.bot = bot
+	bot.RegisterToRoom(r.forward)
+	r.Bot = bot
 	return nil //r.bot.Start()
 
 }
@@ -96,10 +96,10 @@ func (r *Room) SendClientEvent(evt events.Event) {
 		client.send <- evt.ToBytes()
 	}
 
-	if r.bot != nil {
+	if r.Bot != nil {
 		evt.CurrentVideo = r.GetVideo()
 		evt.Seek = r.GetSeek()
-		r.bot.Send(evt)
+		r.Bot.Send(evt)
 	}
 }
 
