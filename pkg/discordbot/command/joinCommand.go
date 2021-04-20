@@ -41,6 +41,9 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
 	if !ok {
 		roomMeta, err := ctx.Rooms.Find(ctx.Guild.ID)
+		if err != nil {
+			return ctx.Reply(fmt.Sprintf("Bot error %v", err))
+		}
 		roomMeta.Type = room.ROOM_TYPE_DISCORD
 		if err != nil {
 			ctx.Reply("Room Not found")
@@ -56,6 +59,7 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 	err = r.RegisterBot(bot)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("Bot error %v", err))
+		bot.Disconnect()
 	}
 	ctx.Reply(fmt.Sprintf("Bot added to the W2G room"))
 	return nil
@@ -68,6 +72,7 @@ func (cmd *LeaveCmd) Execute(ctx CommandCtx) error {
 	}
 	r.Leave(user.DISCORD_BOT.ID)
 	if r.Bot != nil {
+		r.Leave(user.DISCORD_BOT.ID)
 		return r.Bot.Disconnect()
 	}
 	return ctx.Reply(fmt.Sprintf("Error Bot not connected"))

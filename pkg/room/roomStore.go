@@ -2,7 +2,9 @@ package room
 
 import (
 	"fmt"
+	user "watch2gether/pkg/user"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -91,4 +93,23 @@ func (udb *RoomStore) Cleanup() {
 			udb.Delete(r.ID)
 		}
 	}
+}
+
+func (rooms *RoomStore) GetOrCreate(roomID string, roomName string, usr user.User) (*Meta, error) {
+	roomMeta, err := rooms.Find(roomID)
+	if err != nil {
+		roomMeta, err = rooms.FindByField("Name", roomName)
+		if err != nil || roomMeta == nil {
+			log.Info("Room Not found. Making...")
+			roomMeta = NewMeta(roomName, usr)
+			if roomID != "" {
+				roomMeta.ID = roomID
+			}
+			err := rooms.Create(roomMeta)
+			if err != nil {
+				return roomMeta, fmt.Errorf("Room Create error:  %w", err)
+			}
+		}
+	}
+	return roomMeta, nil
 }

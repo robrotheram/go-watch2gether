@@ -135,8 +135,6 @@ func (audio *Audio) Stop() {
 	audio.Playing = false
 	audio.session.Cleanup()
 	audio.Unlock()
-	SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
-
 }
 
 func (audio *Audio) PlayStream() {
@@ -146,6 +144,7 @@ func (audio *Audio) PlayStream() {
 	for {
 		if !audio.Playing {
 			audio.session.Truncate()
+			SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
 			return
 		}
 		select {

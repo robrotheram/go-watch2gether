@@ -54,23 +54,25 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
 	}
 
-	roomStr, err := h.Rooms.Find(roomMsg.ID)
-	if err != nil {
-		roomStr, err = h.Rooms.FindByField("Name", roomMsg.Name)
-		if err != nil || roomStr == nil {
-			log.Info("Room Not found. Making...")
-			roomStr = room.NewMeta(roomMsg.Name, usr)
-			if roomMsg.ID != "" {
-				roomStr.ID = roomMsg.ID
-			}
-			err := h.Rooms.Create(roomStr)
-			if err != nil {
-				log.Errorf("Room Create error:  %w", err)
-				return StatusError{http.StatusBadRequest, err}
+	// roomStr, err := h.Rooms.Find(roomMsg.ID)
+	// if err != nil {
+	// 	roomStr, err = h.Rooms.FindByField("Name", roomMsg.Name)
+	// 	if err != nil || roomStr == nil {
+	// 		log.Info("Room Not found. Making...")
+	// 		roomStr = room.NewMeta(roomMsg.Name, usr)
+	// 		if roomMsg.ID != "" {
+	// 			roomStr.ID = roomMsg.ID
+	// 		}
+	// 		err := h.Rooms.Create(roomStr)
+	// 		if err != nil {
+	// 			log.Errorf("Room Create error:  %w", err)
+	// 			return StatusError{http.StatusBadRequest, err}
 
-			}
-		}
-	}
+	// 		}
+	// 	}
+	// }
+	roomStr, err := h.Rooms.GetOrCreate(roomMsg.ID, roomMsg.Name, usr)
+
 	hubRoom, ok := h.Hub.GetRoom(roomStr.ID)
 	if !ok {
 		hubRoom = room.New(roomStr, h.Rooms)

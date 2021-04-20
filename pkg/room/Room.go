@@ -121,9 +121,11 @@ func (r *Room) PurgeUsers() bool {
 
 	for i := range meta.Watchers {
 		wtchr := &meta.Watchers[i]
-		if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
-			r.Leave(wtchr.ID)
-			size = size - 1
+		if wtchr.Type != user.DISCORD_BOT.Type {
+			if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
+				r.Leave(wtchr.ID)
+				size = size - 1
+			}
 		}
 	}
 
