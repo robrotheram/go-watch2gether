@@ -8,12 +8,12 @@ import { FormInstance } from 'antd/lib/form';
 
 import {connect} from 'react-redux'
 import {createPlaylists, updatePlaylists} from "../../../../store/playlists/playlists.actions"
-
+import {createVideoItem} from "../../../../store/video"
 const CREATE = "c"
 const UPDATE = "u"
 const initdata = [];
 
-const PlaylistModel = ({visible, setVisible, data, title, room, createPlaylists, updatePlaylists}) => {
+const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlaylists, updatePlaylists}) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [sortable, setSortable] = useState(false);
   const [modalText, setModalText] = useState('Content of the modal');
@@ -70,18 +70,21 @@ const PlaylistModel = ({visible, setVisible, data, title, room, createPlaylists,
     setDatastore(datastore => [...datastore, data]);
   };
 
-  const savePlaylist = () => {
+  const savePlaylist = async () => {
+  
+      let ds = await Promise.all(datastore.map(async video => { video = await createVideoItem(video.url, user); return video}))
+      
       if (updateType === CREATE){
           let playlist = {
               "name": form.getFieldsValue("name").name,
               "username": "",
-              "videos": datastore,
+              "videos": ds,
               "room": room
           }
           createPlaylists(room, playlist)
       }else{
         data.name = form.getFieldsValue("name").name;
-        data.videos = datastore;
+        data.videos = ds;
         updatePlaylists(room, data)
       }
     
@@ -133,6 +136,7 @@ const PlaylistModel = ({visible, setVisible, data, title, room, createPlaylists,
 const mapStateToProps  = (state) =>{
     return {
       room : state.room.id,
+      user: state.user,
       playlists : state.playlist.playlists,
       loading: state.playlist.loading
     }

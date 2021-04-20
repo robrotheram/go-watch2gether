@@ -26,7 +26,7 @@ func (h BaseHandler) GetAllRoomPlaylists(w http.ResponseWriter, r *http.Request)
 	id := vars["id"]
 	playist, err := h.Playlist.FindByField("RoomID", id)
 	if err != nil {
-		return StatusError{http.StatusNotFound, fmt.Errorf("Playists Does not exisit")}
+		return StatusError{http.StatusNotFound, fmt.Errorf("Playists Does not exisit: %v", err)}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(playist)

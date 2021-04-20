@@ -6,7 +6,7 @@ type Seek struct {
 }
 
 func (s *Seek) Done() bool {
-	return s.ProgressPct >= float64(1)
+	return s.ProgressPct == float64(1)
 }
 
 var SEEK_FINISHED = Seek{ProgressPct: float64(1), ProgressSec: 0}

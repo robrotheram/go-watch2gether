@@ -13,6 +13,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const ROOM_TYPE_DISCORD = "DISCORD"
+
 type Room struct {
 	// forward is a channel that holds incoming messages
 	// that should be forwarded to the other clients.
@@ -119,11 +121,9 @@ func (r *Room) PurgeUsers() bool {
 
 	for i := range meta.Watchers {
 		wtchr := &meta.Watchers[i]
-		if wtchr.Type != user.USER_TYPE_DISCORD {
-			if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
-				r.Leave(wtchr.ID)
-				size = size - 1
-			}
+		if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
+			r.Leave(wtchr.ID)
+			size = size - 1
 		}
 	}
 
@@ -201,6 +201,13 @@ func (r *Room) Run() {
 }
 
 func (r *Room) SetSettings(settings events.RoomSettings) {
+
+	meta, _ := r.Store.Find(r.ID)
+	meta.Settings = settings
+	r.Store.Update(meta)
+
+}
+func (r *Room) FindWatcher(settings events.RoomSettings) {
 
 	meta, _ := r.Store.Find(r.ID)
 	meta.Settings = settings
@@ -338,12 +345,10 @@ func (r *Room) HandleFinish(user user.Watcher) {
 	meta.UpdateWatcher(user)
 
 	if !meta.Settings.AutoSkip {
-
 		return
 	}
 
 	if meta.GetLastVideo().ID == user.VideoID {
-
 		return
 	}
 
@@ -354,7 +359,6 @@ func (r *Room) HandleFinish(user user.Watcher) {
 		}
 	}
 	r.Store.Update(meta)
-
 	r.ChangeVideo(user)
 }
 

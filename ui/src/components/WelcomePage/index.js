@@ -17,9 +17,8 @@ import {checklogin} from '../../store/user/user.actions'
 import {ROOM_ERROR} from '../../store/room/room.types'
 import { join, leave, clearError, getMeta } from '../../store/room/room.actions'
 
-
+const { Title, Paragraph, Text, Link } = Typography;
 const { Content } = Layout;
-const { Title } = Typography;
 
 
 function Home(props) {
@@ -108,7 +107,7 @@ function Home(props) {
               />
             ) : null}
             
-            <Form
+           {/* <Form
               {...layout}
               name="basic"
               form={form}
@@ -116,12 +115,12 @@ function Home(props) {
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
             >
-               {/* <Form.Item
+                <Form.Item
                 label="Room id"
                 name="roomid"
                >
                 <Input size="large" />
-              </Form.Item> */}
+              </Form.Item> 
 
               <Form.Item
                 label="Room Name"
@@ -173,12 +172,28 @@ function Home(props) {
                 <Button size="large" type="primary" htmlType="submit" style={{ "width": "100%", marginTop: "20px" }}>
                   Join Room
                 </Button>
-              </Form.Item>
+              </Form.Item> 
               </div> 
               }
 
 
-            </Form>
+            </Form> */}
+
+            <Typography>
+            <Paragraph>
+              Ever wanted to watch youtube videos in-sync with your friends, via. web-browser? or mp4s?
+              </Paragraph>            
+              <Paragraph>
+              Its yet another video sync website it currently support Youtube,and Videos hosted on your own fileserver that you totally legally own 😉
+              </Paragraph>
+              <Paragraph>
+                Also comes with a Discord Bot, Playlist support and fun!
+              </Paragraph>
+            </Typography>
+            <Button href={BASE_URL+"/auth/login"} size="large" type="primary" style={{ "width": "100%", marginTop: "0px", backgroundColor: "#7289da", border: "none" }}>
+                  Login with Discord
+            </Button>
+
             <PageFooter style={{ textAlign: 'center', position: "absolute", bottom:"0px", left:"0px", width:"560px", height:"50px", padding: "15px 50px 28px 50px" }}/>
         </Content>
       </div>

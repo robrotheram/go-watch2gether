@@ -2,9 +2,8 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
-
-	"github.com/prometheus/common/log"
 )
 
 type joinMessage struct {
@@ -15,20 +14,12 @@ type joinMessage struct {
 }
 
 // HubStatus Return status of all rooms
-func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) {
+
+func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) error {
 	resp := map[string]interface{}{}
-	rooms := []map[string]interface{}{}
 	users := []map[string]interface{}{}
 
-	for _, v := range h.Hub.Rooms {
-		meta, _ := h.Rooms.Find(v.ID)
-		rooms = append(rooms, map[string]interface{}{
-			"id":     v.ID,
-			"status": v.Status,
-			"meta":   meta,
-		})
-	}
-
+	rooms, _ := h.Rooms.GetAll()
 	usrs, err := h.Users.GetAll()
 	if err == nil {
 		for _, v := range usrs {
@@ -39,12 +30,12 @@ func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) {
 			})
 		}
 	} else {
-		log.Errorf("DB Find error %v", err)
+		return fmt.Errorf("DB Find error %v", err)
 	}
 
 	resp["rooms"] = rooms
 	resp["users"] = users
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
+	return json.NewEncoder(w).Encode(resp)
 }

@@ -1,10 +1,12 @@
-package user
+package api
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"watch2gether/pkg/user"
 	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/sessions"
@@ -15,7 +17,7 @@ type DiscordAuth struct {
 	oauthConfig      *oauth2.Config
 	oauthStateString string
 	store            *sessions.CookieStore
-	UserDB           *UserStore
+	UserDB           *user.UserStore
 }
 
 type DiscordGuild struct {
@@ -34,7 +36,7 @@ var discordEndpoint = oauth2.Endpoint{
 }
 var sessionName = "discord"
 
-func NewDiscordAuth(conf *utils.Config, userstore *UserStore) DiscordAuth {
+func NewDiscordAuth(conf *utils.Config, userstore *user.UserStore) DiscordAuth {
 	da := DiscordAuth{}
 	da.oauthConfig = &oauth2.Config{
 		RedirectURL:  conf.BaseURL + "/auth/callback",
@@ -74,7 +76,7 @@ func (da *DiscordAuth) getToken(state string, code string) (*oauth2.Token, error
 	return token, nil
 }
 
-func (da *DiscordAuth) Middleware(next func(http.ResponseWriter, *http.Request)) http.Handler {
+func (da *DiscordAuth) Middleware(next Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		token, err := da.validateToken(r)
 		if err != nil {
@@ -87,8 +89,13 @@ func (da *DiscordAuth) Middleware(next func(http.ResponseWriter, *http.Request))
 			w.Write([]byte("Missing Authorization"))
 			return
 		}
-		handler := http.HandlerFunc(next)
-		handler.ServeHTTP(w, r)
+
+		user, err := da.getUser(token.AccessToken)
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, "user", user)
+		r = r.WithContext(ctx)
+
+		next.ServeHTTP(w, r)
 	})
 }
 
@@ -143,18 +150,18 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
-func (da *DiscordAuth) getUser(accessToken string) (User, error) {
-	var user User
+func (da *DiscordAuth) getUser(accessToken string) (user.User, error) {
+	var usr user.User
 	data, err := da.getClient("https://discord.com/api/users/@me", accessToken)
 	if err != nil {
-		return user, err
+		return usr, err
 	}
-	if err := json.Unmarshal(data, &user); err != nil {
-		return user, err
+	if err := json.Unmarshal(data, &usr); err != nil {
+		return usr, err
 	}
-	user.AvatarIcon = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", user.ID, user.Avatar)
-	user.Type = USER_TYPE_DISCORD
-	return user, nil
+	usr.AvatarIcon = fmt.Sprintf("https://cdn.discordapp.com/avatars/%s/%s.png", usr.ID, usr.Avatar)
+	usr.Type = user.USER_TYPE_DISCORD
+	return usr, nil
 }
 
 func (da *DiscordAuth) getGuilds(accessToken string) ([]DiscordGuild, error) {
@@ -193,18 +200,18 @@ func (da *DiscordAuth) getClient(url string, accessToken string) ([]byte, error)
 	return contents, nil
 }
 
-func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) {
+func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error {
 	token, err := da.validateToken(r)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	duser, err := da.getUser(token.AccessToken)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	guilds, err := da.getGuilds(token.AccessToken)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
 	// //In the background register guilds to the server
 	// go func() {
@@ -226,8 +233,7 @@ func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-
+	return json.NewEncoder(w).Encode(resp)
 }
 
 func tokenToJSON(token *oauth2.Token) (string, error) {

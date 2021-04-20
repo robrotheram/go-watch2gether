@@ -28,17 +28,17 @@ func (udb *RoomStore) Create(room *Meta) error {
 }
 
 func (udb *RoomStore) GetAll() ([]*Meta, error) {
-	users := []*Meta{}
+	rooms := []*Meta{}
 	// Fetch all the items from the database
 	res, err := rethinkdb.Table(PREFIX).Run(udb.session)
 	if err != nil {
-		return users, err
+		return rooms, err
 	}
-	err = res.All(&users)
+	err = res.All(&rooms)
 	if err != nil {
-		return users, err
+		return rooms, err
 	}
-	return users, nil
+	return rooms, nil
 }
 
 func (udb *RoomStore) Find(id string) (*Meta, error) {

@@ -65,7 +65,7 @@ func (udb *PlayistStore) FindByField(feild, value string) ([]Playist, error) {
 	}
 
 	if res.IsNil() {
-		return nil, fmt.Errorf("room not found")
+		return []Playist{}, nil
 	}
 
 	res.All(&playlist)

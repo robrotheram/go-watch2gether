@@ -3,3 +3,4 @@ watch2gether
 docker-compose.dev.yml
 app.env
 docs
+__debug_bin

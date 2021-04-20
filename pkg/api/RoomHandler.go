@@ -43,26 +43,15 @@ func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, req *http.Request) er
 }
 
 func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
+	usr, ok := r.Context().Value("user").(user.User)
+	if !ok {
+		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to get user")}
+	}
+
 	var roomMsg = joinMessage{}
 	err := json.NewDecoder(r.Body).Decode(&roomMsg)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
-	}
-
-	//Check user exists
-	usr, err := h.Users.FindByField("Name", roomMsg.Username)
-	if err != nil {
-		if roomMsg.Anonymous {
-			usr = user.NewUser(roomMsg.Username, user.USER_TYPE_ANON)
-		} else {
-			usr = user.NewUser(roomMsg.Username, user.USER_TYPE_BASIC)
-		}
-
-		err := h.Users.Create(usr)
-		if err != nil {
-			log.Error(err)
-		}
-
 	}
 
 	roomStr, err := h.Rooms.Find(roomMsg.ID)
@@ -82,21 +71,19 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 			}
 		}
 	}
-
-	_, err = roomStr.FindWatcher(usr.ID)
-	if err == nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("User Already existis")}
-	}
-
-	//Check that this server is hosting the room
 	hubRoom, ok := h.Hub.GetRoom(roomStr.ID)
 	if !ok {
 		hubRoom = room.New(roomStr, h.Rooms)
-		hubRoom.Join(usr)
+		hubRoom.PurgeUsers()
 		h.Hub.AddRoom(hubRoom)
-	} else {
-		hubRoom.Join(usr)
 	}
+
+	found := hubRoom.ContainsUserID(usr.ID)
+	if found {
+		return StatusError{http.StatusBadRequest, fmt.Errorf("User Already existis")}
+	}
+
+	hubRoom.Join(usr)
 
 	if hubRoom.Status != "Running" {
 		h.Hub.StartRoom(roomStr.ID)
@@ -107,9 +94,7 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	resp["room_id"] = hubRoom.ID
 
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(resp)
-
-	return nil
+	return json.NewEncoder(w).Encode(resp)
 }
 
 func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {

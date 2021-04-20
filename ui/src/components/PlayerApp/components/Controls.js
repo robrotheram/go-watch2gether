@@ -15,15 +15,13 @@ import DrawerForm from './UserDrawer';
 import { PlaySquareOutlined, VideoCameraOutlined } from '@ant-design/icons';
 import { openNotificationWithIcon } from "../../common/notification"
 
-import { uid } from 'uid';
-import axios from 'axios';
 
 import { Row, Col, Divider } from 'antd';
-import {API_URL} from '../../../store'
+
 import {updateQueue, nextVideo, updateLocalQueue} from '../../../store/room/room.actions'
 import {leave, sinkToHost, sinkToME} from '../../../store/room/room.actions'
 import PlaylistDrawer from './playlists/PlaylistDrawer'
-
+import {createVideoItem, validURL} from '../../../store/video'
 const { Header} = Layout;
 
 const Controls = (props) => {
@@ -58,31 +56,7 @@ const Controls = (props) => {
    
     const user = props.user
 
-    const validURL = (str) => {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-        return !!pattern.test(str) && !str.includes("list=");
-      }
-
-    const getTitle = async (url) => {
-        const result = await axios(API_URL+"scrape?url="+encodeURI(url),);
-        return (result.data.Title);
-    };
-
-    const createVideoItem = async (url) => {
-      let title = await getTitle(url)
-      console.log("VIDEO GET URL", title)
-      return {
-          "url":url, 
-          "title": title,
-          "user":user.username, 
-          "uid": uid(16)
-      }
-  }
+    
     const addToQueue = async () => {
         if (validURL(newurl)){
             let videoList = [...queue]; 
@@ -91,7 +65,7 @@ const Controls = (props) => {
             updateLocalQueue(videoList)
             videoList = [...queue].filter(i => !i.loading); 
             
-            videoList.push(await createVideoItem(newurl));
+            videoList.push(await createVideoItem(newurl, user));
             updateQueue(videoList)            
             setURL("")
         } else {

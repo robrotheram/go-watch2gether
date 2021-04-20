@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"watch2gether/pkg/audioBot"
+	"watch2gether/pkg/room"
 	"watch2gether/pkg/user"
 
 	"github.com/bwmarrin/discordgo"
@@ -28,10 +29,6 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 }
 
 func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
-	r, ok := ctx.GetHubRoom()
-	if !ok {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
-	}
 	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.ID)
 	if err != nil {
 		ctx.Reply("User not connected to voice channel")
@@ -40,13 +37,27 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 	if err != nil {
 		ctx.Reply("User not connected to voice channel")
 	}
+
+	r, ok := ctx.GetHubRoom()
+	if !ok {
+		roomMeta, err := ctx.Rooms.Find(ctx.Guild.ID)
+		roomMeta.Type = room.ROOM_TYPE_DISCORD
+		if err != nil {
+			ctx.Reply("Room Not found")
+		}
+		ctx.Rooms.Update(roomMeta)
+		r = room.New(roomMeta, ctx.Rooms)
+		r.PurgeUsers()
+		ctx.Hub.AddRoom(r)
+		ctx.Reply("Room has started")
+	}
+
 	bot := audioBot.NewAudioBot("", ctx.Channel.ID, voice, ctx.Session)
 	err = r.RegisterBot(bot)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("Bot error %v", err))
 	}
-	ctx.Reply(fmt.Sprintf("Bot added to voice channel"))
-	//_, err = ctx.Session.ChannelVoiceJoin(ctx.Guild.ID, vc, false, true)
+	ctx.Reply(fmt.Sprintf("Bot added to the W2G room"))
 	return nil
 }
 

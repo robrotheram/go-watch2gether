@@ -49,12 +49,12 @@ func (cmd *PlaylistLoadCmd) Execute(ctx CommandCtx) error {
 	playlistName := strings.TrimSuffix(strings.Join(ctx.Args, " "), " ")
 	fmt.Printf("Searching for playlist %s: \n", playlistName)
 	for _, playlist := range playlists {
-		if playlist.Name == playlistName {
+		if strings.EqualFold(strings.TrimSuffix(playlist.Name, " "), playlistName) {
 			queue := r.GetQueue()
 			queue = append(queue, playlist.Videos...)
 			r.SetQueue(queue, user.DISCORD_BOT)
 			return ctx.Reply(fmt.Sprintf("Added the playlist: %s", playlistName))
 		}
 	}
-	return ctx.Reply(fmt.Sprintf("No playlist with the name '%s'was found", playlistName))
+	return ctx.Reply(fmt.Sprintf("No playlist with the name '%s' was found", playlistName))
 }

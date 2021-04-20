@@ -26,6 +26,15 @@ function UserList(props){
       }
       return actions;
     }
+
+    const secondsToDate = (seconds) => {
+      let time =  new Date(seconds * 1000).toISOString().substr(11, 8)
+      var res = time.substring(0,2)
+      if (res == "00") {
+        return time.substring(3,time.length)
+      }
+      return time
+    }
     //console.log("room",props.room.watchers)
     return (
       // <Card type="inner" title="Users Progress" className="list">
@@ -42,7 +51,12 @@ function UserList(props){
                       {item.username}  
                     </Col>
                     <Col flex="auto" >
-                      <div style={{"display":"inline-block", "width":"100%"}}><Progress percent={(item.seek.progress_percent)*100} showInfo={false}size="small"/></div>
+                      <div style={{"display":"inline-block", "width":"100%", paddingRight:"10px"}}>
+                        <Progress percent={(item.seek.progress_percent)*100} showInfo={false}size="small"/>
+                      </div>
+                    </Col>
+                    <Col>
+                       {secondsToDate(item.seek.progress_seconds)}
                     </Col>
                 </Row>
               </List.Item>
