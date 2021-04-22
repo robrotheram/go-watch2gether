@@ -1,7 +1,7 @@
 VER=v0.2.4
 
 build-server:
-	CGO_ENABLED=0 GOOS=linux go build
+	cd server; CGO_ENABLED=0 GOOS=linux go build -o ../.
 
 build-ui:
 	cd ui; yarn; yarn build
