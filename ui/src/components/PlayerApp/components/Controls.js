@@ -65,7 +65,7 @@ const Controls = (props) => {
             updateLocalQueue(videoList)
             videoList = [...queue].filter(i => !i.loading); 
             
-            videoList.push(await createVideoItem(newurl, user));
+            videoList.push(await createVideoItem(newurl, user.username));
             updateQueue(videoList)            
             setURL("")
         } else {

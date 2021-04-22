@@ -85,7 +85,7 @@ func (hub *Hub) CleanUP(usrStore *user.UserStore) {
 		time.Sleep(5 * time.Second)
 		//log.Info("Checking Room Infomation")
 		for _, hubRoom := range hub.Rooms {
-			isEmpty := hubRoom.PurgeUsers()
+			isEmpty := hubRoom.PurgeUsers(false)
 			if isEmpty && hubRoom.GetType() != room.ROOM_TYPE_DISCORD {
 				go hub.DeleteRoom(hubRoom.ID)
 			}

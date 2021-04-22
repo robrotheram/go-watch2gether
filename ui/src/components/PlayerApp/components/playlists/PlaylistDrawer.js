@@ -87,7 +87,7 @@ const PlaylistDrawer = (props) => {
                                 </Popconfirm>
                                 <Button style={{width:"90px"}} icon={<EditOutlined/>} onClick={()=>showModel(item)} >Edit</Button>
                                 <Popconfirm style={{width:"90px"}} title="Sure to Load Playlist?" onConfirm={() => loadPlaylist(item)}>
-                                <Button style={{width:"90px"}} icon={<SelectOutlined/>}>Load</Button> 
+                                {item.videos.length >0  ?<Button style={{width:"90px"}} icon={<SelectOutlined/>}>Load</Button> : null}
                                 </Popconfirm>
                                                      
                       </Space>

@@ -29,15 +29,16 @@ export const SortableTable = ({data, setData}) => {
   )
   const DraggableBodyRow = ({ className, style, ...restProps }) => {
     // function findIndex base on Table rowKey props and should always be a right array index
-    const index = datastore.findIndex(x => x.order === restProps['data-row-key']);
+    const index = datastore.findIndex(x => x.id === restProps['data-row-key']);
     return (<SortableItem className="editable-row" index={index} {...restProps} />)
   }
   return (
         <Table
+            style={{height:"500px", "overflowY":"auto"}}
             pagination={false}
             dataSource={datastore}
             columns={SortableCols()}
-            rowKey="order"
+            rowKey="id"
             components={{
                 body: {
                 wrapper: DraggableContainer,

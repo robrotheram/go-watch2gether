@@ -23,5 +23,7 @@ func newProxy() devProxy {
 func (dp devProxy) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.Println(r.URL)
 	w.Header().Set("X-Ben", "Rad")
+	w.Header().Set("Cache-Control", "no-store, max-age=0")
+	w.Header().Set("Cache-Control", "no-cache, private, max-age=0")
 	dp.proxy.ServeHTTP(w, r)
 }

@@ -27,6 +27,9 @@ func (cmd *PlaylistCmd) GetHelp() string {
 	return msg
 }
 func (cmd *PlaylistCmd) Execute(ctx CommandCtx) error {
+	if len(ctx.Args) < 1 {
+		return nil
+	}
 	name := strings.ToLower(ctx.Args[0])
 	subCmd, found := cmd.SubCommands[name]
 	if !found {

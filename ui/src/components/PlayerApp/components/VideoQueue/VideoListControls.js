@@ -61,7 +61,7 @@ export function VideoControlComponent (props) {
             updateLocalQueue(videoList)
             videoList = [...queue].filter(i => !i.loading); 
             
-            videoList.push(await createVideoItem(newurl));
+            videoList.push(await createVideoItem(newurl, user.username));
             updateQueue(videoList)            
             setURL("")
         } else {
@@ -90,7 +90,7 @@ export function VideoControlComponent (props) {
         for (var i=1; i < 100; i += 2){
             let randomElement = VideoList[Math.floor(Math.random() * VideoList.length)];
             if (videoList.filter(e => e.url === randomElement || url === randomElement).length === 0) {
-                videoList.push(await createVideoItem(randomElement));
+                videoList.push(await createVideoItem(randomElement, user.username));
                 break;
             }
         }

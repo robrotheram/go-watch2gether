@@ -8,7 +8,8 @@ import { FormInstance } from 'antd/lib/form';
 
 import {connect} from 'react-redux'
 import {createPlaylists, updatePlaylists} from "../../../../store/playlists/playlists.actions"
-import {createVideoItem} from "../../../../store/video"
+import {createVideoItem, validURL} from "../../../../store/video"
+import { openNotificationWithIcon } from "../../../common/notification";
 const CREATE = "c"
 const UPDATE = "u"
 const initdata = [];
@@ -62,6 +63,7 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
   };
   const addrecord = () => {
     let data = {
+        id: ID(), 
         key: ID(),
         url: "",
         order: datastore.length+1,
@@ -71,7 +73,20 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
   };
 
   const savePlaylist = async () => {
-  
+      var valid = datastore.every(item => validURL(item.url));
+      if (!valid){
+        setConfirmLoading(false);
+        openNotificationWithIcon('error', "Invalid URL")
+        return;
+      }
+      if (form.getFieldsValue("name").name.length < 3){
+        setConfirmLoading(false);
+        openNotificationWithIcon('error', "Invalid: Playlist name needs to be greater then 3 characters")
+        return;
+      }
+      
+      
+
       let ds = await Promise.all(datastore.map(async video => { video = await createVideoItem(video.url, user); return video}))
       
       if (updateType === CREATE){
@@ -94,7 +109,7 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
 
 
   }
-
+  console.log("playlistModel", user, room)
   return (
       <Modal
         title={title}
@@ -125,8 +140,8 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
             </Form.Item>
         </Form>
         {sortable ? 
-        <SortableTable data={datastore} setData={setDatastore}/> : 
-        <EditableTable  data={datastore} setData={setDatastore}/> 
+        <SortableTable data={datastore.map(item => {item.key = item.id; return item})} setData={setDatastore}/> : 
+        <EditableTable data={datastore.map(item => {item.key = item.id; return item})} setData={setDatastore}/> 
         }
       </Modal>
   );
@@ -136,9 +151,7 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
 const mapStateToProps  = (state) =>{
     return {
       room : state.room.id,
-      user: state.user,
-      playlists : state.playlist.playlists,
-      loading: state.playlist.loading
+      user: state.user.username
     }
   } 
 export default connect(mapStateToProps, {createPlaylists, updatePlaylists})(PlaylistModel)

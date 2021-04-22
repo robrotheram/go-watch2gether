@@ -1,7 +1,9 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
 import { Table, Input, Button, Popconfirm, Form } from 'antd';
 import {EditableCols} from "./colomns"
+import { validURL } from '../../../../../store/video';
 
+export const EditableContext = React.createContext();
 const EditableRow = ({ index, ...props }) => {
   const [form] = Form.useForm();
   return (
@@ -12,21 +14,6 @@ const EditableRow = ({ index, ...props }) => {
     </Form>
   );
 };
-
-const validURL = (str) => {
-    var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-      '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-    return !!pattern.test(str) && !str.includes("list=");
-  }
-
-
-  
-const EditableContext = React.createContext(null);
-
 const EditableCell = ({
   title,
   editable,
@@ -37,29 +24,30 @@ const EditableCell = ({
   ...restProps
 }) => {
   const [editing, setEditing] = useState(false);
-  const inputRef = useRef(null);
+  const inputRef = useRef();
+
   const form = useContext(EditableContext);
 
   useEffect(() => {
     if (editing) {
-        console.log(inputRef)
       inputRef.current.focus();
     }
   }, [editing]);
 
   const toggleEdit = () => {
     setEditing(!editing);
-    form.setFieldsValue({ [dataIndex]: record[dataIndex] });
+    form.setFieldsValue({
+      [dataIndex]: record[dataIndex],
+    });
   };
 
   const save = async () => {
     try {
       const values = await form.validateFields();
-
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
-      console.log('Save failed:', errInfo);
+      console.log("Save failed:", errInfo);
     }
   };
 
@@ -68,19 +56,34 @@ const EditableCell = ({
   if (editable) {
     childNode = editing ? (
       <Form.Item
-        style={{ margin: 0 }}
+        style={{
+          margin: 0,
+        }}
         name={dataIndex}
         rules={[
           {
             required: true,
-            message: `${title} is required.`,
+            message: `${title} is required.`
+          },
+          {
+            validator: async (rule, value) => {
+              if (!validURL(value)){
+                throw new Error("Invalid URL")
+              }
+            }
           },
         ]}
       >
         <Input ref={inputRef} onPressEnter={save} onBlur={save} />
       </Form.Item>
     ) : (
-      <div className="editable-cell-value-wrap" style={{ paddingRight: 24 }} onClick={toggleEdit}>
+      <div
+        className="editable-cell-value-wrap"
+        style={{
+          paddingRight: 24,
+        }}
+        onClick={toggleEdit}
+      >
         {children}
       </div>
     );
@@ -88,6 +91,16 @@ const EditableCell = ({
 
   return <td {...restProps}>{childNode}</td>;
 };
+
+
+
+
+
+
+
+
+
+
 
 
 export const EditableTable = ({data, setData}) => {
@@ -128,12 +141,14 @@ export const EditableTable = ({data, setData}) => {
 
     return (
         <Table
+        style={{height:"500px", "overflowY":"auto"}}
           components={{
             body: {
                 row: EditableRow,
                 cell: EditableCell,
             }
           }}
+          rowKey="id"
           rowClassName={() => 'editable-row'}
           dataSource={datastore}
           columns={columns}

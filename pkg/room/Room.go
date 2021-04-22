@@ -114,14 +114,14 @@ func (r *Room) Stop() {
 	r.Status = events.ROOM_STATUS_STOPPED
 }
 
-func (r *Room) PurgeUsers() bool {
+func (r *Room) PurgeUsers(force bool) bool {
 
 	meta, _ := r.Store.Find(r.ID)
 	size := len(meta.Watchers)
 
 	for i := range meta.Watchers {
 		wtchr := &meta.Watchers[i]
-		if wtchr.Type != user.DISCORD_BOT.Type {
+		if wtchr.Type != user.DISCORD_BOT.Type || force {
 			if wtchr.LastSeen.Add(10 * time.Second).Before(time.Now()) {
 				r.Leave(wtchr.ID)
 				size = size - 1

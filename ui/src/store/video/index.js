@@ -1,6 +1,7 @@
 import { uid } from 'uid';
 import axios from 'axios';
 import {API_URL} from '../'
+import store from '../index'
 
 export * from './video.types'
 export * from './video.actions'
@@ -21,13 +22,13 @@ export const getTitle = async (url) => {
     return (result.data.Title);
 };
 
-export const createVideoItem = async (url, user) => {
+export const createVideoItem = async (url, username) => {
   let title = await getTitle(url)
   console.log("VIDEO GET URL", title)
   return {
       "url":url, 
       "title": title,
-      "user":user.username, 
+      "user":   username, 
       "uid": uid(16)
   }
 }

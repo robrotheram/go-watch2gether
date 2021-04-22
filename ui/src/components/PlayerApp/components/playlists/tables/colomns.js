@@ -3,15 +3,29 @@ import { MenuOutlined } from '@ant-design/icons';
 
 import { Popconfirm } from 'antd';
 import {DeleteOutlined} from '@ant-design/icons';
+import {VideoThumbnail} from "../../VideoQueue/VideoThumbnail"
+import { Skeleton } from 'antd';
 
 const DragHandle = sortableHandle(() => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />);
 
 const cols = [
+        
         {
-        title: 'Video Address',
-        dataIndex: 'url',
-        editable: true,
-        }
+            title: 'Icon',
+            dataIndex: 'url',
+            width: 100,
+            render: (_, record) => {
+                if (record.url === undefined){
+                    return <Skeleton.Image style={{"height":"70px", "padding": "10px"}} />
+                }
+                return <div style={{"width":100}}><VideoThumbnail url={record.url }/></div>
+            },
+        },
+        {
+            title: 'Video Address',
+            dataIndex: 'url',
+            editable: true,
+        },
 ]
 
 export const EditableCols = (handleDelete) => {
@@ -26,6 +40,7 @@ export const EditableCols = (handleDelete) => {
             </Popconfirm>
             ),
         },
+        
         ...cols
     ];
 }

@@ -6,16 +6,25 @@ const { Title } = Typography;
 
 
 export const PlaylistItem = ({video, children, playlist, playing, loading}) => {
+    var url = ""
+    var user = ""
+    if (video !== undefined) {
+        if (video.url !== undefined) {
+            url = video.url 
+            user = video.user
+        }
+    }
+
     return (
         <List.Item >
                 <table className="">
                     <tbody>
                     <tr>
                         <td style={{"width":"130px"}}> 
-                        {loading ? 
+                        {loading || url === "" || video === undefined ? 
                             <Skeleton.Image style={{"height":"70px", "padding": "10px"}} /> 
                             :
-                            <VideoThumbnail url={video.url} user={video.user}/>
+                            <VideoThumbnail url={url} user={user}/>
                         }
                         </td>
                         <td style={{

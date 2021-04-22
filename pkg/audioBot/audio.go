@@ -10,7 +10,6 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
-	"github.com/prometheus/common/log"
 )
 
 type Audio struct {
@@ -162,7 +161,6 @@ func (audio *Audio) PlayStream() {
 			if audio.Duration > 0 && audio.progress > 0 {
 				progress = audio.progress.Seconds() / audio.Duration.Seconds()
 			}
-			log.Info(progress)
 			SendToChannel(CreateBotUpdateEvent(media.Seek{
 				ProgressPct: progress,
 				ProgressSec: audio.progress.Seconds(),

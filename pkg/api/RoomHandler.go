@@ -76,13 +76,13 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	hubRoom, ok := h.Hub.GetRoom(roomStr.ID)
 	if !ok {
 		hubRoom = room.New(roomStr, h.Rooms)
-		hubRoom.PurgeUsers()
+		hubRoom.PurgeUsers(true)
 		h.Hub.AddRoom(hubRoom)
 	}
 
 	found := hubRoom.ContainsUserID(usr.ID)
 	if found {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("User Already existis")}
+		hubRoom.Leave(usr.ID)
 	}
 
 	hubRoom.Join(usr)

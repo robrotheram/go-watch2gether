@@ -50,7 +50,7 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 		}
 		ctx.Rooms.Update(roomMeta)
 		r = room.New(roomMeta, ctx.Rooms)
-		r.PurgeUsers()
+		r.PurgeUsers(true)
 		ctx.Hub.AddRoom(r)
 		ctx.Reply("Room has started")
 	}
