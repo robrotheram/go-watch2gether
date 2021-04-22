@@ -92,6 +92,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.Mes
 		Channel:   channel,
 		User:      user,
 		Args:      args[1:],
+		BaseURL:   db.baseurl,
 	}
 	cmd, found := command.Commands[name]
 	if !found {

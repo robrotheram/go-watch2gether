@@ -21,10 +21,11 @@ func init() {
 
 func (cmd *PlaylistCmd) GetHelp() string {
 	msg := "The Avalible Commands are: \n"
-	for k, v := range cmd.SubCommands {
-		msg = msg + fmt.Sprintf("\t - %s : %s \n", k, v.GetHelp())
+	keys := SortKeys(cmd.SubCommands)
+	for _, k := range keys {
+		msg = msg + fmt.Sprintf("\t - %s : %s \n", k, cmd.SubCommands[k].GetHelp())
 	}
-	return msg
+	return strings.TrimSuffix(msg, "\n")
 }
 func (cmd *PlaylistCmd) Execute(ctx CommandCtx) error {
 	if len(ctx.Args) < 1 {

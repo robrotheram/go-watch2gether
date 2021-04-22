@@ -9,8 +9,9 @@ func init() {
 }
 func (cmd *HelpCmd) Execute(ctx CommandCtx) error {
 	msg := "The Avalible Commands are: \n"
-	for k, v := range Commands {
-		msg = msg + fmt.Sprintf("- %s : %s \n", k, v.GetHelp())
+	keys := SortKeys(Commands)
+	for _, k := range keys {
+		msg = msg + fmt.Sprintf("- %s : %s \n", k, Commands[k].GetHelp())
 	}
 	return ctx.Reply(msg)
 }

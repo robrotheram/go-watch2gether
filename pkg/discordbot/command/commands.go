@@ -1,6 +1,7 @@
 package command
 
 import (
+	"sort"
 	"watch2gether/pkg/datastore"
 	"watch2gether/pkg/room"
 
@@ -14,6 +15,7 @@ type CommandCtx struct {
 	Channel *discordgo.Channel
 	User    *discordgo.User
 	Args    []string
+	BaseURL string
 }
 
 func (ctx *CommandCtx) GetHubRoom() (*room.Room, bool) {
@@ -42,3 +44,12 @@ func (cmd *BaseCommand) GetHelp() string {
 }
 
 var Commands = make(map[string]Command)
+
+func SortKeys(m map[string]Command) []string {
+	keys := make([]string, 0, len(m))
+	for k := range m {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
