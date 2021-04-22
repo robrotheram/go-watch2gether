@@ -17,16 +17,25 @@ import store, {history} from './store'
 import { ConnectedRouter } from 'connected-react-router'
 
 
-const PrivateRoute = ({ component: Component, authed, ...rest }) => (
-  <Route
-    {...rest}
-    render={props => (
-      authed
-        ? <Component {...props} />
-        : <Redirect to="/" />
-    )}
-  />
-);
+const PrivateRoute = ({ component: Component, authed, ...rest }) => {
+  let redirect = "/"
+  let pathname = rest.location.pathname
+  const lastItem = pathname.substring(pathname.lastIndexOf('/') + 1)
+  if (lastItem !== "app" || lastItem !== "room"){
+    redirect = "/?room="+lastItem
+  }
+  return (
+    <Route
+      {...rest}
+      render={props => (
+        authed
+          ? <Component {...props} />
+          : <Redirect to={redirect} />
+      )}
+    />
+  );
+}
+
 class Routes extends Component {
   componentDidMount() {
     console.log('==== Routes mounted!');

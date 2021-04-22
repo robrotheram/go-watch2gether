@@ -101,10 +101,17 @@ func (da *DiscordAuth) Middleware(next Handler) http.Handler {
 
 func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	token, err := da.validateToken(r)
+	next := r.URL.Query().Get("next")
+
 	if err == nil && token != nil {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	session, _ := da.store.Get(r, sessionName)
+	session.Values["next"] = next
+	err = session.Save(r, w)
+
 	url := da.oauthConfig.AuthCodeURL(da.oauthStateString)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
@@ -132,9 +139,15 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
+
+	redirect := "/"
+	session, _ := da.store.Get(r, sessionName)
+	next := (session.Values["next"]).(string)
+	if len(next) > 1 {
+		redirect = next
+	}
 	//Save token to session
 	str, _ := tokenToJSON(content)
-	session, _ := da.store.Get(r, sessionName)
 	session.Values["token"] = str
 	err = session.Save(r, w)
 
@@ -147,7 +160,7 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		da.UserDB.Create(user)
 	}
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+	http.Redirect(w, r, redirect, http.StatusTemporaryRedirect)
 }
 
 func (da *DiscordAuth) getUser(accessToken string) (user.User, error) {

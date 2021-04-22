@@ -2,7 +2,7 @@ import './home.less';
 
 import logo from './logo.jpg'
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { Layout, Button, Divider, Typography, Checkbox } from 'antd';
 import { Form, Input } from 'antd';
 import { Alert } from 'antd';
@@ -24,8 +24,8 @@ const { Content } = Layout;
 function Home(props) {
 
   const [form] = Form.useForm();
-
   const {name, id} = props.room
+  const [discord_login, setLoginURL] = useState(BASE_URL+"/auth/login")
 
   const layout = {
     labelCol: { span: 6 },
@@ -36,8 +36,12 @@ function Home(props) {
   };
 
   useEffect(() => {
-    console.log("HELLO")
-    props.checklogin();
+    const values = queryString.parse(props.location.search);
+    if (values.room !== undefined) {
+      setLoginURL(discord_login+"?next=/?room="+values.room)
+    }
+    
+    props.checklogin(values.room);
   }, []);
 
 
@@ -190,7 +194,7 @@ function Home(props) {
                 Also comes with a Discord Bot, Playlist support and fun!
               </Paragraph>
             </Typography>
-            <Button href={BASE_URL+"/auth/login"} size="large" type="primary" style={{ "width": "100%", marginTop: "0px", backgroundColor: "#7289da", border: "none" }}>
+            <Button href={discord_login} size="large" type="primary" style={{ "width": "100%", marginTop: "0px", backgroundColor: "#7289da", border: "none" }}>
                   Login with Discord
             </Button>
 
