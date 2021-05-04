@@ -46,6 +46,8 @@ func StartServer(connection string, hndlr *api.BaseHandler) error {
 	r.Register("/api/v1/status/{roomName}", "GET", false, hndlr.GetRoomMeta)
 	r.Register("/api/v1/status", "GET", false, hndlr.HubStatus)
 
+	r.Register("/config", "GET", false, hndlr.GetConfig)
+
 	if config.Dev {
 		fmt.Println("Starting in dev mode")
 		dp := newProxy()

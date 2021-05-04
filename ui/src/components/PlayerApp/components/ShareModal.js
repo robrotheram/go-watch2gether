@@ -1,7 +1,9 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import { Modal } from 'antd';
 import { Input, Button } from 'antd';
 import {connect} from 'react-redux'
+import axios from 'axios';
+import {BASE_URL} from "../../../store"
 import {openNotificationWithIconKey} from "../../common/notification"
 import {
     CopyOutlined,
@@ -17,6 +19,15 @@ const ShareModal = connect(mapStateToProps, {})((props) => {
 
     const cancelForm = () =>{
         handleCancel();
+    }
+    const [botid, setBot] = useState("")
+    useEffect(() => {
+      axios.get(BASE_URL+"/config").then(res => {
+        setBot(res.data.bot)
+      })
+    }, []);
+    const inviteBotUrl = (bot) => {
+      return "https://discord.com/oauth2/authorize?client_id="+bot+"&scope=bot"
     }
     return (
         <Modal
@@ -37,6 +48,15 @@ const ShareModal = connect(mapStateToProps, {})((props) => {
           
           }}/>
     </Input.Group>
+    <br/>
+    {botid !== "" ?
+        <Button target="_blank" href={inviteBotUrl(botid)}  type="primary" style={{
+          padding: "0px 20px",
+          backgroundColor: "#7289da",
+          border: "none",
+          width:"100%"
+        }}>Invite bot </Button>
+        :null}
       </Modal>
     )
 });

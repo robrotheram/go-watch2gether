@@ -1,4 +1,4 @@
-VER=v0.2.4
+VER=v0.3.1
 
 build-server:
 	cd server; CGO_ENABLED=0 GOOS=linux go build -o ../.
@@ -16,3 +16,6 @@ publish:
 	docker push robrotheram/watch2gether:latest
 
 build: build-server build-ui build-docker
+
+run: 
+	docker-compose up -d

@@ -58,7 +58,7 @@ class RoomPage extends React.Component {
             theme="dark" 
             defaultSelectedKeys={['1']} 
             mode="inline" 
-            style={{height: "calc(100vh - 150px)", "overflowY": "auto"}}
+            className="guildList"
           >
             {
               guilds.map(guild => {

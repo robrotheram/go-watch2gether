@@ -16,6 +16,7 @@ import store , {BASE_URL} from '../../store'
 import {checklogin} from '../../store/user/user.actions'
 import {ROOM_ERROR} from '../../store/room/room.types'
 import { join, leave, clearError, getMeta } from '../../store/room/room.actions'
+import axios from 'axios';
 
 const { Title, Paragraph, Text, Link } = Typography;
 const { Content } = Layout;
@@ -26,6 +27,7 @@ function Home(props) {
   const [form] = Form.useForm();
   const {name, id} = props.room
   const [discord_login, setLoginURL] = useState(BASE_URL+"/auth/login")
+  const [botid, setBot] = useState("")
 
   const layout = {
     labelCol: { span: 6 },
@@ -62,7 +64,15 @@ function Home(props) {
     props.clearError();
   };
 
+  useEffect(() => {
+    axios.get(BASE_URL+"/config").then(res => {
+      setBot(res.data.bot)
+    })
+  }, []);
 
+  const inviteBotUrl = (bot) => {
+    return "https://discord.com/oauth2/authorize?client_id="+bot+"&scope=bot"
+  }
 
   useEffect(() => {
     const values = queryString.parse(props.location.search);
@@ -91,6 +101,20 @@ function Home(props) {
 
   return (
     <div className="wrap-login">
+        {botid !== "" ?
+        <Button target="_blank" href={inviteBotUrl(botid)} size="large" type="primary" shape="round" style={{ 
+          position:"fixed",
+          top:"20px",
+          right:"20px",
+          marginTop: "0px",
+          padding: "0px 20px",
+          backgroundColor: "#7289da",
+          border: "none" }}
+        > 
+          Add the Discord Bot 
+        </Button>
+        : null }
+        
         <Content className="login-form">
             <Typography>
             <div style={{"width": "500px", marginBottom:"70px"}}>
@@ -194,7 +218,7 @@ function Home(props) {
                 Also comes with a Discord Bot, Playlist support and fun!
               </Paragraph>
             </Typography>
-            <Button href={discord_login} size="large" type="primary" style={{ "width": "100%", marginTop: "0px", backgroundColor: "#7289da", border: "none" }}>
+            <Button href={discord_login} size="large" shape="round" type="primary" style={{ padding: "0px 20px", "width": "100%", marginTop: "0px", backgroundColor: "#7289da", border: "none" }}>
                   Login with Discord
             </Button>
 

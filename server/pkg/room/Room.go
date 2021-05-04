@@ -116,7 +116,10 @@ func (r *Room) Stop() {
 
 func (r *Room) PurgeUsers(force bool) bool {
 
-	meta, _ := r.Store.Find(r.ID)
+	meta, err := r.Store.Find(r.ID)
+	if err != nil {
+		return false
+	}
 	size := len(meta.Watchers)
 
 	for i := range meta.Watchers {

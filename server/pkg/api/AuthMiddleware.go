@@ -42,11 +42,11 @@ func NewDiscordAuth(conf *utils.Config, userstore *user.UserStore) DiscordAuth {
 		RedirectURL:  conf.BaseURL + "/auth/callback",
 		ClientID:     conf.DiscordClientID,
 		ClientSecret: conf.DiscordClientSecret,
-		Scopes:       []string{"email", "guilds"},
+		Scopes:       []string{"identify", "guilds"},
 		Endpoint:     discordEndpoint,
 	}
 	da.oauthStateString = utils.RandStringRunes(20)
-	da.store = sessions.NewCookieStore([]byte("CHANGE_ME"))
+	da.store = sessions.NewCookieStore([]byte(conf.SessionSecret))
 	da.UserDB = userstore
 	return da
 }

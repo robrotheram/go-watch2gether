@@ -12,13 +12,23 @@ services:
     environment: 
       - RETHINK_URL=rethinkdb:28015
       - RETHINK_DATABASE=watch2gether
-      - DISCORD_TOKEN=<TOKEN>
-      - BASE_URL=watch2gether.io
+      - DISCORD_TOKEN=
+      - DISCORD_CLIENT_ID=
+      - DISCORD_CLIENT_SECRET=
+      - SESSION_SECRET=
+      - BASE_URL=http://localhost:8080
+      - DEVELOPMENT=false 
+
+
     ports:
       - 3000:8080
 
   rethinkdb:
     image: rethinkdb
+    ports:
+      - 8082:8080
+      - 28015:28015
+      - 29015:29015
     volumes:
      - /data:/data
     command: rethinkdb --bind all

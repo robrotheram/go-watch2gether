@@ -50,7 +50,10 @@ func main() {
 	datastore.StartCleanUP()
 	pkg.SetupServer(&config)
 
-	server := api.BaseHandler{datastore}
+	server := api.BaseHandler{
+		Datastore: datastore,
+		Config:    &config,
+	}
 
 	if err := pkg.StartServer(*addr, &server); err != nil {
 		log.Fatal("ListenAndServe:", err)
@@ -75,6 +78,7 @@ func SetupDiscordBot(config utils.Config, datastore *datastore.Datastore) {
 		} else {
 			bot.Start()
 		}
+
 	} else {
 		log.Info("No Discord Bot token")
 	}
