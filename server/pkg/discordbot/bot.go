@@ -61,7 +61,7 @@ func (db *DiscordBot) Close() {
 	db.session.Close()
 }
 
-var PREFIX = "!w2g"
+var PREFIX = "!w"
 
 func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
 	guild, err := db.session.Guild(message.GuildID)

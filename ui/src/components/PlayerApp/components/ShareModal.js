@@ -70,7 +70,7 @@ const Share = () => {
 
   return (
     <div style={{"width":"100%"}}>
-      <Button style={{"width":"100%"}} type="primary" icon={<ShareAltOutlined />} onClick={() => setIsShareModalVisible(true) }>Share </Button>
+      <Button style={{"width":"100%", "padding":"0px 8px", height:"33px"}} type="primary" icon={<ShareAltOutlined />} onClick={() => setIsShareModalVisible(true) }></Button>
       <ShareModal isModalVisible={isShareModalVisible} showModal={showShareModal} handleOk={handleShareOk} handleCancel={handleShareCancel}/>
     </div>
   )

@@ -22,6 +22,8 @@ import {updateQueue, nextVideo, updateLocalQueue} from '../../../store/room/room
 import {leave, sinkToHost, sinkToME} from '../../../store/room/room.actions'
 import PlaylistDrawer from './playlists/PlaylistDrawer'
 import {createVideoItem, validURL} from '../../../store/video'
+import Share from "./ShareModal"
+
 const { Header} = Layout;
 
 const Controls = (props) => {
@@ -77,7 +79,7 @@ const Controls = (props) => {
         <Card className="contolPanel" style={{"height": "81px"}}>
           <Row style={{width:"100%", paddingTop:"10px"}}>
             <Col>
-              <Space>
+            <Space style={{"marginTop":"1px"}}>
                 <PlaylistDrawer/>
               </Space>
             </Col>
@@ -85,8 +87,9 @@ const Controls = (props) => {
                 <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)}  onKeyDown={handleKeyDown} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>
             </Col>
             <Col>
-              <Space>
+              <Space style={{"marginTop":"1px"}}>
                 <DrawerForm/>
+                <Share/>
               </Space>
             </Col>
           </Row>

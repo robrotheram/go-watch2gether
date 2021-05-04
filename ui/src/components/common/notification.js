@@ -8,6 +8,6 @@ export const openNotificationWithIconKey = (type, message, key) => {
   notification[type]({
     key: key,
     message: message,
-    placement: "topRight"
+    placement: "bottomRight"
   });
 };

@@ -1,7 +1,7 @@
 import React, {useState}from 'react'
 import {connect} from 'react-redux'
 import { Drawer, Space, Button, Col, Row, Input, Select, DatePicker, Divider } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import { TeamOutlined } from '@ant-design/icons';
 import UserList from './UserList';
 import Share from './ShareModal'
 import Settings from './SettingsModal'
@@ -31,8 +31,8 @@ const DrawerForm = (props) => {
 
     return (
       <>
-        <Button type="primary" onClick={showDrawer}  style={{"height":"33px", "margin": "0px 10px"}}>
-          <InfoCircleOutlined /> Info
+        <Button type="primary" onClick={showDrawer}  style={{"height":"33px", "margin": "0px 5px"}}>
+          <TeamOutlined />Watchers
         </Button>
         <Drawer
           title="More Info"
@@ -47,7 +47,7 @@ const DrawerForm = (props) => {
             { !isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> : null}
             { controls || isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>: null}
             {isHost ?<Settings/>: null}
-            <Share/>
+            
           </Space>
           <Divider>User Progress</Divider>
 

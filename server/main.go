@@ -1,9 +1,7 @@
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
 
 	"watch2gether/pkg"
 	"watch2gether/pkg/api"
@@ -11,22 +9,8 @@ import (
 	discord "watch2gether/pkg/discordbot"
 	"watch2gether/pkg/utils"
 
-	"github.com/go-redis/redis/v8"
 	log "github.com/sirupsen/logrus"
 )
-
-// Variables used for command line parameters
-
-func ping(client *redis.Client) error {
-	pong, err := client.Ping(context.Background()).Result()
-	if err != nil {
-		return err
-	}
-	fmt.Println(pong, err)
-	// Output: PONG <nil>
-
-	return nil
-}
 
 func main() {
 
@@ -35,24 +19,24 @@ func main() {
 		FullTimestamp: true,
 	})
 
-	config, err := utils.LoadConfig(".")
+	err := utils.LoadConfig(".")
 	if err != nil {
 		log.Fatalf("Config Error: %v", err)
 	}
 
-	datastore := datastore.NewDatastore(config)
-	SetupDiscordBot(config, datastore)
+	datastore := datastore.NewDatastore(utils.Configuration)
+	SetupDiscordBot(utils.Configuration, datastore)
 
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")
 	flag.Parse() // parse the flags
 	log.Println("Starting web server on", *addr)
 
 	datastore.StartCleanUP()
-	pkg.SetupServer(&config)
+	pkg.SetupServer(&utils.Configuration)
 
 	server := api.BaseHandler{
 		Datastore: datastore,
-		Config:    &config,
+		Config:    &utils.Configuration,
 	}
 
 	if err := pkg.StartServer(*addr, &server); err != nil {

@@ -5,6 +5,7 @@ import (
 	"sync"
 	"watch2gether/pkg/events"
 	"watch2gether/pkg/media"
+	"watch2gether/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/jonas747/dca"
@@ -58,27 +59,31 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 	}
 	switch evt.Action {
 	case events.EVNT_UPDATE_QUEUE:
-		ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
-
+		if utils.Configuration.DiscordNotify {
+			ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
+		}
 	case events.EVT_VIDEO_CHANGE:
 		ab.PlayAudio(evt.CurrentVideo, 0)
-
 	case events.EVNT_PLAYING:
 		if !ab.audio.Playing {
 			ab.PlayAudio(evt.CurrentVideo, 0)
 		} else {
 			ab.audio.Unpause()
 		}
-		ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Username))
+		if utils.Configuration.DiscordNotify {
+			ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Username))
+		}
 	case events.EVNT_PAUSING:
 		ab.audio.Paused()
-		ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
-
+		if utils.Configuration.DiscordNotify {
+			ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
+		}
 	case events.EVNT_SEEK_TO_USER:
 		ab.audio.Stop()
 		ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
-		ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.Seek.ProgressPct*100))
-
+		if utils.Configuration.DiscordNotify {
+			ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.Seek.ProgressPct*100))
+		}
 	case events.EVT_ROOM_EXIT:
 		ab.sendToChannel(fmt.Sprintf("Room has closed down"))
 	}
