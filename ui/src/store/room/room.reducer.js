@@ -9,6 +9,7 @@ import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SU
       "queue":[],
       "watchers":[],
       "error": "",
+      "active": true,
     }
 export const roomReducer = (state = INITIAL_STATE, action) => {
         
@@ -18,8 +19,9 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
                  ...state, id: action.room, error: "", active: true,
                };
             case LEAVE_SUCCESSFUL:
+              openNotificationWithIcon("error", "You have been diconnected from the room")   
               return {
-                ...state, name: "", error: "", active: false,
+                ...state, id: "", error: "", active: false,
               };
             case GET_META_SUCCESSFUL:
               return {
@@ -53,7 +55,6 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
               }
               return state;
             case "REDUX_WEBSOCKET::CLOSED" :
-              //TODO: Show Error mesasge
               return {
                 ...state, active: false,
               };

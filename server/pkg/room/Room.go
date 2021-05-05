@@ -190,9 +190,7 @@ func (r *Room) Run() {
 			r.clients[client] = true
 		case client := <-r.leave:
 			// leaving
-			r.Leave(client.user)
-			delete(r.clients, client)
-			close(client.send)
+			r.Disconnect(client.user)
 		case msg := <-r.forward:
 			// forward message to all clients
 			evnt, err := events.ProcessEvent(msg)
@@ -412,4 +410,18 @@ func (r *Room) SeenUser(rw user.Watcher) {
 		Action:   events.EVT_ON_PROGRESS_UPDATE,
 		Watchers: meta.Watchers,
 	})
+}
+
+func (r *Room) Disconnect(id string) {
+	for k := range r.clients {
+		if k.user == id {
+			fmt.Println("user leaving the room")
+			r.Leave(id)
+			delete(r.clients, k)
+			if k.active {
+				close(k.send)
+				k.active = false
+			}
+		}
+	}
 }

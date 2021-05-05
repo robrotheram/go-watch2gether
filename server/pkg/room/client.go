@@ -13,9 +13,9 @@ type Client struct {
 	// send is a channel on which messages are sent.
 	send chan []byte
 	// room is the room this client is chatting in.
-	room *Room
-
-	user string
+	room   *Room
+	active bool
+	user   string
 }
 
 const (
@@ -58,6 +58,7 @@ func NewClient(r *Room, socket *websocket.Conn, token string) *Client {
 		send:   make(chan []byte, MessageBufferSize),
 		room:   r,
 		user:   token,
+		active: true,
 	}
 	r.join <- client
 	defer func() { r.leave <- client }()

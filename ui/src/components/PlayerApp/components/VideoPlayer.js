@@ -25,7 +25,7 @@ class VideoPlayer extends React.Component {
         // You don't have to do this check first, but it can help prevent an unneeded render
         if (nextProps.seek.progress_seconds !== this.state.played.progress_seconds) {
           this.setState({ played: nextProps.seek });
-          if (this.player !== undefined) {
+          if (this.player !== undefined && this.player !== null) {
             this.player.seekTo(parseFloat(nextProps.seek.progress_seconds))
           }
         }

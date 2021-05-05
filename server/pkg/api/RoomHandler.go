@@ -62,8 +62,10 @@ func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	found := hubRoom.ContainsUserID(usr.ID)
+
 	if found {
-		hubRoom.Leave(usr.ID)
+		hubRoom.Disconnect(usr.ID)
+		//hubRoom.Leave(usr.ID)
 	}
 
 	hubRoom.Join(usr)
@@ -105,7 +107,7 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	log.Info("USER LEFT")
-	room.Leave(usr.ID)
+	room.Disconnect(usr.ID)
 	return nil
 }
 
