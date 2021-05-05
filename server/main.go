@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"watch2gether/pkg"
 	"watch2gether/pkg/api"
@@ -58,9 +59,13 @@ func SetupDiscordBot(config utils.Config, datastore *datastore.Datastore) {
 	if token != "" {
 		bot, err := discord.NewDiscordBot(datastore, token, config.BaseURL)
 		if err != nil {
+			fmt.Println(err)
 			log.Error(err)
 		} else {
-			bot.Start()
+			err := bot.Start()
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 
 	} else {

@@ -68,8 +68,9 @@ func (audio *Audio) Play(url string, starttime int) error {
 	audio.Stop()
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
-	opts.Bitrate = 120
+	opts.Bitrate = 96
 	opts.StartTime = starttime
+	opts.Application = "lowdelay"
 
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
@@ -149,7 +150,6 @@ func (audio *Audio) PlayStream() {
 		select {
 		case <-audio.done:
 			// Clean up incase something happened and ffmpeg is still running
-			SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
 			audio.session.Truncate()
 			audio.Playing = false
 			return

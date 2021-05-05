@@ -55,7 +55,7 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 		ctx.Reply("Room has started")
 	}
 
-	bot := audioBot.NewAudioBot("", ctx.Channel.ID, voice, ctx.Session)
+	bot := audioBot.NewAudioBot(vc, ctx.Channel.ID, voice, ctx.Session)
 	err = r.RegisterBot(bot)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("Bot error %v", err))

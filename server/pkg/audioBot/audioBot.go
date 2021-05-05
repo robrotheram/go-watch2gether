@@ -3,6 +3,7 @@ package audioBot
 import (
 	"fmt"
 	"sync"
+	"time"
 	"watch2gether/pkg/events"
 	"watch2gether/pkg/media"
 	"watch2gether/pkg/utils"
@@ -21,6 +22,8 @@ type AudioBot struct {
 	RoomChannel          chan []byte
 	stream               *dca.StreamingSession
 	Running              bool
+	updateTime           time.Time
+	ticker               *time.Ticker
 	wg                   sync.WaitGroup
 	sync.Mutex
 }
@@ -43,6 +46,24 @@ func SendToChannel(evt events.Event, roomChannel chan []byte) {
 func (ab *AudioBot) RegisterToRoom(rc chan []byte) {
 	ab.RoomChannel = rc
 	ab.audio = NewAudio(rc, ab.VoiceConnection)
+	ab.updateTime = time.Now()
+	ab.ticker = time.NewTicker(10 * time.Second)
+	ab.checker()
+
+}
+
+func (ab *AudioBot) checker() {
+	go func() {
+		for {
+			select {
+			case <-ab.ticker.C:
+				if ab.updateTime.Add(1*time.Minute).Before(time.Now()) && ab.audio == nil {
+					ab.Disconnect()
+
+				}
+			}
+		}
+	}()
 }
 
 func (ab *AudioBot) Send(evt events.Event) {
@@ -91,6 +112,7 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 
 func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
 	fmt.Println(video)
+	ab.updateTime = time.Now()
 	switch video.GetType() {
 	case media.VIDEO_TYPE_YT:
 		ab.PlayYoutube(video.Url, starttime)
@@ -113,7 +135,6 @@ func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
 	downloadURL, _ := client.GetStreamURL(video, &video.Formats[0])
 	ab.PlayAudioFile(downloadURL, starttime)
 }
-
 func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
 	if ab.audio == nil {
 		fmt.Println("Bot not connected to Room")
@@ -138,5 +159,6 @@ func (ab *AudioBot) Disconnect() error {
 	if ab.audio != nil {
 		ab.audio.Stop()
 	}
+	ab.ticker.Stop()
 	return ab.VoiceConnection.Disconnect()
 }
