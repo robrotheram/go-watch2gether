@@ -30,3 +30,10 @@ func CreateBotFinishEvent() events.Event {
 	evt.Watcher.Seek = media.SEEK_FINISHED
 	return evt
 }
+
+func CreateBotLeaveEvent() events.Event {
+	return events.Event{
+		Action:  events.EVNT_USER_LEAVE,
+		Watcher: user.DISCORD_BOT,
+	}
+}

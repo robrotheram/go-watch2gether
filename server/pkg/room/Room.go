@@ -101,6 +101,7 @@ func (r *Room) SendClientEvent(evt events.Event) {
 	if r.Bot != nil {
 		evt.CurrentVideo = r.GetVideo()
 		evt.Seek = r.GetSeek()
+		evt.Playing = r.GetPlaying()
 		r.Bot.Send(evt)
 	}
 }
@@ -176,7 +177,10 @@ func (r *Room) HandleEvent(evt events.Event) {
 		r.SeenUser(evt.Watcher)
 	case events.EVT_ROOM_EXIT:
 		r.DeleteIfEmpty()
+	case events.EVNT_USER_LEAVE:
+		r.Leave(evt.Watcher.ID)
 	}
+
 }
 
 func (r *Room) Run() {
@@ -234,6 +238,10 @@ func (r *Room) GetVideo() media.Video {
 func (r *Room) GetSeek() media.Seek {
 	meta, _ := r.Store.Find(r.ID)
 	return meta.Seek
+}
+func (r *Room) GetPlaying() bool {
+	meta, _ := r.Store.Find(r.ID)
+	return meta.Playing
 }
 
 func (r *Room) GetHistory() []media.Video {

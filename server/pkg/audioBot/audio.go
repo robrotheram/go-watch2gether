@@ -13,17 +13,18 @@ import (
 )
 
 type Audio struct {
-	done     chan error
-	stream   *dca.StreamingSession
-	voice    *discordgo.VoiceConnection
-	wg       sync.WaitGroup
-	session  *dca.EncodeSession
-	progress time.Duration
-	Url      string
-	Duration time.Duration
-	Playing  bool
+	done      chan error
+	stream    *dca.StreamingSession
+	voice     *discordgo.VoiceConnection
+	wg        sync.WaitGroup
+	session   *dca.EncodeSession
+	progress  time.Duration
+	Url       string
+	Duration  time.Duration
+	Playing   bool
+	startTime int
 	sync.Mutex
-	RoomChannel chan []byte
+	bot *AudioBot
 }
 
 func ParseDuration(url string) (time.Duration, error) {
@@ -52,16 +53,16 @@ func ParseDuration(url string) (time.Duration, error) {
 	return time.ParseDuration(d.Format.Duration + "s")
 }
 
-func NewAudio(roomChannel chan []byte, voice *discordgo.VoiceConnection) *Audio {
+func NewAudio(bot *AudioBot, voice *discordgo.VoiceConnection) *Audio {
 	audio := Audio{
-		done:        make(chan error),
-		voice:       voice,
-		RoomChannel: roomChannel,
+		done:  make(chan error),
+		voice: voice,
+		bot:   bot,
 	}
 	return &audio
 }
 
-func (audio *Audio) Play(url string, starttime int) error {
+func (audio *Audio) Play(url string, startTime int) error {
 	if audio.Playing {
 		return fmt.Errorf("Playing already started")
 	}
@@ -69,8 +70,9 @@ func (audio *Audio) Play(url string, starttime int) error {
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
 	opts.Bitrate = 96
-	opts.StartTime = starttime
+	opts.StartTime = startTime
 	opts.Application = "lowdelay"
+	audio.startTime = startTime
 
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
@@ -144,7 +146,7 @@ func (audio *Audio) PlayStream() {
 	for {
 		if !audio.Playing {
 			audio.session.Truncate()
-			SendToChannel(CreateBotFinishEvent(), audio.RoomChannel)
+			audio.bot.SendToRoom(CreateBotFinishEvent())
 			return
 		}
 		select {
@@ -159,12 +161,12 @@ func (audio *Audio) PlayStream() {
 			//fmt.Printf("Playback: %10s, Transcode Stats: Time: %5s, Size: %5dkB, Bitrate: %6.2fkB, Speed: %5.1fx\r", audio.progress, stats.Duration.String(), stats.Size, stats.Bitrate, stats.Speed)
 			progress := float64(0)
 			if audio.Duration > 0 && audio.progress > 0 {
-				progress = audio.progress.Seconds() / audio.Duration.Seconds()
+				progress = (float64(audio.startTime) + audio.progress.Seconds()) / audio.Duration.Seconds()
 			}
-			SendToChannel(CreateBotUpdateEvent(media.Seek{
+			audio.bot.SendToRoom(CreateBotUpdateEvent(media.Seek{
 				ProgressPct: progress,
-				ProgressSec: audio.progress.Seconds(),
-			}), audio.RoomChannel)
+				ProgressSec: float64(audio.startTime) + audio.progress.Seconds(),
+			}))
 		}
 	}
 }

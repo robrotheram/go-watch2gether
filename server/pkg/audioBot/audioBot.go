@@ -39,16 +39,19 @@ func NewAudioBot(voiceCh string, notificationCh string, vc *discordgo.VoiceConne
 	return &ab
 }
 
-func SendToChannel(evt events.Event, roomChannel chan []byte) {
-	roomChannel <- evt.ToBytes()
+func (ab *AudioBot) SendToRoom(evt events.Event) {
+	if ab.Running {
+		ab.RoomChannel <- evt.ToBytes()
+	}
 }
 
 func (ab *AudioBot) RegisterToRoom(rc chan []byte) {
 	ab.RoomChannel = rc
-	ab.audio = NewAudio(rc, ab.VoiceConnection)
+	ab.audio = NewAudio(ab, ab.VoiceConnection)
 	ab.updateTime = time.Now()
 	ab.ticker = time.NewTicker(10 * time.Second)
 	ab.checker()
+	ab.Running = true
 
 }
 
@@ -84,7 +87,9 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 			ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
 		}
 	case events.EVT_VIDEO_CHANGE:
-		ab.PlayAudio(evt.CurrentVideo, 0)
+		if evt.Playing {
+			ab.PlayAudio(evt.CurrentVideo, 0)
+		}
 	case events.EVNT_PLAYING:
 		if !ab.audio.Playing {
 			ab.PlayAudio(evt.CurrentVideo, 0)
@@ -156,6 +161,8 @@ func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
 }
 
 func (ab *AudioBot) Disconnect() error {
+	ab.SendToRoom(CreateBotLeaveEvent())
+	ab.Running = false
 	if ab.audio != nil {
 		ab.audio.Stop()
 	}

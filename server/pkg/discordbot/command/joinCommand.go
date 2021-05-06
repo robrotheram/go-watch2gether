@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"watch2gether/pkg/audioBot"
 	"watch2gether/pkg/room"
-	"watch2gether/pkg/user"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -70,9 +69,7 @@ func (cmd *LeaveCmd) Execute(ctx CommandCtx) error {
 	if !ok {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-	r.Leave(user.DISCORD_BOT.ID)
 	if r.Bot != nil {
-		r.Leave(user.DISCORD_BOT.ID)
 		return r.Bot.Disconnect()
 	}
 	return ctx.Reply(fmt.Sprintf("Error Bot not connected"))
