@@ -2,6 +2,7 @@ package room
 
 import (
 	"fmt"
+	"math"
 	"sync"
 	"time"
 	"watch2gether/pkg/audioBot"
@@ -136,13 +137,11 @@ func (r *Room) PurgeUsers(force bool) bool {
 	return size == 0
 }
 func (r *Room) DeleteIfEmpty() {
-
 	meta, _ := r.Store.Find(r.ID)
 	if meta.Owner == "" {
 		log.Infof("No Owner was created annon deleting")
 		r.Store.Delete(r.ID)
 	}
-
 }
 
 func (r *Room) HandleEvent(evt events.Event) {
@@ -365,7 +364,7 @@ func (r *Room) HandleFinish(user user.Watcher) {
 
 	for i := range meta.Watchers {
 		u := &meta.Watchers[i]
-		if u.Seek.Done() && u.ID != user.ID {
+		if !u.Seek.Done() {
 			return
 		}
 	}
@@ -411,8 +410,11 @@ func (r *Room) SeenUser(rw user.Watcher) {
 	if meta.Host == rw.ID {
 		meta.Seek = rw.Seek
 	}
-
 	r.Store.Update(meta)
+	if math.Ceil(rw.Seek.ProgressPct*100)/100 == 1 {
+		r.HandleFinish(rw)
+		return
+	}
 
 	r.SendClientEvent(events.Event{
 		Action:   events.EVT_ON_PROGRESS_UPDATE,
