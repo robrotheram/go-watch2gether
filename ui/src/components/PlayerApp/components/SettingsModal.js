@@ -96,7 +96,7 @@ const Settings = () => {
   
     return (
       <div style={{"width":"100%"}}>
-        <Button style={{"width":"100%"}} type="primary" onClick={() => setIsSettingModalVisible(true) } icon={<SettingOutlined />} key="1">Player Settings</Button>
+        <Button style={{"width":"100%", "padding":"0px 8px", height:"33px"}} type="primary" onClick={() => setIsSettingModalVisible(true) } icon={<SettingOutlined />} key="1"></Button>
         <SettingsModal isModalVisible={isSettingsModalVisible} showModal={showSettingsModal} handleOk={handleSettingsOk} handleCancel={handleSettingsCancel}/>
       </div>
     )

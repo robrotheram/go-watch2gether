@@ -3,8 +3,6 @@ import {connect} from 'react-redux'
 import { Drawer, Space, Button, Col, Row, Input, Select, DatePicker, Divider } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import UserList from './UserList';
-import Share from './ShareModal'
-import Settings from './SettingsModal'
 import {
   SyncOutlined
 } from '@ant-design/icons';
@@ -31,11 +29,11 @@ const DrawerForm = (props) => {
 
     return (
       <>
-        <Button type="primary" onClick={showDrawer}  style={{"height":"33px", "margin": "0px 5px"}}>
+        <Button type="primary" onClick={showDrawer}  style={{"height":"33px", "margin": "0px 0px 0px 5px"}}>
           <TeamOutlined />Watchers
         </Button>
         <Drawer
-          title="More Info"
+          title="Watchers Progress"
           width={460}
           onClose={onClose}
           visible={visible}
@@ -43,13 +41,15 @@ const DrawerForm = (props) => {
           bodyStyle={{ padding: 0 }}
         >
 
-          <Space size="small" style={{width:"100%", padding:"10px", marginBottom:"-20px" }}>
-            { !isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> : null}
+            <Row>
+            <Col  flex="auto" style={{padding:"5px 5px"}}>
+              { !isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> : null}
+            </Col>
+            <Col  flex="auto" style={{padding:"5px 5px"}}>
             { controls || isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>: null}
-            {isHost ?<Settings/>: null}
-            
-          </Space>
-          <Divider>User Progress</Divider>
+            </Col>
+            </Row> 
+          
 
 
           

@@ -23,7 +23,7 @@ import {leave, sinkToHost, sinkToME} from '../../../store/room/room.actions'
 import PlaylistDrawer from './playlists/PlaylistDrawer'
 import {createVideoItem, validURL} from '../../../store/video'
 import Share from "./ShareModal"
-
+import Settings from './SettingsModal'
 const { Header} = Layout;
 
 const Controls = (props) => {
@@ -87,20 +87,13 @@ const Controls = (props) => {
                 <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)}  onKeyDown={handleKeyDown} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>
             </Col>
             <Col>
-              <Space style={{"marginTop":"1px"}}>
+              <Space style={{"marginTop":"1px"}} size={4}>
                 <DrawerForm/>
+                {isHost ?<Settings/>: null}
                 <Share/>
               </Space>
             </Col>
           </Row>
-          {/* <Space style={{"float":"right", "width":"100%"}}>
-            
-            
-             
-          </Space> */}
-          
-          
-          
         </Card>
     )
 }

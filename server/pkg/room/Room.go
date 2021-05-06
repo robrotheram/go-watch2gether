@@ -145,7 +145,6 @@ func (r *Room) DeleteIfEmpty() {
 }
 
 func (r *Room) HandleEvent(evt events.Event) {
-	//log.Info(evt)
 	if evt.Watcher.ID == user.SERVER_USER.ID {
 		return
 	}
@@ -261,9 +260,7 @@ func (r *Room) GetQueue() []media.Video {
 }
 
 func (r *Room) SetQueue(queue []media.Video, rw user.Watcher) bool {
-
 	meta, _ := r.Store.Find(r.ID)
-
 	for i := range queue {
 		v := &queue[i]
 		if v.ID == "" {
@@ -272,7 +269,6 @@ func (r *Room) SetQueue(queue []media.Video, rw user.Watcher) bool {
 	}
 	meta.Queue = queue
 	r.Store.Update(meta)
-
 	if meta.CurrentVideo.ID == "" {
 		r.ChangeVideo(rw)
 		return false
@@ -309,7 +305,7 @@ func (r *Room) GetUser(id string) (user.Watcher, error) {
 			return user, nil
 		}
 	}
-	return user.Watcher{}, fmt.Errorf("User Not found with id: %s", id)
+	return user.Watcher{}, fmt.Errorf("user Not found with id: %s", id)
 }
 
 func (r *Room) SetPlaying(state bool) {
@@ -353,6 +349,7 @@ func (r *Room) HandleFinish(user user.Watcher) {
 	user.Seek = media.SEEK_FINISHED
 	meta, _ := r.Store.Find(r.ID)
 	meta.UpdateWatcher(user)
+	r.Store.Update(meta)
 
 	if !meta.Settings.AutoSkip {
 		return
@@ -413,7 +410,6 @@ func (r *Room) SeenUser(rw user.Watcher) {
 	r.Store.Update(meta)
 	if math.Ceil(rw.Seek.ProgressPct*100)/100 == 1 {
 		r.HandleFinish(rw)
-		return
 	}
 
 	r.SendClientEvent(events.Event{
