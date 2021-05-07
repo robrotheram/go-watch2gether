@@ -1,9 +1,7 @@
-import store from "..";
-import {openNotificationWithIcon} from "../../components/notification"
-import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, UPDATE_SEEK, SEEK_TO_HOST, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE} from './room.types';
+import {openNotificationWithIcon} from "../../components/common/notification"
+import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL} from './room.types';
     const INITIAL_STATE = {
       "id": "",
-      "name":"",
       "owner": "",
       "host":"",
       "controls":false,
@@ -11,6 +9,7 @@ import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, UPDATE_S
       "queue":[],
       "watchers":[],
       "error": "",
+      "active": true,
     }
 export const roomReducer = (state = INITIAL_STATE, action) => {
         
@@ -20,8 +19,9 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
                  ...state, id: action.room, error: "", active: true,
                };
             case LEAVE_SUCCESSFUL:
+              openNotificationWithIcon("error", "You have been diconnected from the room")   
               return {
-                ...state, name: "", error: "", active: false,
+                ...state, id: "", error: "", active: false,
               };
             case GET_META_SUCCESSFUL:
               return {
@@ -55,7 +55,6 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
               }
               return state;
             case "REDUX_WEBSOCKET::CLOSED" :
-              window.location.href = '/?error=Server Disconnected';
               return {
                 ...state, active: false,
               };
@@ -88,7 +87,7 @@ const process_websocket_event = (state, data) => {
         ...state, active:false, room:""
       };
     case "UPDATE_QUEUE":             
-      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.name)   
+      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.username)   
       return {
         ...state, queue: data.queue
       };
@@ -98,6 +97,7 @@ const process_websocket_event = (state, data) => {
       };
 
     case "USER_UPADTE":
+      break
       // return {
       //   ...state, watchers: data.watchers,
       // };
@@ -120,6 +120,7 @@ const process_websocket_event = (state, data) => {
       //   }
       //   return {...user};
       // });
+      //console.log("watchers", data.watchers)
       return {
         ...state, watchers: data.watchers,
       };

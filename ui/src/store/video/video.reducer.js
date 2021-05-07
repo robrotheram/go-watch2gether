@@ -37,7 +37,7 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
 
 
 const process_websocket_event = (state, data) => {
-  console.log("video reducer action", data.action, data)
+  //console.log("video reducer action", data.action, data)
   switch (data.action) {
     case "CHANGE_VIDEO":
       return {

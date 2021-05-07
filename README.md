@@ -1,21 +1,38 @@
-# go-watch2gether
-'Ever wanted to watch youtube videos in-sync with your friends, via. web-browser?  or mp4s?'
+# Watch2gether
+'Ever is Discord listening to youtube video via RythumBot and wanted to watch youtube videos in-sync with your friends, or play custom playlists/
 
-Its Yet another video sync website it currently support Youtube, DailyMotion Vimeo Soundcloud and Videos hosted on your own fileserver that you totally legally own😉
+Yest Its Yet another video sync website it currently support Youtube, DailyMotion Vimeo Soundcloud and Videos hosted on your own fileserver that you totally legally own😉
 
 ## Why? 
 This project spun out of my quest to find something that would allow my group of friends watch vidoes together from the random collection of YouTube clips to long movies. All other services did not support playing mp4 files or had features that were not required for example chat. This is little webapp does not need API keys to be set up and users do not need to create any accouts. Just create a room share a link and people can join. 
 
 ## Features
-### Random Videos
-From project I found https://vynchronize.herokuapp.com/ it had a Random KPOP button since I found that a fun thing to have this project has its own version except its a bit more random collection of music from our discored playlist Just enjoy the randomness and you can always add more the list [here](https://github.com/robrotheram/go-watch2gether/blob/main/ui/src/components/VideoQueue/RandomVideo.js)
+### Listen In discord
+![Screenshot 1](docs/discord.png)
+Listen in dissord. Using commands that do not iterfeer with Rythm Bot commands. (Currently supports only YT through the bot)
+Full list of commands 
+```
+- !w help : This is a Help Command 
+- !w history : List videos alreay played 
+- !w join : Join Bot to a voice channel 
+- !w leave : Disconnect Bot from channel 
 
-### Host
-The first person to the room is elected as the Host they can transfere the host to anyone in the room once they have joind.
-As host you have some limited controls. You can currently disable player controls for other participants.
+- !w pause : Pause Video 
+- !w skip : Skip to next video in the Queue 
+- !w play : Play Video 
+- !w stop : Stop Video 
+- !w queue : List videos in the Queue 
+- !w add <video> : Add Video to Queue 
 
-### Room Cleanup 
-The application has a cleanup routine that is running to keep resouces down. If a user has been inactive for more then 10 seconds then they are droped from the room and if a room has no participents in it will close. This is all to reduce the number of websockets connections that are open.
+- !w playlist load <name>
+- !w status : Current Status of what is playing 
+- !w watch : Get Link to room
+```
+
+### Playlists
+![Screenshot 1](docs/playlists.png)
+Watch2gether can save custom playlists without having them public in youtube. 
+
 
 
 ## Installing
@@ -68,5 +85,5 @@ make build
 
 
 # Screenshots
-![Screenshot 1](docs/Watch2Gether_homepage.png)
-![Screenshot 2](docs/Watch2Gether_room.png)
+![Screenshot 1](docs/homepage.png)
+![Screenshot 2](docs/login.png)

@@ -1,9 +1,17 @@
 import { GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE } from '../room/room.types';
-import {openNotificationWithIcon} from "../../components/notification"
+import {AUTH_LOGIN} from "./user.types"
+import {openNotificationWithIcon} from "../../components/common/notification"
 const INITIAL_STATE = {
   id: "",
-  name: "",
-  seek: 0.0,
+  room: "",
+  auth : false,
+  username: "",
+  icon: "",
+  guilds: [],
+  seek: {
+      progress_percent: 0.0,
+      progress_seconds: 0
+  } ,
   video_id: "",
   isHost: false,
   playing: false
@@ -12,9 +20,13 @@ const INITIAL_STATE = {
 
 export const userReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
+    case AUTH_LOGIN:
+      return {
+        ...state, id: action.id, auth: action.auth, username: action.username, icon: action.icon, guilds: action.guilds
+      };
     case JOIN_SUCCESSFUL:
       return {
-        ...state, id: action.user.id, name: action.user.name,
+        ...state, room: action.room,
       };
 
     case PROGRESS_UPDATE:
@@ -58,8 +70,8 @@ const process_websocket_event = (state, data) => {
       };
     case "PLAYING":
       if (state.playing !== data.playing) {
-        if (state.seek < 1) {
-          openNotificationWithIcon("success", "User: " + data.watcher.name + " started video")
+        if (state.seek.progress_percent < 1) {
+          openNotificationWithIcon("success", "User: " + data.watcher.username + " started video")
           return {
             ...state, playing: true,
           };
@@ -68,8 +80,8 @@ const process_websocket_event = (state, data) => {
       return state
     case "PAUSING":
       if (state.playing !== data.playing) {
-        if (state.seek < 1) {
-          openNotificationWithIcon("success", "User: " + data.watcher.name + " has paused video")
+        if (state.seek.progress_percent < 1) {
+          openNotificationWithIcon("success", "User: " + data.watcher.username + " has paused video")
           return {
             ...state, playing: false,
           };

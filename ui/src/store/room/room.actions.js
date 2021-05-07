@@ -1,8 +1,9 @@
 import axios from 'axios'
-import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, SEEK_TO_HOST, REJOIN_SUCCESSFUL, PROGRESS_UPDATE } from './room.types';
+import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE } from './room.types';
 import store, {API_URL, WS_URL, history} from '../index'
 import { connect } from '@giantmachines/redux-websocket';
 import { send } from '@giantmachines/redux-websocket';
+import { GetUsername, GetWatcher } from '../user';
 
 export const join = (roomid, room, user, anonymous) => {
     return dispatch => {
@@ -16,7 +17,7 @@ export const join = (roomid, room, user, anonymous) => {
             dispatch(getMeta(res.data.room_id))
             console.log("WS_URL",WS_URL+"room/"+room+"/ws")
             store.dispatch(Connect(res.data.room_id, res.data.user.id))
-            history.push('/room/'+res.data.room_id);
+            history.push('/app/room/'+res.data.room_id);
         }).catch(e => {
             console.log(e)
             history.push('/');
@@ -42,7 +43,7 @@ export const Connect = (room, user) => {
 export const reJoin = (room) => {
     return dispatch => {
         axios.get(API_URL+`room/`+room).then(res => {
-            store.dispatch(Connect(room, store.getState().room.user.name))
+            store.dispatch(Connect(room, GetUsername()))
             dispatch( {
                 type: REJOIN_SUCCESSFUL,
                 payload: res.data,
@@ -51,7 +52,7 @@ export const reJoin = (room) => {
             console.log(e)
             history.push('/');
             dispatch( {
-                type: ROOM_ERROR,
+                historytype: ROOM_ERROR,
                 error: e.response.data,
             })
         })
@@ -75,7 +76,7 @@ export const leave = (room, user) => {
         axios.post(API_URL+`room/leave`, {
             "id":store.getState().room.id, 
             "name":store.getState().room.name, 
-            "username":store.getState().user.name
+            "username": GetUsername()
         }).then(res => {
             console.log("Action", res)
             dispatch( {
@@ -115,50 +116,47 @@ export const getMeta = (id) => {
     }
 }
 
-export const updateSeek = (seek) => {
+export const updateSeek = (percent, seconds) => {
+    let seek = {
+        "progress_percent": percent,
+        "progress_seconds": seconds
+    }
+
     store.dispatch( {
         type: PROGRESS_UPDATE,
         seek: seek,
     })
-    // let evnt = {action: "ON_PROGRESS_UPDATE", watcher:  store.getState().user, seek:seek}
+    // let evnt = {action: "ON_PROGRESS_UPDATE", watcher:  GetWatcher(), seek:seek}
     // store.dispatch(send(evnt))   
 }
 
 export const updateSettings = (cntrls, auto_skip) => {
-    let evnt = {action: "UPDATE_SETTINGS", watcher:  store.getState().user, settings: {controls:cntrls, auto_skip:auto_skip}}
+    let evnt = {action: "UPDATE_SETTINGS", watcher:  GetWatcher(), settings: {controls:cntrls, auto_skip:auto_skip}}
     store.dispatch(send(evnt))  
 }
 
 
 export const updateHost = (host) => {
-    let evnt = {action: "UPDATE_HOST", watcher:  store.getState().user, host:host}
+    let evnt = {action: "UPDATE_HOST", watcher:  GetWatcher(), host:host}
     store.dispatch(send(evnt))   
 }
 
 export async function isAlive() {
-    let user = store.getState().user;
-    let video = store.getState().video
-
     let evnt = {
         action: "USER_UPDATE",
-        watcher: {
-            id: user.id,
-            seek: user.seek,
-            video_id: video.id
-
-        } 
+        watcher: GetWatcher()
     }
     return store.dispatch(send(evnt))   
 }
 
 export const handleFinish = () => {
-    let evnt = {action: "HANDLE_FINSH", watcher:  store.getState().user}
+    let evnt = {action: "HANDLE_FINSH", watcher:  GetWatcher()}
     store.dispatch(send(evnt))   
 }
 
 
 export const sinkToME = (seek) => {
-    let evnt = {action: "SEEK_TO_ME", watcher:  store.getState().user, seek:seek}
+    let evnt = {action: "SEEK_TO_ME", watcher:  GetWatcher(), seek:seek}
     store.dispatch(send(evnt))   
 }
 
@@ -171,18 +169,18 @@ export const clearError = () => {
 }
 
 export const play = () => {
-    let evnt = {action: "PLAYING", watcher: store.getState().user}
+    let evnt = {action: "PLAYING", watcher: GetWatcher()}
     store.dispatch(send(evnt))
 }
 
 export const pause = () => {
     console.log("sending PAUSE")
-    let evnt = {action: "PAUSING", watcher:store.getState().user}
+    let evnt = {action: "PAUSING", watcher:GetWatcher()}
     store.dispatch(send(evnt))
 }
 
 export const updateQueue = (queue) => {
-    let evnt = {action: "UPDATE_QUEUE", queue: queue, watcher:store.getState().user}
+    let evnt = {action: "UPDATE_QUEUE", queue: queue, watcher:GetWatcher()}
     store.dispatch(send(evnt))
 }
 
@@ -190,12 +188,12 @@ export const updateLocalQueue = (queue) => {
     store.dispatch({
         type: "LOCAL_QUEUE_UPDATE",
         queue: queue,
-        watcher:store.getState().user
+        watcher:GetWatcher()
     })
 }
 
 
 export const nextVideo = () => {
-    let evnt = {action: "NEXT_VIDEO", watcher:store.getState().user}
+    let evnt = {action: "NEXT_VIDEO", watcher:GetWatcher()}
     store.dispatch(send(evnt))
 }

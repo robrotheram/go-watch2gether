@@ -1,3 +1,6 @@
 watch2gether
 .vscode/**
 docker-compose.dev.yml
+**/app.env
+docs
+__debug_bin

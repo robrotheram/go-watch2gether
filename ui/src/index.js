@@ -1,32 +1,69 @@
-import React from 'react';
+import React, {Component} from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import './index.less';
 
-import App from './App';
-import Home from './pages/Home';
+import RoomPage from './components/RoomsPage';
+import Home from './components/WelcomePage';
 import reportWebVitals from './reportWebVitals';
 import {
   Switch,
   Route,
+  Redirect
 } from "react-router-dom";
 
 import { Provider } from 'react-redux'
+import { connect } from 'react-redux';
 import store, {history} from './store'
 import { ConnectedRouter } from 'connected-react-router'
 
 
+const PrivateRoute = ({ component: Component, authed, ...rest }) => {
+  let redirect = "/"
+  let pathname = rest.location.pathname
+  const lastItem = pathname.substring(pathname.lastIndexOf('/') + 1)
+  if (lastItem !== "app" || lastItem !== "room"){
+    redirect = "/?room="+lastItem
+  }
+  return (
+    <Route
+      {...rest}
+      render={props => (
+        authed
+          ? <Component {...props} />
+          : <Redirect to={redirect} />
+      )}
+    />
+  );
+}
+
+class Routes extends Component {
+  componentDidMount() {
+    console.log('==== Routes mounted!');
+  }
+  render() {
+    return (
+      <ConnectedRouter history={history}>
+      <Switch>
+        {/* <Route path="/app">
+          <RoomPage />
+        </Route> */}
+        <PrivateRoute path="/app" component={RoomPage} authed={this.props.auth.auth} />
+        <Route path="/">
+          <Home />
+        </Route>
+      </Switch>
+    </ConnectedRouter>
+    );
+  }
+}
+const mapStateToProps = state => ({ auth: state.user });
+const Router = connect(mapStateToProps)(Routes);
+
+
+
 ReactDOM.render(
   <Provider store={store}>
-    <ConnectedRouter history={history}>
-        <Switch>
-          <Route path="/room/:id">
-            <App />
-          </Route>
-          <Route path="/">
-            <Home />
-          </Route>
-        </Switch>
-    </ConnectedRouter>
+    <Router/>
   </Provider>,
   document.getElementById('root')
 );
