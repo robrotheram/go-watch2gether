@@ -40,7 +40,7 @@ export const PlaylistItem = ({video, children, playlist, playing, loading}) => {
                             <Title level={5}  style={{fontSize:"14px"}} className="eclipseText">
                                 {playlist.name}
                             </Title>
-                            <p style={{marginBottom:"0px"}}>Added by: {playlist.username}</p>
+                            <p style={{marginBottom:"0px"}}>Last modified by: {playlist.username}</p>
                             <p>Length: {playlist.videos.length}</p>
                         </div>
                         : <Skeleton size={"small"} active/> }

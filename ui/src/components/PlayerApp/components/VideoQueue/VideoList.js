@@ -56,7 +56,7 @@ export function VideoListComponent (props) {
         <Card type="inner" 
           className="list video"
           title={<Paragraph>There are <Text strong>{queue.length}</Text> videos in the queue</Paragraph>}
-          style={ current_video !== undefined && current_video.url !== "" ? {"height": "calc( 100% - 145px )"} : {"height": "calc( 100% - 52px )"}}
+          style={ current_video !== undefined && current_video.url !== "" ? {"height": "calc( 100% - 156px )"} : {"height": "calc( 100% - 52px )"}}
          >
             <div className="videoQueue">
             <List

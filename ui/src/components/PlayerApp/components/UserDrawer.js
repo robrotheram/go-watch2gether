@@ -42,21 +42,17 @@ const DrawerForm = (props) => {
         >
 
             <Row>
-            <Col  flex="auto" style={{padding:"5px 5px"}}>
-              { !isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> : null}
-            </Col>
-            <Col  flex="auto" style={{padding:"5px 5px"}}>
-            { controls || isHost ? <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>: null}
-            </Col>
+              { !isHost ? 
+                <Col  flex="auto" style={{padding:"5px 5px"}}>
+                  <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> 
+                </Col>    
+              : null}
+              { controls || isHost ?
+                <Col  flex="auto" style={{padding:"5px 5px"}}>
+                  <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>
+                </Col>
+              : null}
             </Row> 
-          
-
-
-          
-
-            
-       
-
         <UserList/>
         </Drawer>
       </>
