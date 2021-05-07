@@ -10,3 +10,4 @@ func (s *Seek) Done() bool {
 }
 
 var SEEK_FINISHED = Seek{ProgressPct: float64(1), ProgressSec: 0}
+var SEEK_INIT = Seek{ProgressPct: float64(0), ProgressSec: 0}

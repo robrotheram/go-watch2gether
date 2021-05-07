@@ -365,7 +365,14 @@ func (r *Room) HandleFinish(user user.Watcher) {
 			return
 		}
 	}
+	user.Seek = media.SEEK_INIT
+	meta.UpdateWatcher(user)
 	r.Store.Update(meta)
+
+	if len(meta.Queue) == 0 {
+		return
+	}
+
 	r.ChangeVideo(user)
 }
 
