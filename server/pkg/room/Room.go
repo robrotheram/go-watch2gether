@@ -358,6 +358,9 @@ func (r *Room) HandleFinish(user user.Watcher) {
 	if meta.GetLastVideo().ID == user.VideoID {
 		return
 	}
+	if meta.CurrentVideo.ID != user.VideoID {
+		return
+	}
 
 	for i := range meta.Watchers {
 		u := &meta.Watchers[i]

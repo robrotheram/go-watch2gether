@@ -9,8 +9,8 @@ import (
 	"watch2gether/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/jonas747/dca"
 	"github.com/kkdai/youtube/v2"
+	"github.com/robrotheram/dca"
 )
 
 type AudioBot struct {
@@ -60,9 +60,8 @@ func (ab *AudioBot) checker() {
 		for {
 			select {
 			case <-ab.ticker.C:
-				if ab.updateTime.Add(1*time.Minute).Before(time.Now()) && ab.audio == nil {
+				if ab.updateTime.Add(1*time.Minute).Before(time.Now()) && !ab.audio.Playing {
 					ab.Disconnect()
-
 				}
 			}
 		}
@@ -89,6 +88,8 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 	case events.EVT_VIDEO_CHANGE:
 		if evt.Playing {
 			ab.PlayAudio(evt.CurrentVideo, 0)
+		} else {
+			ab.audio.Stop()
 		}
 	case events.EVNT_PLAYING:
 		if !ab.audio.Playing {
@@ -136,7 +137,10 @@ func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
 
 func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
 	client := youtube.Client{}
-	video, _ := client.GetVideo(videoURL)
+	video, err := client.GetVideo(videoURL)
+	if err != nil {
+		return
+	}
 	downloadURL, _ := client.GetStreamURL(video, &video.Formats[0])
 	ab.PlayAudioFile(downloadURL, starttime)
 }

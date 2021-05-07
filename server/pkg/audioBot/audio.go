@@ -9,7 +9,7 @@ import (
 	"watch2gether/pkg/media"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/jonas747/dca"
+	"github.com/robrotheram/dca"
 )
 
 type Audio struct {
@@ -67,6 +67,8 @@ func (audio *Audio) Play(url string, startTime int) error {
 		return fmt.Errorf("Playing already started")
 	}
 	audio.Stop()
+	audio.Lock()
+	defer audio.Unlock()
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
 	opts.Bitrate = 96
@@ -136,6 +138,7 @@ func (audio *Audio) Stop() {
 	audio.Lock()
 	audio.Playing = false
 	audio.session.Cleanup()
+	audio.session.Truncate()
 	audio.Unlock()
 }
 
@@ -147,6 +150,7 @@ func (audio *Audio) PlayStream() {
 		if !audio.Playing {
 			audio.session.Truncate()
 			audio.bot.SendToRoom(CreateBotFinishEvent())
+			audio.Playing = false
 			return
 		}
 		select {

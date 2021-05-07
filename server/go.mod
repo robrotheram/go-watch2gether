@@ -18,6 +18,7 @@ require (
 	github.com/kkdai/youtube/v2 v2.5.0
 	github.com/markbates/goth v1.67.1
 	github.com/prometheus/common v0.15.0
+	github.com/robrotheram/dca v0.0.0-20210507191616-9ffdbe742245 // indirect
 	github.com/segmentio/ksuid v1.0.3
 	github.com/sirupsen/logrus v1.7.0
 	github.com/spf13/viper v1.7.1
