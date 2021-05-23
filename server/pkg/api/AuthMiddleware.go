@@ -116,7 +116,7 @@ func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
-func (da *DiscordAuth) ClearSession() {
+func (da *DiscordAuth) ClearSession(w http.ResponseWriter, r *http.Request) {
 	session, err := da.store.Get(r, sessionName)
 	if err != nil {
 		fmt.Printf("failed to get session: %v", err)
@@ -131,7 +131,7 @@ func (da *DiscordAuth) ClearSession() {
 	}
 }
 func (da *DiscordAuth) HandleLogout(w http.ResponseWriter, r *http.Request) {
-	da.ClearSession()
+	da.ClearSession(w, r)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
@@ -219,17 +219,17 @@ func (da *DiscordAuth) getClient(url string, accessToken string) ([]byte, error)
 func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error {
 	token, err := da.validateToken(r)
 	if err != nil {
-		da.ClearSession()
+		da.ClearSession(w, r)
 		return err
 	}
 	duser, err := da.getUser(token.AccessToken)
 	if err != nil {
-		da.ClearSession()
+		da.ClearSession(w, r)
 		return err
 	}
 	guilds, err := da.getGuilds(token.AccessToken)
 	if err != nil {
-		da.ClearSession()
+		da.ClearSession(w, r)
 		return err
 	}
 	// //In the background register guilds to the server
