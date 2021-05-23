@@ -1,7 +1,7 @@
 import axios from 'axios'
 import {BASE_URL,API_URL, history} from '../index'
 import { join } from '../room/room.actions';
-import { AUTH_LOGIN } from "./user.types";
+import { AUTH_LOGIN } from "../event.types";
 
 export const checklogin = (room) => {
     return dispatch => {

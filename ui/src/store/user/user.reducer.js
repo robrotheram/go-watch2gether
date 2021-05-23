@@ -1,5 +1,4 @@
-import { GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE } from '../room/room.types';
-import {AUTH_LOGIN} from "./user.types"
+import {AUTH_LOGIN, GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE } from '../event.types';
 
 const INITIAL_STATE = {
   id: "",

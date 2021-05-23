@@ -2,7 +2,6 @@ import { uid } from 'uid';
 import axios from 'axios';
 import {API_URL} from '../'
 
-export * from './video.types'
 export * from './video.actions'
 export * from './video.reducer'
 

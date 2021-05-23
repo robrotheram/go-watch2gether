@@ -1,5 +1,5 @@
 import {openNotificationWithIcon} from "../../components/common/notification"
-import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL} from './room.types';
+import { JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL, EVNT_PLAYING, EVNT_PAUSING, EVNT_NEXT_VIDEO, EVNT_UPDATE_QUEUE} from '../event.types';
     const INITIAL_STATE = {
       "id": "",
       "owner": "",
@@ -49,6 +49,7 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
             case "REDUX_WEBSOCKET::MESSAGE":
               try{
                 let data = JSON.parse(action.payload.message)
+                HandleNotification(data)
                 return process_websocket_event(state, data)
               } catch(e){
                 console.log("Parse Error", action.payload.message,  e)
@@ -79,7 +80,6 @@ export const roomReducer = (state = INITIAL_STATE, action) => {
 
 
 const process_websocket_event = (state, data) => {
-  //console.log("room_reducer action", data.action, data)
   switch(data.action){
     case "ROOM_EXIT":
       openNotificationWithIcon("success", "Room has closed")   
@@ -95,5 +95,25 @@ const process_websocket_event = (state, data) => {
         queue: data.queue,
         watchers: data.watchers,
       }
+  }
+}
+
+
+const HandleNotification = (data) => {
+  switch(data.action){
+    case EVNT_PLAYING: 
+      openNotificationWithIcon("info", `${data.watcher.username} has started the video`);
+      break;
+    case EVNT_PAUSING: 
+      openNotificationWithIcon("info", `${data.watcher.username} has stopped the video`);
+      break;
+    case EVNT_NEXT_VIDEO: 
+      openNotificationWithIcon("info", `${data.watcher.username} has changed the vidoe the video`);
+      break;
+    case EVNT_UPDATE_QUEUE: 
+      openNotificationWithIcon("info", `${data.watcher.username} has updated the queue`);
+      break;
+    default:
+      break;
   }
 }

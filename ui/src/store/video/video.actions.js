@@ -1,19 +1,18 @@
 import { send } from '@giantmachines/redux-websocket';
-import {PROGRESS_UPDATE, SEEK_TO_USER} from '../room/room.types';
+import {PROGRESS_UPDATE, EVNT_SEEK_TO_USER, EVNT_PLAYING, EVNT_PAUSING} from '../event.types';
 import { GetWatcher } from '../user';
-import { PLAYING } from './video.types';
 import store from '../index'
 
 export const play = () => {
     return dispatch => {
-        let evnt = {action: PLAYING, watcher: GetWatcher()}
+        let evnt = {action: EVNT_PLAYING, watcher: GetWatcher()}
         dispatch(send(evnt))
     }
 }
 
 export const pause = () => {
     return dispatch => {
-        let evnt = {action: "PAUSING", watcher:GetWatcher()}
+        let evnt = {action: EVNT_PAUSING, watcher:GetWatcher()}
         dispatch(send(evnt))
     }
 }
@@ -22,7 +21,7 @@ export const seekToUser = (seek) => {
     console.log("SEEK", seek)
     return dispatch => {
         dispatch( {
-            type: SEEK_TO_USER,
+            type: EVNT_SEEK_TO_USER,
             seek: seek
         })
     }

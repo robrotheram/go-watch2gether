@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE, SEEK_TO_USER } from './room.types';
+import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE, EVNT_SEEK_TO_USER } from '../event.types';
 import store, {API_URL, WS_URL, history} from '../index'
 import { connect } from '@giantmachines/redux-websocket';
 import { send } from '@giantmachines/redux-websocket';
@@ -128,7 +128,7 @@ export const updateSettings = (cntrls, auto_skip) => {
 
 export const forceSinkToMe = () => {
     return dispatch => {
-        let evnt = {action: SEEK_TO_USER, watcher:  GetWatcher()}
+        let evnt = {action: EVNT_SEEK_TO_USER, watcher:  GetWatcher()}
         dispatch(send(evnt))   
     }
 }

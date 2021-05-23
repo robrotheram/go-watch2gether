@@ -1,6 +1,4 @@
-import {GET_META_SUCCESSFUL, PROGRESS_UPDATE, SEEK_TO_USER} from '../room/room.types';
-import { AUTH_LOGIN } from '../user';
-import { PLAYING } from './video.types';
+import {AUTH_LOGIN, GET_META_SUCCESSFUL, PROGRESS_UPDATE, EVNT_SEEK_TO_USER, EVNT_PLAYING} from '../event.types';
 
 const INITIAL_STATE = {
   id: "",
@@ -40,7 +38,7 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
         ...state, current_seek: action.seek,
       };
 
-    case SEEK_TO_USER:
+    case EVNT_SEEK_TO_USER:
       return {
         ...state, seek_to_user: action.seek,
       };
@@ -66,15 +64,14 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
 
 
 const process_websocket_event = (state, data) => {
-  console.log("handle action:",data,  data.action)
   let video = data.current_video
   switch (data.action) {
-    case PLAYING:
+    case EVNT_PLAYING:
       if (state.current_seek.progress_percent < 1) {
         return {...state, playing: data.playing,}
       }
       break;
-    case SEEK_TO_USER :
+    case EVNT_SEEK_TO_USER :
       let user = data.watchers.filter(w => w.id === state.user_id)
       console.log("video-user", user) 
       if (user.length > 0){

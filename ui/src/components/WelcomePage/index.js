@@ -13,7 +13,7 @@ import {PageFooter} from '../common/PageFooter'
 
 import store , {BASE_URL} from '../../store'
 import {checklogin} from '../../store/user/user.actions'
-import {ROOM_ERROR} from '../../store/room/room.types'
+import {ROOM_ERROR} from '../../store/event.types'
 import { join, leave, clearError, getMeta } from '../../store/room/room.actions'
 import axios from 'axios';
 
@@ -28,11 +28,10 @@ const Home = ({location, checklogin, clearError, getMeta, error}) => {
   useEffect(() => {
     const values = queryString.parse(location.search);
     if (values.room !== undefined) {
-      setLoginURL(discord_login+"?next=/?room="+values.room)
+      setLoginURL(`${BASE_URL}/auth/login?next=/?room=${values.room}`)
     }
-    
     checklogin(values.room);
-  }, [location,discord_login, checklogin ]);
+  },[location.search, checklogin] );
 
   const handleClose = () => {
     clearError();

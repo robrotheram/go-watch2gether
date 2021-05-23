@@ -129,6 +129,7 @@ func (da *DiscordAuth) ClearSession(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("failed to delete session: %v", err)
 		return
 	}
+	http.Redirect(w, r, "/", http.StatusFound)
 }
 func (da *DiscordAuth) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	da.ClearSession(w, r)

@@ -36,7 +36,7 @@ class App extends React.Component {
 
   startTimer = () => {
     console.log("APP", "Starting Watcher")
-    let timer = setInterval(this.update, 3000);
+    let timer = setInterval(this.update, 2000);
     this.setState({timer});
   }
 
