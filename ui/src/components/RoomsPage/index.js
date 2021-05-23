@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react"
 import { Layout, Menu } from 'antd';
+import { Empty } from "antd"
 
 import PlayerApp from "../PlayerApp";
 import {
@@ -85,9 +86,21 @@ const RoomPage = ({guilds, icon, username, id, join}) => {
       </Sider>
       <Layout className="site-layout">
         <Switch>
-        <Route path="/app/room/:id">
-        <PlayerApp/>
-        </Route>
+          <Route path="/app/room/:id">
+            <PlayerApp/>
+          </Route>
+          <Route path="/app">
+            <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE} 
+              description={
+                <span>
+                  Sorry Could not find a romm please select one
+                </span>
+              }
+              style={{paddingTop:"250px"}}
+            />
+          </Route>
+
         </Switch>
         <PageFooter style={{ textAlign: 'center', position: "fixed", bottom:"0px", left:"85px", right:"0px", height:"50px", padding: "15px 50px 28px 50px" }}/>
       </Layout>

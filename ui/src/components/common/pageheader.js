@@ -13,13 +13,6 @@ function Pageheader (props) {
     const handleOk = () => {setIsModalVisible(false); };
     const handleCancel = () => {setIsModalVisible(false);};
 
-    // const currentlyPlaying = () => {
-    //     if (queue[0] === undefined){
-    //         return ""
-    //     }
-    //     return (<span>Currently Playing: <a href={queue[0].url}>{queue[0].url}</a></span>)
-    // }
-
     const getActionButtons = () => {
         let buttons = []
         if (!isHost){
