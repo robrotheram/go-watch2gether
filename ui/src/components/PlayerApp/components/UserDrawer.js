@@ -1,21 +1,20 @@
 import React, {useState}from 'react'
-import {connect} from 'react-redux'
-import { Drawer, Space, Button, Col, Row, Input, Select, DatePicker, Divider } from 'antd';
+import {useSelector, useDispatch} from 'react-redux'
+import { Drawer, Button, Col, Row } from 'antd';
 import { TeamOutlined } from '@ant-design/icons';
 import UserList from './UserList';
 import {
   SyncOutlined
 } from '@ant-design/icons';
-import {leave, sinkToHost, sinkToME} from '../../../store/room/room.actions'
+import { forceSinkToMe} from '../../../store/room/room.actions'
+import { seekToHost } from '../../../store/video/video.actions';
 
-
-const { Option } = Select;
 
 const DrawerForm = (props) => {
+  const dispatch = useDispatch()
+  const controls = useSelector(state => state.room.controls);
+  const isHost = useSelector(state => state.user.isHost);
 
-  const { host, controls, name } = props.room
-  const {isHost} = props.user
-  
 
   const [visible, setVisible] = useState(false);
   
@@ -34,7 +33,7 @@ const DrawerForm = (props) => {
         </Button>
         <Drawer
           title="Watchers Progress"
-          width={460}
+          width={540}
           onClose={onClose}
           visible={visible}
           maskClosable={true}
@@ -44,12 +43,26 @@ const DrawerForm = (props) => {
             <Row>
               { !isHost ? 
                 <Col  flex="auto" style={{padding:"5px 5px"}}>
-                  <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="3" onClick={() => props.sinkToHost()}>Sync to host</Button> 
+                  <Button 
+                    style={{"width":"100%"}} 
+                    type="primary" 
+                    icon={<SyncOutlined />} 
+                    key="3" 
+                    onClick={() => dispatch(seekToHost())}>
+                      Sync to host
+                    </Button> 
                 </Col>    
               : null}
               { controls || isHost ?
                 <Col  flex="auto" style={{padding:"5px 5px"}}>
-                  <Button style={{"width":"100%"}} type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>
+                  <Button 
+                    style={{"width":"100%"}} 
+                    type="primary" 
+                    icon={<SyncOutlined />} 
+                    key="2" 
+                    onClick={() => dispatch(forceSinkToMe())}>
+                      Sync everyone to me
+                    </Button>
                 </Col>
               : null}
             </Row> 
@@ -60,8 +73,4 @@ const DrawerForm = (props) => {
   
 }
 
-
-const mapStateToProps  = (state) =>{
-  return state
-} 
-export default connect(mapStateToProps, {leave, sinkToHost, sinkToME })(DrawerForm)
+export default DrawerForm

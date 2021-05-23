@@ -1,21 +1,14 @@
 import React, { useEffect, useState } from "react"
-import { Layout, Menu, Breadcrumb } from 'antd';
-import {
-  DesktopOutlined,
-  PieChartOutlined,
-  FileOutlined,
-  TeamOutlined,
-  AppstoreOutlined,
-} from '@ant-design/icons';
+import { Layout, Menu } from 'antd';
+
 import PlayerApp from "../PlayerApp";
 import {
   Switch,
-  Route,
-  Redirect
+  Route
 } from "react-router-dom";
 
 import { PageFooter } from "../common/PageFooter";
-import  Navigation  from "../common/Nav";
+
 import "./index.less"
 import logo from "../WelcomePage/logo.jpg"
 import {connect} from 'react-redux'
@@ -27,7 +20,6 @@ import { LogoutOutlined } from '@ant-design/icons';
 import {join} from "../../store/room/room.actions"
 
 const { Sider } = Layout;
-const { SubMenu } = Menu;
 
 const RoomPage = ({guilds, icon, username, id, join}) => {
 
@@ -53,7 +45,7 @@ const RoomPage = ({guilds, icon, username, id, join}) => {
     <Layout style={{ minHeight: '100vh' }}>
       <Sider collapsed={collapsed} onCollapse={onCollapse} >
         <div className="logo">
-          <img src={logo} width="100%"/>
+          <img src={logo} alt="logo" width="100%"/>
         </div>
         <Menu 
           theme="dark" 

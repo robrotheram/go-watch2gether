@@ -4,7 +4,6 @@ import {SortableTable} from "./tables/sortTable"
 import { EditableTable } from "./tables/editTable";
 
 import { Form, Input} from 'antd';
-import { FormInstance } from 'antd/lib/form';
 
 import {connect} from 'react-redux'
 import {createPlaylists, updatePlaylists} from "../../../../store/playlists/playlists.actions"
@@ -12,12 +11,10 @@ import {createVideoItem, validURL} from "../../../../store/video"
 import { openNotificationWithIcon } from "../../../common/notification";
 const CREATE = "c"
 const UPDATE = "u"
-const initdata = [];
 
 const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlaylists, updatePlaylists}) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [sortable, setSortable] = useState(false);
-  const [modalText, setModalText] = useState('Content of the modal');
   const [datastore, setDatastore] = useState([])
   const [updateType, setType] = useState(CREATE)
   const [form] = Form.useForm()
@@ -39,13 +36,10 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
         setType(CREATE)
         setDatastore([])
       }
-    }, [data]);
-  const showModal = () => {
-    setVisible(true);
-  };
+    }, [form, data]);
+  
 
   const handleOk = () => {
-    setModalText('The modal will be closed after two seconds');
     setConfirmLoading(true);
     savePlaylist();
     // setTimeout(() => {

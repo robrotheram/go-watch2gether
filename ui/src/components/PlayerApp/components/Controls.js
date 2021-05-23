@@ -1,42 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Layout, Space, Card } from 'antd';
+import { Button, Space, Card } from 'antd';
 import { Input} from "antd"
-import {
-  ArrowLeftOutlined,
-  SyncOutlined,
-  SettingOutlined,
-  ShareAltOutlined
-  
-} from '@ant-design/icons';
 import {connect} from 'react-redux'
-
-import SettingsModal from './SettingsModal'
 import DrawerForm from './UserDrawer';
-import { PlaySquareOutlined, VideoCameraOutlined } from '@ant-design/icons';
+import {  VideoCameraOutlined } from '@ant-design/icons';
 import { openNotificationWithIcon } from "../../common/notification"
 
 
-import { Row, Col, Divider } from 'antd';
+import { Row, Col } from 'antd';
 
-import {updateQueue, nextVideo, updateLocalQueue} from '../../../store/room/room.actions'
-import {leave, sinkToHost, sinkToME} from '../../../store/room/room.actions'
+import {updateQueue, updateLocalQueue} from '../../../store/room/room.actions'
+import {leave} from '../../../store/room/room.actions'
 import PlaylistDrawer from './playlists/PlaylistDrawer'
 import {createVideoItem, validURL} from '../../../store/video'
 import Share from "./ShareModal"
 import Settings from './SettingsModal'
-const { Header} = Layout;
 
 const Controls = (props) => {
-
-  const { host, controls, name } = props.room
   
   const {isHost} = props.user
   const {title} = props.video
 
   const [newurl, setURL] = useState("");
-  const [loading, setLoading] = useState(false);
   const { queue } = props.room
-  const { url } = props.video
 
 
   useEffect(() => {
@@ -101,4 +87,4 @@ const Controls = (props) => {
 const mapStateToProps  = (state) =>{
   return state
 } 
-export default connect(mapStateToProps, {leave, sinkToHost, sinkToME })(Controls)
+export default connect(mapStateToProps, {leave})(Controls)

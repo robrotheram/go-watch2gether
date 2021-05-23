@@ -1,6 +1,6 @@
 import { GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE } from '../room/room.types';
 import {AUTH_LOGIN} from "./user.types"
-import {openNotificationWithIcon} from "../../components/common/notification"
+
 const INITIAL_STATE = {
   id: "",
   room: "",
@@ -60,34 +60,10 @@ export const userReducer = (state = INITIAL_STATE, action) => {
 const process_websocket_event = (state, data) => {
  // console.log("video reducer action", data.action, data)
   switch (data.action) {
-    case "CHANGE_VIDEO":
-      return {
-        ...state, video_id: data.current_video.id
-      };
     case "UPDATE_HOST":                
       return {
         ...state, isHost: isHost(state, data.host)
       };
-    case "PLAYING":
-      if (state.playing !== data.playing) {
-        if (state.seek.progress_percent < 1) {
-          openNotificationWithIcon("success", "User: " + data.watcher.username + " started video")
-          return {
-            ...state, playing: true,
-          };
-        }
-      }
-      return state
-    case "PAUSING":
-      if (state.playing !== data.playing) {
-        if (state.seek.progress_percent < 1) {
-          openNotificationWithIcon("success", "User: " + data.watcher.username + " has paused video")
-          return {
-            ...state, playing: false,
-          };
-        }
-      }
-      return state
     default:
       return state;
   }

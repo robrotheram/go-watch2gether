@@ -1,23 +1,13 @@
 import React, {useState}from 'react'
 import {connect} from 'react-redux'
-import { Drawer, Space, Button, Col, Row, Input, Select, DatePicker, List } from 'antd';
+import { Drawer, Space, Button, List } from 'antd';
 import { PlusOutlined,PlaySquareOutlined, DeleteOutlined, EditOutlined, SelectOutlined } from '@ant-design/icons';
-import UserList from '../UserList';
-import Share from '../ShareModal'
-import Settings from '../SettingsModal'
-import {
-  SyncOutlined
-} from '@ant-design/icons';
-
 import { Popconfirm } from 'antd';
 
 import {getPlaylists, deletePlaylists, loadPlaylists} from "../../../../store/playlists/playlists.actions"
-import {VideoItem} from "../VideoQueue/VideoItem"
 
 import { PlaylistItem } from './PlaylistItem';
 import PlaylistModel from './PlaylistModel';
-
-const { Option } = Select;
 
 const PlaylistDrawer = (props) => {
 

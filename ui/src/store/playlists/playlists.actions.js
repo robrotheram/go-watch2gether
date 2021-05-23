@@ -1,5 +1,5 @@
 import axios from 'axios'
-import {API_URL, history} from '../index'
+import {API_URL} from '../index'
 import { GetUsername } from '../user'
 
 export const getPlaylists = (room_id) => {

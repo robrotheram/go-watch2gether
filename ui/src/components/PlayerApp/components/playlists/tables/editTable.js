@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect, useRef } from 'react';
-import { Table, Input, Button, Popconfirm, Form } from 'antd';
+import { Table, Input, Form } from 'antd';
 import {EditableCols} from "./colomns"
 import { validURL } from '../../../../../store/video';
 

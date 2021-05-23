@@ -1,36 +1,20 @@
 
-import { Card, List, Button, Progress } from 'antd';
+import { List, Button, Progress } from 'antd';
 import { Row, Col } from 'antd';
-import {connect} from 'react-redux'
-import {updateHost} from '../../../store/room/room.actions'
-// const watchers = [
-//   {name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"},{name:"test"}
-// ]
+import {useSelector, useDispatch} from 'react-redux'
+import { SyncOutlined } from '@ant-design/icons';
+import { seekToUser } from '../../../store/video/video.actions';
 
-function UserList(props){
-    const {watchers, host } = props.room;
-    const {isHost} = props.user;
-    
-    const listActions = (item) => {
-      let actions = [] 
-      if(isHost){
-        actions.push(
-          <Button 
-            type="link" 
-            disabled={isHost  && host===item.id}  
-            key="list-loadmore-edit" 
-            onClick={() => updateHost(item.username)}>
-              {isHost  && host===item.id ?"You are the host": "Promote To Host"}
-          </Button>
-        )
-      }
-      return actions;
-    }
+function UserList(){
+  const dispatch = useDispatch()
+
+  const watchers = useSelector(state => state.room.watchers);
+  const host = useSelector(state => state.room.host);
 
     const secondsToDate = (seconds) => {
       let time =  new Date(seconds * 1000).toISOString().substr(11, 8)
       var res = time.substring(0,2)
-      if (res == "00") {
+      if (res === "00") {
         return time.substring(3,time.length)
       }
       return time
@@ -57,6 +41,7 @@ function UserList(props){
                     </Col>
                     <Col>
                        {secondsToDate(item.seek.progress_seconds)}
+                       <Button icon={<SyncOutlined />} onClick={() => {dispatch(seekToUser(item.seek))}} style={{marginLeft: "10px"}}/>
                     </Col>
                 </Row>
               </List.Item>
@@ -67,8 +52,5 @@ function UserList(props){
     )
 }
 
-const mapStateToProps  = (state) =>{
-  return state
-} 
-export default connect(mapStateToProps, {updateHost})(UserList)
+export default UserList
 

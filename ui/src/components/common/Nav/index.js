@@ -1,16 +1,10 @@
 
 
-import React, { useState, useEffect } from 'react';
-import { Button, Layout, Space } from 'antd';
-import {
-  ArrowLeftOutlined,
-  SyncOutlined,
-  SettingOutlined,
-  ShareAltOutlined
-  
-} from '@ant-design/icons';
+import React, {  useEffect } from 'react';
+import {  Layout, Space } from 'antd';
+
 import {connect} from 'react-redux'
-import {leave, sinkToHost, sinkToME} from '../../../store/room/room.actions'
+import {leave, sinkToME} from '../../../store/room/room.actions'
 import UserMenu from './UserMenu'
 const { Header} = Layout;
 
@@ -42,4 +36,4 @@ const mapStateToProps  = (state) =>{
   return state
 } 
 
-export default connect(mapStateToProps, {leave, sinkToHost, sinkToME })(Navigation)
+export default connect(mapStateToProps, {leave })(Navigation)

@@ -3,8 +3,7 @@ import './home.less';
 import logo from './logo.jpg'
 
 import { useEffect, useState } from "react"
-import { Layout, Button, Divider, Typography, Checkbox } from 'antd';
-import { Form, Input } from 'antd';
+import { Layout, Button, Typography } from 'antd';
 import { Alert } from 'antd';
 import { connect } from 'react-redux'
 
@@ -18,50 +17,25 @@ import {ROOM_ERROR} from '../../store/room/room.types'
 import { join, leave, clearError, getMeta } from '../../store/room/room.actions'
 import axios from 'axios';
 
-const { Title, Paragraph, Text, Link } = Typography;
+const { Title, Paragraph } = Typography;
 const { Content } = Layout;
 
 
-function Home(props) {
-
-  const [form] = Form.useForm();
-  const {name, id} = props.room
+const Home = ({location, checklogin, clearError, getMeta, error}) => {
   const [discord_login, setLoginURL] = useState(BASE_URL+"/auth/login")
   const [botid, setBot] = useState("")
 
-  const layout = {
-    labelCol: { span: 6 },
-    wrapperCol: { span: 14 },
-  };
-  const tailLayout = {
-    wrapperCol: { offset: 6, span: 14 },
-  };
-
   useEffect(() => {
-    const values = queryString.parse(props.location.search);
+    const values = queryString.parse(location.search);
     if (values.room !== undefined) {
       setLoginURL(discord_login+"?next=/?room="+values.room)
     }
     
-    props.checklogin(values.room);
-  }, []);
-
-
-  const onFinish = values => {
-    console.log("Valuse", values, id)
-    if (values.roomname === name){
-      props.join(id, values.roomname, values.username, values.anonymous)
-    } else {
-      props.join("", values.roomname, values.username, values.anonymous)
-    }
-  };
-
-  const onFinishFailed = errorInfo => {
-    console.log('Failed:', errorInfo);
-  };
+    checklogin(values.room);
+  }, [location,discord_login, checklogin ]);
 
   const handleClose = () => {
-    props.clearError();
+    clearError();
   };
 
   useEffect(() => {
@@ -75,7 +49,7 @@ function Home(props) {
   }
 
   useEffect(() => {
-    const values = queryString.parse(props.location.search);
+    const values = queryString.parse(location.search);
     const err = values.error
     console.log("QUETR", values.room);
 
@@ -88,16 +62,9 @@ function Home(props) {
       })
     }
     if(values.room !== undefined && values.room !== ""){
-      props.getMeta(values.room)
+      getMeta(values.room)
     }
-  }, [props.location.search]);
-  
-  
-  useEffect(() => {
-    form.setFieldsValue({ roomname: props.room.name });
-    form.setFieldsValue({ username: props.auth.username });
-  }, [props.room, props.auth]);
- 
+  }, [getMeta, location.search]);
 
   return (
     <div className="wrap-login">
@@ -123,10 +90,10 @@ function Home(props) {
             </div> 
             </Typography>
 
-            {props.error !== "" ? (
+            {error !== "" ? (
               <Alert
                 message="Error"
-                description={props.error}
+                description={error}
                 type="error"
                 showIcon
                 closable
@@ -135,78 +102,6 @@ function Home(props) {
               />
             ) : null}
             
-           {/* <Form
-              {...layout}
-              name="basic"
-              form={form}
-              initialValues={{ anonymous: true }}
-              onFinish={onFinish}
-              onFinishFailed={onFinishFailed}
-            >
-                <Form.Item
-                label="Room id"
-                name="roomid"
-               >
-                <Input size="large" />
-              </Form.Item> 
-
-              <Form.Item
-                label="Room Name"
-                name="roomname"
-                rules={[
-                  { required: true, message: 'Please input your room Name!' }, 
-                  { min: 4, message: 'Room name must be minimum 4 characters.'},
-                  {
-                    pattern: new RegExp(
-                      /^[a-zA-Z0-9@~`!@#$%^&*()_=+\\\\';:"\\/?>.<,-]+$/i
-                    ),
-                    message: "Valid characters are letters, numbers"
-                  }
-                
-                ]}
-              >
-                <Input size="large" />
-              </Form.Item>
-              <Form.Item
-                label="Username"
-                name="username"
-                style={{ "marginTop": "20px" }}
-                
-              >
-                <Input size="large" disabled={props.auth.auth}/>
-              </Form.Item>
-
-              {!props.auth.auth ? 
-              <div>
-              <Form.Item {...tailLayout} name="anonymous" valuePropName="checked">
-                <Checkbox disabled>Be anonymous </Checkbox>
-              </Form.Item>
-
-              <Form.Item {...tailLayout}>
-                <Button size="large" type="primary" htmlType="submit" style={{ "width": "100%", marginTop: "20px" }}>
-                  Login
-                </Button>
-
-                <Divider/>
-
-                <Button href={BASE_URL+"/auth/login"} size="large" type="primary" style={{ "width": "100%", marginTop: "0px", backgroundColor: "#7289da", border: "none" }}>
-                  Login with Discord
-                </Button>
-              </Form.Item>
-              </div>
-              :<div>
-                
-              <Form.Item {...tailLayout}>
-                <Button size="large" type="primary" htmlType="submit" style={{ "width": "100%", marginTop: "20px" }}>
-                  Join Room
-                </Button>
-              </Form.Item> 
-              </div> 
-              }
-
-
-            </Form> */}
-
             <Typography>
             <Paragraph>
               Ever wanted to watch youtube videos in-sync with your friends, via. web-browser? or mp4s?

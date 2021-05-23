@@ -86,67 +86,14 @@ const process_websocket_event = (state, data) => {
       return {
         ...state, active:false, room:""
       };
-    case "UPDATE_QUEUE":             
-      openNotificationWithIcon("success", "Queue Updated by "+data.watcher.username)   
+    default: 
       return {
-        ...state, queue: data.queue
-      };
-    case "UPDATE_HOST":                
-      return {
-        ...state, host: data.host
-      };
-
-    case "USER_UPADTE":
-      break
-      // return {
-      //   ...state, watchers: data.watchers,
-      // };
-    case "UPDATE_CONTROLS":
-      return {
-        ...state, controls: data.settings.controls,
-      };
-
-      case "UPDATE_SKIP":
-        return {
-          ...state, auto_skip: data.settings.auto_skip,
-        };
-
-
-    case "ON_PROGRESS_UPDATE":
-      // let userList = [...state.watchers];
-      // userList = userList.map(user => {
-      //   if(user.name === data.user) {
-      //     return {...user, seek: data.seek};
-      //   }
-      //   return {...user};
-      // });
-      //console.log("watchers", data.watchers)
-      return {
-        ...state, watchers: data.watchers,
-      };
-    
-    default:
-      return state;
+        ...state,
+        host: data.host, 
+        controls: data.settings.controls,
+        auto_skip: data.settings.auto_skip,
+        queue: data.queue,
+        watchers: data.watchers,
+      }
   }
 }
-
-
-
-// function NewUser (usr) {
-//   return {
-//     id: usr.id,
-//     name: usr.name,
-//     seek: 0.0,
-//     current_video: {url:""}
-//   }
-// }
-
-// function isHost (watchers, user){
-//   let u = watchers.filter(u => u.name === user)
-//   console.log(u, watchers, user)
-//   if (u.length !== 1){
-//     return false
-//   }
-  
-//   return u[0].is_host
-// }

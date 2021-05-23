@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE } from './room.types';
+import { CLEAR_ERROR, JOIN_SUCCESSFUL,ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE, SEEK_TO_USER } from './room.types';
 import store, {API_URL, WS_URL, history} from '../index'
 import { connect } from '@giantmachines/redux-websocket';
 import { send } from '@giantmachines/redux-websocket';
@@ -37,7 +37,7 @@ export const join = (roomid, room, user, anonymous) => {
 }
 
 export const Connect = (room, user) => {
-    return connect(WS_URL+"room/"+room+"/ws"+"?token="+user)
+    return connect(`${WS_URL}room/${room}/ws?token=${user}`)
 }
 
 export const reJoin = (room) => {
@@ -59,17 +59,7 @@ export const reJoin = (room) => {
     }
 }
 
-export const sinkToHost = () => {
-    return dispatch => {
-        axios.get(API_URL+`room/`+store.getState().room.id).then(res => {
-            console.log("SEEK_TO_HOST", res.data.seek)
-            store.dispatch({
-                type: "SEEK_TO_HOST",
-                seek: res.data.seek,
-            })
-        });
-    }
-}
+
 
 export const leave = (room, user) => {
     return dispatch => {
@@ -117,6 +107,7 @@ export const getMeta = (id) => {
 }
 
 export const updateSeek = (percent, seconds) => {
+  
     let seek = {
         "progress_percent": percent,
         "progress_seconds": seconds
@@ -135,6 +126,13 @@ export const updateSettings = (cntrls, auto_skip) => {
     store.dispatch(send(evnt))  
 }
 
+export const forceSinkToMe = () => {
+    return dispatch => {
+        let evnt = {action: SEEK_TO_USER, watcher:  GetWatcher()}
+        dispatch(send(evnt))   
+    }
+}
+
 
 export const updateHost = (host) => {
     let evnt = {action: "UPDATE_HOST", watcher:  GetWatcher(), host:host}
@@ -147,11 +145,6 @@ export async function isAlive() {
         watcher: GetWatcher()
     }
     return store.dispatch(send(evnt))   
-}
-
-export const handleFinish = () => {
-    let evnt = {action: "HANDLE_FINSH", watcher:  GetWatcher()}
-    store.dispatch(send(evnt))   
 }
 
 
@@ -168,16 +161,6 @@ export const clearError = () => {
     };
 }
 
-export const play = () => {
-    let evnt = {action: "PLAYING", watcher: GetWatcher()}
-    store.dispatch(send(evnt))
-}
-
-export const pause = () => {
-    console.log("sending PAUSE")
-    let evnt = {action: "PAUSING", watcher:GetWatcher()}
-    store.dispatch(send(evnt))
-}
 
 export const updateQueue = (queue) => {
     let evnt = {action: "UPDATE_QUEUE", queue: queue, watcher:GetWatcher()}

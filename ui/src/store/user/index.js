@@ -13,3 +13,9 @@ export const GetWatcher = () => {
     let user = store.getState().user
     return user
 }
+
+export const GetID = () => {
+    let user = store.getState().user
+    console.log(user)
+    return user.id
+}

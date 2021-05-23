@@ -1,7 +1,7 @@
 import "./style.less"
 import React, {useState, useEffect} from "react"
 import { Table } from 'antd';
-import { sortableContainer, sortableElement, sortableHandle } from 'react-sortable-hoc';
+import { sortableContainer, sortableElement } from 'react-sortable-hoc';
 import arrayMove from 'array-move';
 import {SortableCols} from "./colomns"
 

@@ -44,9 +44,6 @@ export const getStoreFromLocalStore = () => {
     let store =  JSON.parse( sessionStorage.getItem('watch2gether') );
     if (store === null ){
         return {}
-    }
-    if (store.version !== window.w2g_version) {
-        return {}
     }else{
         delete store.version;
     }
@@ -59,7 +56,6 @@ export const getStoreFromLocalStore = () => {
 const store = createStore(rootReducer(history), getStoreFromLocalStore(), composeWithDevTools(applyMiddleware(...middleware)))
 store.subscribe(()=>{
     let save = store.getState()
-    save.version = window.w2g_version
     sessionStorage.setItem('watch2gether', JSON.stringify(save))
 })
 

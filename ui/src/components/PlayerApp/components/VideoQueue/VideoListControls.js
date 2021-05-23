@@ -1,8 +1,7 @@
 
 import { VideoList }from "./RandomVideo"
-import {Button, Space, Input} from "antd"
-import { StarOutlined, VideoCameraOutlined } from '@ant-design/icons';
-import { openNotificationWithIcon } from "../../../common/notification"
+import {Button, Space} from "antd"
+import { StarOutlined } from '@ant-design/icons';
 import {connect} from 'react-redux'
 
 import {useState} from "react"
@@ -13,22 +12,12 @@ import {API_URL} from '../../../../store'
 import {updateQueue, nextVideo, updateLocalQueue} from '../../../../store/room/room.actions'
 
 export function VideoControlComponent (props) {
-    const [newurl, setURL] = useState("");
+  
     const [loading, setLoading] = useState(false);
     const { queue } = props.room
     const { url } = props.video
 
     const user = props.user
-
-    const validURL = (str) => {
-        var pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-          '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-          '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-          '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-        return !!pattern.test(str) && !str.includes("list=");
-      }
 
     const getTitle = async (url) => {
         const result = await axios(API_URL+"scrape?url="+encodeURI(url),);
@@ -46,29 +35,7 @@ export function VideoControlComponent (props) {
             "uid": uid(16)
         }
     }
-    
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            addToQueue()
-          }
-    }
-
-    const addToQueue = async () => {
-        if (validURL(newurl)){
-            let videoList = [...queue]; 
-
-            videoList.push({url:"", title:"", loading:true})
-            updateLocalQueue(videoList)
-            videoList = [...queue].filter(i => !i.loading); 
-            
-            videoList.push(await createVideoItem(newurl, user.username));
-            updateQueue(videoList)            
-            setURL("")
-        } else {
-            openNotificationWithIcon('error', "Invalid URL")
-        }
-    }    
-    
+        
     const clearQueue = () => {
         updateQueue([]);
     }
@@ -100,7 +67,6 @@ export function VideoControlComponent (props) {
       
     return (
         <div>
-            {/* <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)}  onKeyDown={handleKeyDown} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>    */}
             <Space size="small" style={{width:"100%", marginTop: "10px", marginBottom: "10px"}}>
                 <Button onClick={skipQueue} style={{width:"100%"}}> Skip To Next</Button>
                 <Button onClick={clearQueue} style={{width:"100%"}}>Clear Queue</Button>

@@ -1,22 +1,17 @@
 import './App.less';
 import React from "react"
-import { Layout, Row, Col, Divider } from 'antd';
-import Navigation from '../common/Nav'
-import {PageFooter} from '../common/PageFooter'
+import { Layout } from 'antd';
 
 import { VideoControls, VideoList } from './components/VideoQueue';
-import UserList from './components/UserList'
+
 import VideoPlayer from './components/VideoPlayer'
 
 import {connect} from 'react-redux'
 import {join, leave, isAlive, reJoin} from '../../store/room/room.actions'
 import {history} from '../../store'
 import { withRouter } from "react-router";
-
-import DrawerForm from './components/UserDrawer'
 import Controls from './components/Controls';
 
-const { Content } = Layout;
 
 class App extends React.Component {
   state = {
@@ -41,7 +36,7 @@ class App extends React.Component {
 
   startTimer = () => {
     console.log("APP", "Starting Watcher")
-    let timer = setInterval(this.update, 1000);
+    let timer = setInterval(this.update, 3000);
     this.setState({timer});
   }
 

@@ -2,18 +2,9 @@
 import { Avatar } from 'antd';
 import { UserOutlined, LogoutOutlined } from '@ant-design/icons';
 import {connect} from 'react-redux'
-import { Menu, Dropdown } from 'antd';
-import { DownOutlined } from '@ant-design/icons';
+import { Menu } from 'antd';
 import React, { useState } from 'react';
 import {BASE_URL} from '../../../store'
-const menu = (
-  <Menu>
-    <Menu.Item key="0">
-        Logout
-    </Menu.Item>
-    
-  </Menu>
-);
 
 
 const UserAvatar = (props) => {
