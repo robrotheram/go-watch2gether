@@ -13,6 +13,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type SessionKey string
+
+const sessionKey = SessionKey("user")
+
 type DiscordAuth struct {
 	oauthConfig      *oauth2.Config
 	oauthStateString string
@@ -54,11 +58,11 @@ func NewDiscordAuth(conf *utils.Config, userstore *user.UserStore) DiscordAuth {
 func (da *DiscordAuth) validateToken(r *http.Request) (*oauth2.Token, error) {
 	session, err := da.store.Get(r, sessionName)
 	if err != nil || session.Values["token"] == nil {
-		return nil, fmt.Errorf("Invalid Session token not found")
+		return nil, fmt.Errorf("invalid session token not found")
 	}
 	token, err := tokenFromJSON(session.Values["token"].(string))
 	if err != nil {
-		return nil, fmt.Errorf("Invalid Session token could not be decoded: %w", err)
+		return nil, fmt.Errorf("invalid session token could not be decoded: %w", err)
 	}
 
 	return token, nil
@@ -69,7 +73,7 @@ func (da *DiscordAuth) getToken(state string, code string) (*oauth2.Token, error
 		return nil, fmt.Errorf("invalid oauth state")
 	}
 
-	token, err := da.oauthConfig.Exchange(oauth2.NoContext, code)
+	token, err := da.oauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, fmt.Errorf("code exchange failed: %s", err.Error())
 	}
@@ -90,9 +94,9 @@ func (da *DiscordAuth) Middleware(next Handler) http.Handler {
 			return
 		}
 
-		user, err := da.getUser(token.AccessToken)
+		user, _ := da.getUser(token.AccessToken)
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, "user", user)
+		ctx = context.WithValue(ctx, sessionKey, user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
@@ -110,7 +114,7 @@ func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	session, _ := da.store.Get(r, sessionName)
 	session.Values["next"] = next
-	err = session.Save(r, w)
+	session.Save(r, w)
 
 	url := da.oauthConfig.AuthCodeURL(da.oauthStateString)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
@@ -153,7 +157,7 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	//Save token to session
 	str, _ := tokenToJSON(content)
 	session.Values["token"] = str
-	err = session.Save(r, w)
+	session.Save(r, w)
 
 	user, err := da.getUser(content.AccessToken)
 	if err != nil {

@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net/http"
 	"watch2gether/pkg/room"
-	client "watch2gether/pkg/room"
 
 	"github.com/prometheus/common/log"
 )
@@ -20,10 +19,10 @@ func StartWebSocket(w http.ResponseWriter, req *http.Request, r *room.Room) erro
 
 	log.Info("TOKEN: " + token)
 
-	socket, err := client.Upgrader.Upgrade(w, req, nil)
+	socket, err := room.Upgrader.Upgrade(w, req, nil)
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Connection is not using the websocket protocol")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("connection is not using the websocket protocol")}
 	}
-	client.NewClient(r, socket, token)
+	room.NewClient(r, socket, token)
 	return nil
 }

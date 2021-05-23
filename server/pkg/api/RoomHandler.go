@@ -17,7 +17,7 @@ func (h BaseHandler) GetRoomMeta(w http.ResponseWriter, r *http.Request) error {
 	id := vars["id"]
 	room, err := h.Rooms.Find(id)
 	if err != nil {
-		return StatusError{http.StatusNotFound, fmt.Errorf("Room Does not exisit")}
+		return StatusError{http.StatusNotFound, fmt.Errorf("room does not exisit")}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(room)
@@ -30,13 +30,13 @@ func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, req *http.Request) er
 	id := vars["id"]
 	r, err := h.Rooms.Find(id)
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
 	}
 
 	var meta = meta.Meta{}
 	err = json.NewDecoder(req.Body).Decode(&meta)
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to read message")}
 	}
 	//r.Update(meta)
 	h.Rooms.Update(r)
@@ -46,15 +46,15 @@ func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, req *http.Request) er
 func (h BaseHandler) JoinRoom(w http.ResponseWriter, r *http.Request) error {
 	usr, ok := r.Context().Value("user").(user.User)
 	if !ok {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to get user")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to get user")}
 	}
 
 	var roomMsg = joinMessage{}
 	err := json.NewDecoder(r.Body).Decode(&roomMsg)
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to read message")}
 	}
-	roomStr, err := h.Rooms.GetOrCreate(roomMsg.ID, roomMsg.Name, usr)
+	roomStr, _ := h.Rooms.GetOrCreate(roomMsg.ID, roomMsg.Name, usr)
 	hubRoom, ok := h.Hub.GetRoom(roomStr.ID)
 	if !ok {
 		hubRoom = room.New(roomStr, h.Rooms)
@@ -87,7 +87,7 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 	var roomMsg = joinMessage{}
 	err := json.NewDecoder(r.Body).Decode(&roomMsg)
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to read message")}
 	}
 
 	//Check user exists
@@ -100,11 +100,11 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 
 	room, ok := h.Hub.FindRoom(roomMsg.ID)
 	if !ok {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room does not exisit")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
 	}
 
 	if !room.ContainsUserID(usr.ID) {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("User does not exisits")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("user does not exisits")}
 	}
 
 	log.Info("USER LEFT")
@@ -118,7 +118,7 @@ func (h BaseHandler) DeleteRoom(w http.ResponseWriter, r *http.Request) error {
 
 	_, ok := h.Hub.FindRoom(id)
 	if !ok {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
 	}
 	h.Hub.DeleteRoom(id)
 	return nil
