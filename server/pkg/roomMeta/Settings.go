@@ -1,4 +1,4 @@
-package events
+package meta
 
 type RoomSettings struct {
 	Controls bool `json:"controls"`

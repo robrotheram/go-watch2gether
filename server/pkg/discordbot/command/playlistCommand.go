@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"strings"
-	"watch2gether/pkg/user"
 )
 
 type PlaylistCmd struct {
@@ -42,21 +41,22 @@ func (cmd *PlaylistCmd) Execute(ctx CommandCtx) error {
 
 func (cmd *PlaylistLoadCmd) Execute(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
-	if !ok {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+	meta, err := ctx.GetMeta()
+	if !ok && err != nil {
+		return fmt.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
 	if err != nil {
-		return fmt.Errorf("Unable to find playlists for the room")
+		return fmt.Errorf("unable to find playlists for the room")
 	}
 
 	playlistName := strings.TrimSuffix(strings.Join(ctx.Args, " "), " ")
 	fmt.Printf("Searching for playlist %s: \n", playlistName)
 	for _, playlist := range playlists {
 		if strings.EqualFold(strings.TrimSuffix(playlist.Name, " "), playlistName) {
-			queue := r.GetQueue()
-			queue = append(queue, playlist.Videos...)
-			r.SetQueue(queue, user.DISCORD_BOT)
+			meta.Queue = append(meta.Queue, playlist.Videos...)
+			ctx.SaveMeta(meta)
+			r.Send(meta)
 			return ctx.Reply(fmt.Sprintf("Added the playlist: %s", playlistName))
 		}
 	}

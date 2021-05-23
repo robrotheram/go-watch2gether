@@ -60,15 +60,20 @@ func (ab *AudioBot) checker() {
 		for {
 			select {
 			case <-ab.ticker.C:
-				if ab.updateTime.Add(1*time.Minute).Before(time.Now()) && !ab.audio.Playing {
-					ab.Disconnect()
+				if ab.updateTime.Add(1 * time.Minute).Before(time.Now()) {
+					if ab.audio == nil {
+						ab.Disconnect()
+					}
+					if !ab.audio.Playing {
+						ab.Disconnect()
+					}
 				}
 			}
 		}
 	}()
 }
 
-func (ab *AudioBot) Send(evt events.Event) {
+func (ab *AudioBot) Send(evt events.RoomState) {
 	go func() { ab.handleEvent(evt) }()
 }
 
@@ -76,7 +81,7 @@ func (ab *AudioBot) sendToChannel(msg string) {
 	ab.session.ChannelMessageSend(ab.notficationChannelID, msg)
 }
 
-func (ab *AudioBot) handleEvent(evt events.Event) {
+func (ab *AudioBot) handleEvent(evt events.RoomState) {
 	if ab.audio == nil {
 		return
 	}
@@ -107,9 +112,9 @@ func (ab *AudioBot) handleEvent(evt events.Event) {
 		}
 	case events.EVNT_SEEK_TO_USER:
 		ab.audio.Stop()
-		ab.PlayAudio(evt.CurrentVideo, int(evt.Seek.ProgressSec))
+		ab.PlayAudio(evt.CurrentVideo, int(evt.GetHostSeek().ProgressSec))
 		if utils.Configuration.DiscordNotify {
-			ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.Seek.ProgressPct*100))
+			ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.GetHostSeek().ProgressPct*100))
 		}
 	case events.EVT_ROOM_EXIT:
 		ab.sendToChannel(fmt.Sprintf("Room has closed down"))

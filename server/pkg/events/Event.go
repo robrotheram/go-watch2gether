@@ -3,27 +3,49 @@ package events
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"watch2gether/pkg/media"
+	meta "watch2gether/pkg/roomMeta"
 	"watch2gether/pkg/user"
 
 	log "github.com/sirupsen/logrus"
 )
 
 type Event struct {
-	Action       string         `json:"action"`
-	Host         string         `json:"host"`
-	Watcher      user.Watcher   `json:"watcher"`
-	Queue        []media.Video  `json:"queue"`
-	Playing      bool           `json:"playing"`
-	CurrentVideo media.Video    `json:"current_video"`
-	Seek         media.Seek     `json:"seek"`
-	Watchers     []user.Watcher `json:"watchers"`
-	Settings     RoomSettings   `json:"settings"`
+	Action       string            `json:"action"`
+	Playing      bool              `json:"playing"`
+	Watcher      user.Watcher      `json:"watcher"`
+	Queue        []media.Video     `json:"queue"`
+	CurrentVideo media.Video       `json:"current_video"`
+	Seek         media.Seek        `json:"seek"`
+	Settings     meta.RoomSettings `json:"settings"`
+}
+
+type RoomState struct {
+	meta.Meta
+	Action  string       `json:"action"`
+	Watcher user.Watcher `json:"watcher"`
+}
+
+func (evt RoomState) ToBytes() []byte {
+	b, _ := json.Marshal(evt)
+	return b
 }
 
 func (evt Event) ToBytes() []byte {
 	b, _ := json.Marshal(evt)
 	return b
+}
+func (e *Event) Handle(meta *meta.Meta) (RoomState, error) {
+
+	handler, found := EventHandlers[e.Action]
+	log.Infof("Handleing Event: %s", e.Action)
+	if !found {
+		log.Warnf("handler %s not found", e.Action)
+		return RoomState{}, fmt.Errorf("handler %s not found", e.Action)
+	}
+	handler(e, meta)
+	return RoomState{Meta: *meta, Watcher: e.Watcher, Action: e.Action}, nil
 }
 
 func ProcessEvent(data []byte) (Event, error) {

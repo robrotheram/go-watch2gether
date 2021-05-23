@@ -1,10 +1,9 @@
-package room
+package meta
 
 import (
 	"encoding/json"
 	"fmt"
 	"time"
-	events "watch2gether/pkg/events"
 	"watch2gether/pkg/media"
 	user "watch2gether/pkg/user"
 
@@ -12,23 +11,22 @@ import (
 )
 
 type Meta struct {
-	ID           string              `rethinkdb:"id,omitempty" json:"id"`
-	Name         string              `json:"name"`
-	Owner        string              `json:"owner"`
-	Host         string              `json:"host"`
-	Icon         string              `json:"icon"`
-	History      []media.Video       `json:"history"`
-	CurrentVideo media.Video         `json:"current_video"`
-	Seek         media.Seek          `json:"seek"`
-	Playing      bool                `json:"playing"`
-	Queue        []media.Video       `json:"queue"`
-	Watchers     []user.Watcher      `json:"watchers"`
-	Type         string              `json:"type"`
-	Settings     events.RoomSettings `json:"settings"`
+	ID           string         `rethinkdb:"id,omitempty" json:"id"`
+	Name         string         `json:"name"`
+	Owner        string         `json:"owner"`
+	Host         string         `json:"host"`
+	Icon         string         `json:"icon"`
+	CurrentVideo media.Video    `json:"current_video"`
+	Playing      bool           `json:"playing"`
+	Queue        []media.Video  `json:"queue"`
+	Watchers     []user.Watcher `json:"watchers"`
+	Type         string         `json:"type"`
+	Settings     RoomSettings   `json:"settings"`
 }
 
-func (t *Meta) MarshalBinary() ([]byte, error) {
-	return json.Marshal(t)
+func (t *Meta) MarshalBinary() []byte {
+	b, _ := json.Marshal(t)
+	return b
 }
 
 func (t *Meta) UnmarshalBinary(data []byte) error {
@@ -44,39 +42,39 @@ func NewMeta(name string, usr user.User) *Meta {
 			Name:     name,
 			Watchers: []user.Watcher{},
 			Queue:    []media.Video{},
-			History:  []media.Video{},
 			ID:       ksuid.New().String(),
 			Owner:    "",
 			Host:     usr.ID,
 			Type:     "Basic",
-			Settings: events.NewRoomSettings(),
+			Settings: NewRoomSettings(),
 		}
 	}
 	return &Meta{
 		Name:     name,
 		Watchers: []user.Watcher{},
 		Queue:    []media.Video{},
-		History:  []media.Video{},
 		ID:       ksuid.New().String(),
 		Owner:    usr.ID,
 		Host:     usr.ID,
 		Type:     "Basic",
-		Settings: events.NewRoomSettings(),
+		Settings: NewRoomSettings(),
 	}
-
 }
-func (meta *Meta) GetLastVideo() media.Video {
-	if len(meta.History) == 0 {
-		return media.Video{}
+func (meta *Meta) GetHostSeek() media.Seek {
+	w, err := meta.FindWatcher(meta.Host)
+	if err != nil {
+		return media.SEEK_INIT
 	}
-	return meta.History[len(meta.History)-1]
+	return w.Seek
 }
 
-func (meta *Meta) UpdateHistory(v media.Video) {
-	if v.ID == "" {
-		return
+func (meta *Meta) NextVideo() {
+	if len(meta.Queue) > 0 {
+		meta.CurrentVideo = meta.Queue[0]
+		meta.Queue = meta.Queue[1:]
+	} else {
+		meta.CurrentVideo = media.Video{}
 	}
-	meta.History = append(meta.History, v)
 }
 
 func (meta *Meta) FindWatcher(id string) (user.Watcher, error) {
@@ -85,14 +83,32 @@ func (meta *Meta) FindWatcher(id string) (user.Watcher, error) {
 			return w, nil
 		}
 	}
-	return user.Watcher{}, fmt.Errorf("Watcher not found")
+	return user.Watcher{}, fmt.Errorf("watcher not found")
 }
+
 func (meta *Meta) RemoveWatcher(watcherid string) {
 	for i, v := range meta.Watchers {
 		if v.ID == watcherid {
 			meta.Watchers = append(meta.Watchers[:i], meta.Watchers[i+1:]...)
 			break
 		}
+	}
+
+	if watcherid == meta.Host {
+		if len(meta.Watchers) > 0 {
+			meta.Host = meta.Watchers[0].ID
+		} else {
+			meta.Host = ""
+		}
+	}
+}
+
+func (meta *Meta) ResetWatcher() {
+	meta.SinkAllWatchers(media.SEEK_INIT)
+}
+func (meta *Meta) SinkAllWatchers(seek media.Seek) {
+	for i := range meta.Watchers {
+		meta.Watchers[i].Seek = seek
 	}
 }
 
@@ -108,15 +124,11 @@ func (meta *Meta) UpdateWatcher(rw user.Watcher) error {
 	for i := range meta.Watchers {
 		watcher := &meta.Watchers[i]
 		if rw.ID == watcher.ID {
-			if watcher.IsHost {
-				meta.Seek = rw.Seek
-			}
 			watcher.LastSeen = time.Now()
 			watcher.Seek = rw.Seek
 			watcher.VideoID = rw.VideoID
-
 			return nil
 		}
 	}
-	return fmt.Errorf("Watcher not found")
+	return fmt.Errorf("watcher not found")
 }

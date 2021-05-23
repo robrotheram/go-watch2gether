@@ -26,7 +26,7 @@ func main() {
 	}
 
 	datastore := datastore.NewDatastore(utils.Configuration)
-	SetupDiscordBot(utils.Configuration, datastore)
+	//SetupDiscordBot(utils.Configuration, datastore)
 
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")
 	flag.Parse() // parse the flags

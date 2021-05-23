@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"watch2gether/pkg/room"
+	meta "watch2gether/pkg/roomMeta"
 	"watch2gether/pkg/user"
 
 	"github.com/gorilla/mux"
@@ -32,7 +33,7 @@ func (h BaseHandler) UpdateRoomMeta(w http.ResponseWriter, req *http.Request) er
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
 	}
 
-	var meta = room.Meta{}
+	var meta = meta.Meta{}
 	err = json.NewDecoder(req.Body).Decode(&meta)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("Unable to read message")}
@@ -140,18 +141,20 @@ func (h BaseHandler) ConnectRoom() http.Handler {
 func (h BaseHandler) LoadPlaylist(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id := vars["room_id"]
-	room, ok := h.Hub.FindRoom(id)
-	if !ok {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Room Does not exisit")}
+	meta, err := h.Datastore.Rooms.Find(id)
+	if err != nil {
+		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
 	}
+
 	playistID := vars["id"]
 	playlist, err := h.Playlist.Find(playistID)
 
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("Playlist does not exist")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("playlist does not exist")}
 	}
-	queue := room.GetQueue()
-	queue = append(queue, playlist.Videos...)
-	room.SetQueue(queue, user.SERVER_USER)
+	meta.Queue = append(meta.Queue, playlist.Videos...)
+	h.Rooms.Update(meta)
+	room, _ := h.Hub.FindRoom(id)
+	room.Send(meta)
 	return nil
 }

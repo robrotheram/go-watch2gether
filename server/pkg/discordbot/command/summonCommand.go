@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"strings"
+	"watch2gether/pkg/events"
 	"watch2gether/pkg/user"
 )
 
@@ -14,7 +15,8 @@ type SummonCmd struct{ BaseCommand }
 
 func (cmd *SummonCmd) Execute(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
-	if !ok {
+	meta, err := ctx.GetMeta()
+	if !ok && err != nil {
 		return fmt.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
@@ -35,9 +37,13 @@ func (cmd *SummonCmd) Execute(ctx CommandCtx) error {
 	playlistName := "@" + usr.Username
 	for _, playlist := range playlists {
 		if strings.EqualFold(strings.TrimSuffix(playlist.Name, " "), playlistName) {
-			queue := r.GetQueue()
+			queue := meta.Queue
 			queue = append(queue, playlist.Videos...)
-			r.SetQueue(queue, user.DISCORD_BOT)
+			r.HandleEvent(events.Event{
+				Action:  events.EVNT_UPDATE_QUEUE,
+				Watcher: user.DISCORD_BOT,
+				Queue:   queue,
+			})
 			return ctx.Reply(fmt.Sprintf("Playing playlist for: %s", ctx.Args[0]))
 		}
 	}

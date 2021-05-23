@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"net/url"
+	"watch2gether/pkg/events"
 	"watch2gether/pkg/media"
 	"watch2gether/pkg/user"
 	"watch2gether/pkg/utils"
@@ -15,7 +16,6 @@ func init() {
 	Commands["status"] = &StatusCmd{BaseCommand{"Current Status of what is playing"}}
 	Commands["skip"] = &SkipCmd{BaseCommand{"Skip to next video in the Queue"}}
 	Commands["queue"] = &listCmd{BaseCommand{"List videos in the Queue"}}
-	Commands["history"] = &historyCmd{BaseCommand{"List videos alreay played"}}
 }
 
 type AddCmd struct{ BaseCommand }
@@ -26,7 +26,10 @@ func (cmd *AddCmd) Execute(ctx CommandCtx) error {
 		return fmt.Errorf("%s Is not a valid URL", ctx.Args[0])
 	}
 	r, ok := ctx.GetHubRoom()
-	if !ok {
+	r.Lock()
+	defer r.Unlock()
+	meta, err := ctx.GetMeta()
+	if !ok && err != nil {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 	document, err := utils.Scrape(u.String(), 1)
@@ -34,18 +37,23 @@ func (cmd *AddCmd) Execute(ctx CommandCtx) error {
 		return fmt.Errorf("Video Error not found")
 	}
 	video := media.Video{ID: ksuid.New().String(), Title: document.Preview.Title, Url: u.String(), User: ctx.User.Username}
-	r.AddVideo(video, user.DISCORD_BOT)
+	queue := append(meta.Queue, video)
+	r.HandleEvent(events.Event{
+		Action:  events.EVNT_UPDATE_QUEUE,
+		Watcher: user.DISCORD_BOT,
+		Queue:   queue,
+	})
 	return ctx.Reply(fmt.Sprintf("Video %s added to room Queue", video.Title))
 }
 
 type StatusCmd struct{ BaseCommand }
 
 func (cmd *StatusCmd) Execute(ctx CommandCtx) error {
-	r, ok := ctx.GetHubRoom()
-	if !ok {
+	meta, err := ctx.GetMeta()
+	if err != nil {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-	vidoe := r.GetVideo()
+	vidoe := meta.CurrentVideo
 	if vidoe.ID == "" {
 		return ctx.Reply(fmt.Sprintf("No Video Playing"))
 	}
@@ -59,37 +67,23 @@ func (cmd *SkipCmd) Execute(ctx CommandCtx) error {
 	if !ok {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-
-	r.ChangeVideo(user.DISCORD_BOT)
+	r.HandleEvent(events.Event{
+		Action:  events.EVNT_NEXT_VIDEO,
+		Watcher: user.DISCORD_BOT,
+	})
 	return ctx.Reply("Video Skipped")
 }
 
 type listCmd struct{ BaseCommand }
 
 func (cmd *listCmd) Execute(ctx CommandCtx) error {
-	r, ok := ctx.GetHubRoom()
-	if !ok {
+	meta, err := ctx.GetMeta()
+	if err != nil {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 	msg := "Watch2Gether Queue: \n"
-	for i, v := range r.GetQueue() {
+	for i, v := range meta.Queue {
 		msg = msg + fmt.Sprintf(" -%d %s \n", i+1, v.Title)
 	}
-	return ctx.Reply(msg)
-}
-
-type historyCmd struct{ BaseCommand }
-
-func (cmd *historyCmd) Execute(ctx CommandCtx) error {
-	r, ok := ctx.GetHubRoom()
-	if !ok {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
-	}
-
-	msg := "Watch2Gether Room history: \n"
-	for i, v := range r.GetHistory() {
-		msg = msg + fmt.Sprintf(" -%d %s \n", i+1, v.Title)
-	}
-	msg = msg[:1900] + "..."
 	return ctx.Reply(msg)
 }

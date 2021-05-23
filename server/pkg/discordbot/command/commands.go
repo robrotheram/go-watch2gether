@@ -4,6 +4,7 @@ import (
 	"sort"
 	"watch2gether/pkg/datastore"
 	"watch2gether/pkg/room"
+	meta "watch2gether/pkg/roomMeta"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -20,6 +21,14 @@ type CommandCtx struct {
 
 func (ctx *CommandCtx) GetHubRoom() (*room.Room, bool) {
 	return ctx.Hub.GetRoom(ctx.Guild.ID)
+}
+
+func (ctx *CommandCtx) GetMeta() (*meta.Meta, error) {
+	return ctx.Rooms.Find(ctx.Guild.ID)
+}
+
+func (ctx *CommandCtx) SaveMeta(meta *meta.Meta) error {
+	return ctx.Rooms.Update(meta)
 }
 
 func (ctx *CommandCtx) Reply(message string) error {

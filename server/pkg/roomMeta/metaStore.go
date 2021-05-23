@@ -1,4 +1,4 @@
-package room
+package meta
 
 import (
 	"fmt"
@@ -74,6 +74,9 @@ func (udb *RoomStore) FindByField(feild, value string) (*Meta, error) {
 }
 
 func (udb *RoomStore) Update(meta *Meta) error {
+	if meta == nil {
+		return fmt.Errorf("can not update meta if nil")
+	}
 	_, err := rethinkdb.Table(PREFIX).Get(meta.ID).Update(meta).RunWrite(udb.session)
 	return err
 }
