@@ -2,13 +2,13 @@ package pkg
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"watch2gether/pkg/api"
 
 	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/handlers"
+	log "github.com/sirupsen/logrus"
 )
 
 var config *utils.Config
@@ -49,7 +49,7 @@ func StartServer(connection string, hndlr *api.BaseHandler) error {
 	r.Register("/config", "GET", false, hndlr.GetConfig)
 
 	if config.Dev {
-		fmt.Println("Starting in dev mode")
+		log.Info("Starting in dev mode")
 		dp := newProxy()
 		r.PathPrefix("/").Handler(dp)
 

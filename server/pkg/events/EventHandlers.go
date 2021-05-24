@@ -1,9 +1,10 @@
 package events
 
 import (
-	"fmt"
 	"watch2gether/pkg/media"
 	meta "watch2gether/pkg/roomMeta"
+
+	"github.com/prometheus/common/log"
 )
 
 type Handler = func(*Event, *meta.Meta)
@@ -75,5 +76,5 @@ func HandleFinish(evt *Event, meta *meta.Meta) {
 	}
 	meta.ResetWatcher()
 	meta.NextVideo()
-	fmt.Println("CHANGING VIDOE!!!!!!!!!!!!")
+	log.Debug("CHANGING VIDOE!!!!!!!!!!!!")
 }

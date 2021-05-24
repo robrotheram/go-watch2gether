@@ -39,7 +39,7 @@ func (evt Event) ToBytes() []byte {
 func (e *Event) Handle(meta *meta.Meta) (RoomState, error) {
 
 	handler, found := EventHandlers[e.Action]
-	log.Infof("Handleing Event: %s", e.Action)
+	log.Infof("%s : handleing Event: %s", e.Watcher.Username, e.Action)
 	if !found {
 		log.Warnf("handler %s not found", e.Action)
 		return RoomState{}, fmt.Errorf("handler %s not found", e.Action)

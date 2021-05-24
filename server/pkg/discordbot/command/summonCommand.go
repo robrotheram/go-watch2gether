@@ -30,7 +30,6 @@ func (cmd *SummonCmd) Execute(ctx CommandCtx) error {
 	usrID = strings.Trim(usrID, ">")
 	usrID = strings.Trim(usrID, "<@!")
 	usr, err := ctx.Session.User(usrID)
-	fmt.Println(ctx.Args)
 	if err != nil {
 		return fmt.Errorf("unable to find user: %w", err)
 	}

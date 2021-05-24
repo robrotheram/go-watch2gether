@@ -10,12 +10,9 @@ import (
 	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/sessions"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/oauth2"
 )
-
-type SessionKey string
-
-const sessionKey = SessionKey("user")
 
 type DiscordAuth struct {
 	oauthConfig      *oauth2.Config
@@ -96,7 +93,7 @@ func (da *DiscordAuth) Middleware(next Handler) http.Handler {
 
 		user, _ := da.getUser(token.AccessToken)
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, sessionKey, user)
+		ctx = context.WithValue(ctx, "user", user)
 		r = r.WithContext(ctx)
 
 		next.ServeHTTP(w, r)
@@ -143,7 +140,7 @@ func (da *DiscordAuth) HandleLogout(w http.ResponseWriter, r *http.Request) {
 func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	content, err := da.getToken(r.FormValue("state"), r.FormValue("code"))
 	if err != nil {
-		fmt.Println(err.Error())
+		log.Debug(err.Error())
 		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 		return
 	}
@@ -191,7 +188,7 @@ func (da *DiscordAuth) getGuilds(accessToken string) ([]DiscordGuild, error) {
 	if err != nil {
 		return guilds, err
 	}
-	fmt.Println(string(data))
+	log.Debug(string(data))
 	if err := json.Unmarshal(data, &guilds); err != nil {
 		return nil, err
 	}
@@ -237,20 +234,6 @@ func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error 
 		da.ClearSession(w, r)
 		return err
 	}
-	// //In the background register guilds to the server
-	// go func() {
-	// 	for _, g := range guilds {
-	// 		meta := room.NewMeta(g.Name, user.NewUser(duser.Username, user.USER_TYPE_DISCORD))
-	// 		meta.ID = g.ID
-	// 		meta.Icon = fmt.Sprintf("https://cdn.discordapp.com/icons/%s/%s.png", g.ID, g.Icon)
-	// 		meta.Type = user.USER_TYPE_DISCORD
-	// 		err := da.rooms.Create(meta)
-	// 		if err != nil {
-	// 			fmt.Println(err)
-	// 		}
-	// 	}
-	// }()
-
 	resp := map[string]interface{}{
 		"user":   duser,
 		"guilds": guilds,

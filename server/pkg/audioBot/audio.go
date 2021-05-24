@@ -10,6 +10,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/robrotheram/dca"
+	log "github.com/sirupsen/logrus"
 )
 
 type Audio struct {
@@ -133,7 +134,7 @@ func (audio *Audio) Stop() {
 	}
 	err := audio.session.Stop()
 	if err != nil {
-		fmt.Printf("Error Stoppin Session %v \n", err)
+		log.Debugf("Error Stoppin Session %v", err)
 	}
 	audio.Lock()
 	audio.Playing = false

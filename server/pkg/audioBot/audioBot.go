@@ -9,8 +9,8 @@ import (
 	"watch2gether/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/kkdai/youtube/v2"
 	"github.com/robrotheram/dca"
+	log "github.com/sirupsen/logrus"
 )
 
 type AudioBot struct {
@@ -83,6 +83,7 @@ func (ab *AudioBot) sendToChannel(msg string) {
 
 func (ab *AudioBot) handleEvent(evt events.RoomState) {
 	if ab.audio == nil {
+		log.Warn("No AUDIO Session")
 		return
 	}
 	switch evt.Action {
@@ -90,7 +91,7 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 		if utils.Configuration.DiscordNotify {
 			ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
 		}
-	case events.EVT_VIDEO_CHANGE:
+	case events.EVNT_NEXT_VIDEO:
 		if evt.Playing {
 			ab.PlayAudio(evt.CurrentVideo, 0)
 		} else {
@@ -122,44 +123,41 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 }
 
 func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
-	fmt.Println(video)
 	ab.updateTime = time.Now()
 	switch video.GetType() {
 	case media.VIDEO_TYPE_YT:
 		ab.PlayYoutube(video.Url, starttime)
-		break
 	case media.VIDEO_TYPE_MP4:
 		ab.PlayAudioFile(video.Url, starttime)
-		break
 	default:
 		if ab.audio != nil {
 			ab.audio.Stop()
 			ab.audio = nil
 		}
-		fmt.Printf("Video Type could not be found %v", video)
+		log.Debugf("Video Type could not be found %v", video)
 	}
 }
 
 func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
-	client := youtube.Client{}
-	video, err := client.GetVideo(videoURL)
+
+	downloadURL, err := getYoutubeURL(videoURL)
 	if err != nil {
+		log.Warnf("unable to get youtube url: %v", err)
 		return
 	}
-	downloadURL, _ := client.GetStreamURL(video, &video.Formats[0])
 	ab.PlayAudioFile(downloadURL, starttime)
 }
 func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
 	if ab.audio == nil {
-		fmt.Println("Bot not connected to Room")
+		log.Info("Bot not connected to Room")
 	}
 	if ab.audio.Playing {
 		ab.audio.Stop()
-		fmt.Println("Stopping Audio")
+		log.Debug("Stopping Audio")
 	}
 	err := ab.audio.Play(url, starttime)
 	if err != nil {
-		fmt.Printf("Error Encoding URL : %v \n", err)
+		log.Debugf("Error Encoding URL : %v \n", err)
 		return
 	}
 	err = ab.audio.Start()

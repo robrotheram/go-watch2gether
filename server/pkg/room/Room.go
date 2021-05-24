@@ -1,7 +1,6 @@
 package room
 
 import (
-	"fmt"
 	"sync"
 	"time"
 	"watch2gether/pkg/audioBot"
@@ -106,6 +105,8 @@ func (r *Room) Stop() {
 }
 
 func (r *Room) PurgeUsers(force bool) bool {
+	r.Lock()
+	defer r.Unlock()
 	meta, err := r.Store.Find(r.ID)
 	defer r.Store.Update(meta)
 	if err != nil {
@@ -151,7 +152,6 @@ func (r *Room) Run() {
 				return
 			}
 			r.HandleEvent(evnt)
-			//r.SendClientEvent(evnt)
 		}
 	}
 }
@@ -160,7 +160,7 @@ func (r *Room) Disconnect(id string) {
 	defer r.Store.Update(meta)
 	for k := range r.clients {
 		if k.user == id {
-			fmt.Println("user leaving the room")
+			log.Debug("user leaving the room")
 			meta.RemoveWatcher(id)
 			delete(r.clients, k)
 			if k.active {
@@ -178,13 +178,12 @@ func (r *Room) HandleEvent(evt events.Event) {
 	roomState, err := evt.Handle(meta)
 	if err != nil {
 		log.Warnf("error handling event %v", err)
+		return
 	}
 	r.Store.Update(&roomState.Meta)
-
 	if r.Bot != nil {
 		r.Bot.Send(roomState)
 	}
-
 	r.SendStateToClient(roomState)
 }
 

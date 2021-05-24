@@ -50,10 +50,8 @@ func (db *DiscordBot) Start() error {
 
 	err := db.session.Open()
 	if err != nil {
-		return fmt.Errorf("Error opening connection: %v", err)
+		return fmt.Errorf("error opening connection: %v", err)
 	}
-
-	fmt.Println(db.session.State)
 	return nil
 }
 

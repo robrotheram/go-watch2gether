@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 
 	"watch2gether/pkg"
 	"watch2gether/pkg/api"
@@ -16,7 +15,7 @@ import (
 func main() {
 
 	log.SetFormatter(&log.TextFormatter{
-		DisableColors: true,
+		//DisableColors: true,
 		FullTimestamp: true,
 	})
 
@@ -24,13 +23,14 @@ func main() {
 	if err != nil {
 		log.Fatalf("Config Error: %v", err)
 	}
+	log.SetLevel(utils.GetLoglevel())
 
 	datastore := datastore.NewDatastore(utils.Configuration)
 	SetupDiscordBot(utils.Configuration, datastore)
 
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")
 	flag.Parse() // parse the flags
-	log.Println("Starting web server on", *addr)
+	log.Infof("Starting web server on", *addr)
 
 	datastore.StartCleanUP()
 	pkg.SetupServer(&utils.Configuration)
@@ -59,12 +59,11 @@ func SetupDiscordBot(config utils.Config, datastore *datastore.Datastore) {
 	if token != "" {
 		bot, err := discord.NewDiscordBot(datastore, token, config.BaseURL)
 		if err != nil {
-			fmt.Println(err)
 			log.Error(err)
 		} else {
 			err := bot.Start()
 			if err != nil {
-				fmt.Println(err)
+				log.Error(err)
 			}
 		}
 

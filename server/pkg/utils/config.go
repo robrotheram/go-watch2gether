@@ -1,6 +1,7 @@
 package utils
 
 import (
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
@@ -19,6 +20,7 @@ type Config struct {
 	RethinkURL          string `mapstructure:"RETHINK_URL"`
 	RethinkDatabase     string `mapstructure:"RETHINK_DATABASE"`
 	Dev                 bool   `mapstructure:"DEVELOPMENT"`
+	loglevel            string `mapstructure:"LOG_LEVEL"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
@@ -35,4 +37,21 @@ func LoadConfig(path string) (err error) {
 	}
 	err = viper.Unmarshal(&Configuration)
 	return
+}
+
+func GetLoglevel() log.Level {
+	switch Configuration.loglevel {
+	case "fatal":
+		return log.FatalLevel
+	case "erro":
+		return log.ErrorLevel
+	case "warn":
+		return log.WarnLevel
+	case "info":
+		return log.InfoLevel
+	case "debug":
+		return log.DebugLevel
+	default:
+		return log.InfoLevel
+	}
 }
