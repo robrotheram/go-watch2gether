@@ -24,10 +24,11 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
 
 
   useEffect(()=>{
- 
       setMode("VIEW")
-    
-  },[visible])
+      if (title === "Create new Playlist"){
+        setMode("EDIT")
+      }
+  },[visible,title])
 
   useEffect(() => {
       if (data !== undefined){
@@ -46,9 +47,6 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
         setDatastore([])
       }
       
-      if (datastore.length === 0){
-        setMode("EDIT")
-      }
       
     }, [form, data]);
   
