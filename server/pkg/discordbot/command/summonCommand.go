@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"math/rand"
 	"strings"
 	"watch2gether/pkg/events"
 	"watch2gether/pkg/user"
@@ -36,8 +37,9 @@ func (cmd *SummonCmd) Execute(ctx CommandCtx) error {
 	playlistName := "@" + usr.Username
 	for _, playlist := range playlists {
 		if strings.EqualFold(strings.TrimSuffix(playlist.Name, " "), playlistName) {
+			video := playlist.Videos[rand.Intn(len(playlist.Videos))]
 			queue := meta.Queue
-			queue = append(queue, playlist.Videos...)
+			queue = append(queue, video)
 			r.HandleEvent(events.Event{
 				Action:  events.EVNT_UPDATE_QUEUE,
 				Watcher: user.DISCORD_BOT,

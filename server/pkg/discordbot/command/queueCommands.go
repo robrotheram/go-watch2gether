@@ -54,10 +54,10 @@ func (cmd *StatusCmd) Execute(ctx CommandCtx) error {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 	vidoe := meta.CurrentVideo
-	if vidoe.ID == "" {
+	if vidoe.Url == "" {
 		return ctx.Reply(fmt.Sprintf("No Video Playing"))
 	}
-	return ctx.Reply(fmt.Sprintf("Currently Playing: %s", vidoe.Title))
+	return ctx.Reply(fmt.Sprintf("Currently Playing: %s \n 📼 %s ", vidoe.Title, vidoe.Url))
 }
 
 type SkipCmd struct{ BaseCommand }
@@ -81,9 +81,15 @@ func (cmd *listCmd) Execute(ctx CommandCtx) error {
 	if err != nil {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-	msg := "Watch2Gether Queue: \n"
+	msg := ""
+	vidoe := meta.CurrentVideo
+	if vidoe.Url != "" {
+		msg += fmt.Sprintf("Currently Playing: \n %s \n", vidoe.Title)
+		msg += "--------------------------------------------------\n "
+	}
+	msg += "Queue: \n"
 	for i, v := range meta.Queue {
-		msg = msg + fmt.Sprintf(" -%d %s \n", i+1, v.Title)
+		msg = msg + fmt.Sprintf(" -%d: %s \n", i+1, v.Title)
 	}
 	return ctx.Reply(msg)
 }

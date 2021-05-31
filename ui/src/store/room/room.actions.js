@@ -163,8 +163,12 @@ export const clearError = () => {
 
 
 export const updateQueue = (queue) => {
-    let evnt = {action: "UPDATE_QUEUE", queue: queue, watcher:GetWatcher()}
-    store.dispatch(send(evnt))
+    return dispatch  => {
+        queue.forEach(function(v){ delete v.key });
+        let evnt = {action: "UPDATE_QUEUE", queue: queue, watcher:GetWatcher()}
+        dispatch(send(evnt))
+    }
+   
 }
 
 export const updateLocalQueue = (queue) => {
@@ -177,6 +181,8 @@ export const updateLocalQueue = (queue) => {
 
 
 export const nextVideo = () => {
-    let evnt = {action: "NEXT_VIDEO", watcher:GetWatcher()}
-    store.dispatch(send(evnt))
+    return dispatch  => {
+        let evnt = {action: "NEXT_VIDEO", watcher:GetWatcher()}
+        dispatch(send(evnt))
+    }
 }

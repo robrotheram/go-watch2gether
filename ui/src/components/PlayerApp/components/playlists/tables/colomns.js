@@ -8,7 +8,7 @@ import { Skeleton } from 'antd';
 
 const DragHandle = sortableHandle(() => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />);
 
-const cols = [
+export const cols = [
         
         {
             title: 'Icon',
@@ -31,7 +31,7 @@ const cols = [
 export const EditableCols = (handleDelete) => {
     return [
         {
-        title: '',
+        title: 'Delete',
         dataIndex: 'Delete',
         width: 80,
         render: (_, record) => (

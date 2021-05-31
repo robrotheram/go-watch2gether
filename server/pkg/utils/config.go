@@ -1,6 +1,9 @@
 package utils
 
 import (
+	"math/rand"
+	"time"
+
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -36,6 +39,7 @@ func LoadConfig(path string) (err error) {
 		return
 	}
 	err = viper.Unmarshal(&Configuration)
+	setupRandom()
 	return
 }
 
@@ -54,4 +58,11 @@ func GetLoglevel() log.Level {
 	default:
 		return log.InfoLevel
 	}
+}
+
+func setupRandom() {
+	if Configuration.Dev {
+		rand.Seed(0)
+	}
+	rand.Seed(time.Now().UnixNano())
 }

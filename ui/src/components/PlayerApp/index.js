@@ -68,11 +68,11 @@ class App extends React.Component {
         height: "calc(100vh - 130px)"
       }}>  
 
-      <div style={{"height":"100%", "width":"400px" , "padding":"5px"}}>
+      <div style={{"height":"100%", "width":"500px" , "padding":"5px"}}>
         <VideoControls/>
          <VideoList/>
       </div>
-      <div style={{"height":"100%", "width":"100%" , "padding":"10px", "marginTop":"5px"}}>
+      <div style={{"height":"100%", "width":"100%" , "padding":"10px"}}>
       <VideoPlayer/>
       </div>
     

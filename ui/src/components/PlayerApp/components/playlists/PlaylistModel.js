@@ -2,20 +2,23 @@ import React, {useState, useEffect} from "react"
 import { Modal, Button } from 'antd';
 import {SortableTable} from "./tables/sortTable"
 import { EditableTable } from "./tables/editTable";
-
+import { EditOutlined, PlusOutlined, MenuOutlined, DeleteOutlined } from '@ant-design/icons';
 import { Form, Input} from 'antd';
 
 import {connect} from 'react-redux'
 import {createPlaylists, updatePlaylists} from "../../../../store/playlists/playlists.actions"
 import {createVideoItem, validURL} from "../../../../store/video"
+import {updateQueue} from "../../../../store/room/room.actions"
 import { openNotificationWithIcon } from "../../../common/notification";
+import { ViewableTable } from "./tables/viewTable";
 const CREATE = "c"
 const UPDATE = "u"
 
-const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlaylists, updatePlaylists}) => {
+const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, updateQueue, createPlaylists, updatePlaylists}) => {
   const [confirmLoading, setConfirmLoading] = useState(false);
-  const [sortable, setSortable] = useState(false);
+  const [mode, setMode] = useState("VIEW");
   const [datastore, setDatastore] = useState([])
+  const [selected, setSelected] = useState([])
   const [updateType, setType] = useState(CREATE)
   const [form] = Form.useForm()
 
@@ -42,10 +45,6 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
   const handleOk = () => {
     setConfirmLoading(true);
     savePlaylist();
-    // setTimeout(() => {
-    //   setVisible(false);
-    //   setConfirmLoading(false);
-    // }, 2000);
   };
 
   const handleCancel = () => {
@@ -55,6 +54,19 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
   var ID = () => {
     return '_' + Math.random().toString(36).substr(2, 9);
   };
+
+
+  const addToPlaylist = () => {
+    if (selected.length === 0) {
+      setVisible(false);
+      return
+    }
+    let selectedVideos = datastore.filter(item => selected.indexOf(item.id) !== -1);
+    let newqueue = [...queue, ...selectedVideos]
+    updateQueue(newqueue)
+    setVisible(false);
+  }
+
   const addrecord = () => {
     let data = {
         id: ID(), 
@@ -62,7 +74,7 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
         url: "",
         order: datastore.length+1,
     }
-    setSortable(false)
+    setMode("EDIT")
     setDatastore(datastore => [...datastore, data]);
   };
 
@@ -104,49 +116,110 @@ const PlaylistModel = ({visible, setVisible, data, title, room, user, createPlay
 
   }
   console.log("playlistModel", user, room)
+
+  
+  const modalTitle = (
+    <div style={{display:"inline-flex", width:"calc( 100% - 20px )"}}>
+      <span style={{marginRight:"10px"}}>
+        {mode === "EDIT" || mode === "SORT" ?
+        <Button type="primary" icon={<PlusOutlined />}onClick={()=> setMode("VIEW")}>View</Button>:
+        <Button type="primary" icon={<EditOutlined />} onClick={()=> setMode("EDIT")}>Edit</Button>
+        }
+      </span>
+      <span style={{width:"100%"}}>
+      {mode === "EDIT" || mode === "SORT" ?
+        <Form form={form}>
+            <Form.Item name="name" label="" rules={[{ required: true }]} style={{"marginBottom":"0px"}}>
+                <Input />
+            </Form.Item>
+        </Form>
+        : title }
+      </span>
+    </div>
+  )
+
+  const EditModeButton = () => {
+     if (mode === "EDIT"){
+       return (
+          <Button icon={<MenuOutlined/>} key="edit" onClick={()=>setMode("SORT")} style={{float:"left"}}>
+            Sort
+          </Button>
+       )
+     }else {
+      return (
+        <Button icon={<DeleteOutlined />} key="edit" onClick={()=>setMode("EDIT")} style={{float:"left"}}>
+          Remove
+        </Button>
+      )
+     }
+
+  }
+
+  const modalFooter = () =>{
+    if (mode === "EDIT" || mode === "SORT"){
+      return [
+        EditModeButton(),
+        <Button key="add" onClick={addrecord} style={{float:"left"}}>
+            Add new Video
+         </Button>,
+        <Button key="back" onClick={handleCancel}>
+          Cancel
+        </Button>,
+        <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOk}>
+          Submit
+        </Button>,
+      ]
+    }
+    return [
+      <Button key="back" onClick={handleCancel}>
+          Cancel
+        </Button>,
+        <Button key="submit" type="primary" onClick={addToPlaylist}>
+          Add to Playlist
+        </Button>
+    ]
+  }
+
+
   return (
       <Modal
-        title={title}
+        title={modalTitle}
         visible={visible}
         onOk={handleOk}
         confirmLoading={confirmLoading}
         onCancel={handleCancel}
         bodyStyle={{padding:"0px"}}
         width={1000}
-        footer={[
-            <Button key="edit" onClick={()=>setSortable(!sortable)} style={{float:"left"}}>
-              {sortable ? "Edit" : "Sort" }
-            </Button>,
-            <Button key="add" onClick={addrecord} style={{float:"left"}}>
-                Add new Video
-             </Button>,
-            <Button key="back" onClick={handleCancel}>
-              Cancel
-            </Button>,
-            <Button key="submit" type="primary" loading={confirmLoading} onClick={handleOk}>
-              Submit
-            </Button>,
-        ]}
+        footer={modalFooter()}
       > 
-        <Form form={form}>
-            <Form.Item name="name" label="Playlist Name" rules={[{ required: true }]} style={{padding: "10px 10px 0px 10px"}}>
-                <Input />
-            </Form.Item>
-        </Form>
-        {sortable ? 
-        <SortableTable data={datastore.map(item => {item.key = item.id; return item})} setData={setDatastore}/> : 
-        <EditableTable data={datastore.map(item => {item.key = item.id; return item})} setData={setDatastore}/> 
-        }
+        <PlayistTable 
+            mode={mode} 
+            data={datastore.map(item => {item.key = item.id; return item})} 
+            setData={setDatastore}
+            selected={selected}
+            setSelected={setSelected}
+        /> 
       </Modal>
   );
 };
 
+const PlayistTable = ({mode, data, setData,selected, setSelected}) => {
+  switch (mode) {
+    case "EDIT":
+      return <EditableTable data={data} setData={setData}/> 
+    case "SORT":
+      return <SortableTable data={data} setData={setData}/> 
+    default:
+      return <ViewableTable data={data} selected={selected} setSelected={setSelected}/> 
+  }
+}
 
 const mapStateToProps  = (state) =>{
     return {
       room : state.room.id,
+      queue: state.room.queue,
       user: state.user.username
     }
   } 
-export default connect(mapStateToProps, {createPlaylists, updatePlaylists})(PlaylistModel)
+export default connect(mapStateToProps, {createPlaylists, updatePlaylists, updateQueue})(PlaylistModel)
 
