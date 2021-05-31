@@ -68,24 +68,16 @@ const Home = ({location, checklogin, clearError, getMeta, error}) => {
   return (
     <div className="wrap-login">
         {botid !== "" ?
-        <Button target="_blank" href={inviteBotUrl(botid)} size="large" type="primary" shape="round" style={{ 
-          position:"fixed",
-          top:"20px",
-          right:"20px",
-          marginTop: "0px",
-          padding: "0px 20px",
-          backgroundColor: "#7289da",
-          border: "none" }}
-        > 
+        <Button target="_blank" href={inviteBotUrl(botid)} size="large" type="primary" shape="round" className="discordBotButton"> 
           Add the Discord Bot 
         </Button>
         : null }
         
         <Content className="login-form">
             <Typography>
-            <div style={{"width": "500px", marginBottom:"70px"}}>
-              <img src={logo} alt="watch2gether logo" style={{"float": "left", "width": "80px", marginRight:"30px"}} />
-              <Title style={{width: "400px",  display:"block", paddingTop:"16px"}} level={1}>Watch2Gether</Title>
+            <div className="welcomeHeading">
+              <img src={logo} alt="watch2gether logo" className="logo"/>
+              <Title className="title" level={1}>Watch2Gether</Title>
             </div> 
             </Typography>
 
@@ -116,7 +108,7 @@ const Home = ({location, checklogin, clearError, getMeta, error}) => {
                   Login with Discord
             </Button>
 
-            <PageFooter style={{ textAlign: 'center', position: "absolute", bottom:"0px", left:"0px", width:"560px", height:"50px", padding: "15px 50px 28px 50px" }}/>
+            <PageFooter className="welcomeFooter"/>
         </Content>
       </div>
     

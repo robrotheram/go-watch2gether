@@ -37,7 +37,7 @@ export const VideoItem = ({video, children, playing, loading}) => {
                     position:"absolute",
                     width: "620px"
                 }}>
-                    <div style={{float: "right", background: "#141414", padding: "15px 20px 15px 5px", width:"260px"}}>
+                    <div style={{float: "right", background: "#141414", padding: "15px 20px 15px 5px", width:"250px"}}>
                         {children}
                     </div>
                 </div>

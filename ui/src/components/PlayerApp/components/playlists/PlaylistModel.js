@@ -22,6 +22,13 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
   const [updateType, setType] = useState(CREATE)
   const [form] = Form.useForm()
 
+
+  useEffect(()=>{
+ 
+      setMode("VIEW")
+    
+  },[visible])
+
   useEffect(() => {
       if (data !== undefined){
         form.setFieldsValue({"name": data.name})
