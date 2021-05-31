@@ -5,7 +5,7 @@ import { Skeleton } from 'antd';
 const { Title } = Typography;
 
 
-export const PlaylistItem = ({video, children, playlist, playing, loading}) => {
+export const PlaylistItem = ({video, children, playlist, playing, loading, click}) => {
     var url = ""
     var user = ""
     if (video !== undefined) {
@@ -16,8 +16,8 @@ export const PlaylistItem = ({video, children, playlist, playing, loading}) => {
     }
 
     return (
-        <List.Item >
-                <table className="">
+        <List.Item style={{cursor:"pointer"}} onClick={()=>click()} className="playlistItemContainer">
+                <table>
                     <tbody>
                     <tr>
                         <td style={{"width":"130px"}}> 
@@ -57,7 +57,7 @@ export const PlaylistItem = ({video, children, playlist, playing, loading}) => {
                 }}>
                     <div style={{
                         float: "right", 
-                        background: "#141414", 
+                        
                         padding: "20px 140px 20px 12px",
                     }}>
                         {children}

@@ -22,7 +22,6 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
   const [updateType, setType] = useState(CREATE)
   const [form] = Form.useForm()
 
-
   useEffect(() => {
       if (data !== undefined){
         form.setFieldsValue({"name": data.name})
@@ -39,6 +38,11 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
         setType(CREATE)
         setDatastore([])
       }
+      
+      if (datastore.length === 0){
+        setMode("EDIT")
+      }
+      
     }, [form, data]);
   
 
@@ -122,18 +126,19 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
     <div style={{display:"inline-flex", width:"calc( 100% - 20px )"}}>
       <span style={{marginRight:"10px"}}>
         {mode === "EDIT" || mode === "SORT" ?
-        <Button type="primary" icon={<PlusOutlined />}onClick={()=> setMode("VIEW")}>View</Button>:
-        <Button type="primary" icon={<EditOutlined />} onClick={()=> setMode("EDIT")}>Edit</Button>
+        <Button disabled={datastore.length===0} style={{width:"90px"}} type="primary" icon={<PlusOutlined />}onClick={()=> setMode("VIEW")}>View</Button>:
+        <Button style={{width:"90px"}} type="primary" icon={<EditOutlined />} onClick={()=> setMode("EDIT")}>Edit</Button>
         }
       </span>
       <span style={{width:"100%"}}>
       {mode === "EDIT" || mode === "SORT" ?
         <Form form={form}>
-            <Form.Item name="name" label="" rules={[{ required: true }]} style={{"marginBottom":"0px"}}>
+            <Form.Item name="name" label="Edit name:" rules={[{ required: true }]} style={{"marginBottom":"0px"}}>
                 <Input />
             </Form.Item>
         </Form>
-        : title }
+        : <p style={{paddingTop:"5px", marginBottom:"0px"}}>{title}</p>
+      }
       </span>
     </div>
   )

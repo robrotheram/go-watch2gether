@@ -22,6 +22,7 @@ export const ViewableTable = ({data, selected, setSelected, }) => {
 
   const rowSelection = {
     selected,
+    columnWidth: 80,
     onChange: onSelectedRowKeysChange,
   };
     return (

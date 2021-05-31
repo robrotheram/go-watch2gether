@@ -30,7 +30,7 @@ const PlaylistDrawer = (props) => {
       setModelTitle("Create new Playlist")
       setDatastore()
     }else{
-      setModelTitle("Edit playlist: "+playlist.name)
+      setModelTitle(playlist.name)
       setDatastore(playlist)
     }
     setModalVisible(true)
@@ -70,15 +70,18 @@ const PlaylistDrawer = (props) => {
                 itemLayout="horizontal"
                 dataSource={props.playlists} //deletePlaylist
                 renderItem={item => (
-                  <PlaylistItem key={item.id} video={item.videos[0]} playlist={item} loading={item.loading}>
+                  <PlaylistItem key={item.id} video={item.videos[0]} playlist={item} loading={item.loading} click={()=>showModel(item)}>
                       <Space>
-                                <Popconfirm style={{width:"90px"}} title="Sure to delete?" onConfirm={() => deletePlaylist(item)}>
-                                <Button style={{width:"90px"}} icon={<DeleteOutlined/>}>Delete</Button> 
+                                <Popconfirm 
+                                  onClick={(e)=>{ e.stopPropagation()}} 
+                                  style={{width:"90px"}} 
+                                  title="Sure to delete?" 
+                                  onConfirm={(e) => {e.stopPropagation(); deletePlaylist(item)}}
+                                  onCancel={(e)=>{ e.stopPropagation()}}>
+                                <Button icon={<DeleteOutlined/>}/> 
                                 </Popconfirm>
-                                <Button style={{width:"90px"}} icon={<EditOutlined/>} onClick={()=>showModel(item)} >Edit</Button>
-                                <Popconfirm style={{width:"90px"}} title="Sure to Load Playlist?" onConfirm={() => loadPlaylist(item)}>
-                                {item.videos.length >0  ?<Button style={{width:"90px"}} icon={<SelectOutlined/>}>Load</Button> : null}
-                                </Popconfirm>
+                                {/* <Button style={{width:"90px"}} icon={<EditOutlined/>} onClick={()=>showModel(item)} >Edit</Button> */}
+                                
                                                      
                       </Space>
                   </PlaylistItem>
