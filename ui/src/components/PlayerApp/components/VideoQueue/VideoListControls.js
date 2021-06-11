@@ -1,6 +1,5 @@
 
-import {Button, Space} from "antd"
-import { StarOutlined } from '@ant-design/icons';
+import {Button} from "antd"
 import {useDispatch, useSelector} from 'react-redux'
 
 import {useState} from "react"

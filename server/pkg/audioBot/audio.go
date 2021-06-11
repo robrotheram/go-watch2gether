@@ -143,22 +143,22 @@ func (audio *Audio) Stop() {
 	audio.Unlock()
 }
 
+func (audio *Audio) Finish() {
+	audio.session.Cleanup()
+	audio.session.Truncate()
+	audio.bot.SendToRoom(CreateBotFinishEvent())
+	audio.Playing = false
+}
+
 func (audio *Audio) PlayStream() {
 
 	audio.stream = dca.NewStream(audio.session, audio.voice, audio.done)
 	ticker := time.NewTicker(time.Second)
 	for {
-		if !audio.Playing {
-			audio.session.Truncate()
-			audio.bot.SendToRoom(CreateBotFinishEvent())
-			audio.Playing = false
-			return
-		}
 		select {
 		case <-audio.done:
 			// Clean up incase something happened and ffmpeg is still running
-			audio.session.Truncate()
-			audio.Playing = false
+			audio.Finish()
 			return
 		case <-ticker.C:
 			//stats := audio.session.Stats()
@@ -168,10 +168,13 @@ func (audio *Audio) PlayStream() {
 			if audio.Duration > 0 && audio.progress > 0 {
 				progress = (float64(audio.startTime) + audio.progress.Seconds()) / audio.Duration.Seconds()
 			}
-			audio.bot.SendToRoom(CreateBotUpdateEvent(media.Seek{
-				ProgressPct: progress,
-				ProgressSec: float64(audio.startTime) + audio.progress.Seconds(),
-			}))
+			//Only send event if we are playing. Fixes issue if ticker fires after audio.done
+			if audio.Playing {
+				audio.bot.SendToRoom(CreateBotUpdateEvent(media.Seek{
+					ProgressPct: progress,
+					ProgressSec: float64(audio.startTime) + audio.progress.Seconds(),
+				}))
+			}
 		}
 	}
 }

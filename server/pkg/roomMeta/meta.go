@@ -3,6 +3,7 @@ package meta
 import (
 	"encoding/json"
 	"fmt"
+	"math/rand"
 	"time"
 	"watch2gether/pkg/media"
 	user "watch2gether/pkg/user"
@@ -75,6 +76,12 @@ func (meta *Meta) NextVideo() {
 	} else {
 		meta.CurrentVideo = media.Video{}
 	}
+}
+
+func (meta *Meta) ShuffleQueue() {
+	rand.Shuffle(len(meta.Queue), func(i, j int) {
+		meta.Queue[i], meta.Queue[j] = meta.Queue[j], meta.Queue[i]
+	})
 }
 
 func (meta *Meta) FindWatcher(id string) (user.Watcher, error) {

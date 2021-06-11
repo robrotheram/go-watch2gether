@@ -33,7 +33,7 @@ export const seekToHost = () => {
         let hosts = room.watchers.filter(w => w.id === room.host)
         if (hosts.length === 1) {
             console.log("SEEK_TO_HOST", hosts[0].seek)
-            seekToUser(hosts[0].seek)
+            dispatch(seekToUser(hosts[0].seek))
         }
     }
 }

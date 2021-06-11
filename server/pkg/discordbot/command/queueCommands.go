@@ -16,6 +16,7 @@ func init() {
 	Commands["status"] = &StatusCmd{BaseCommand{"Current Status of what is playing"}}
 	Commands["skip"] = &SkipCmd{BaseCommand{"Skip to next video in the Queue"}}
 	Commands["queue"] = &listCmd{BaseCommand{"List videos in the Queue"}}
+	Commands["shuffle"] = &SuffleCmd{BaseCommand{"Shuffle the Queue"}}
 }
 
 type AddCmd struct{ BaseCommand }
@@ -26,8 +27,6 @@ func (cmd *AddCmd) Execute(ctx CommandCtx) error {
 		return fmt.Errorf("%s Is not a valid URL", ctx.Args[0])
 	}
 	r, ok := ctx.GetHubRoom()
-	r.Lock()
-	defer r.Unlock()
 	meta, err := ctx.GetMeta()
 	if !ok && err != nil {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
@@ -72,6 +71,20 @@ func (cmd *SkipCmd) Execute(ctx CommandCtx) error {
 		Watcher: user.DISCORD_BOT,
 	})
 	return ctx.Reply("Video Skipped")
+}
+
+type SuffleCmd struct{ BaseCommand }
+
+func (cmd *SuffleCmd) Execute(ctx CommandCtx) error {
+	r, ok := ctx.GetHubRoom()
+	if !ok {
+		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+	}
+	r.HandleEvent(events.Event{
+		Action:  events.EVT_SUFFLE_QUEUE,
+		Watcher: user.DISCORD_BOT,
+	})
+	return ctx.Reply("Queue Shuffled")
 }
 
 type listCmd struct{ BaseCommand }

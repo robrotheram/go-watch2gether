@@ -184,8 +184,9 @@ const PlaylistModel = ({visible, setVisible, data, title, room, queue, user, upd
       <Button key="back" onClick={handleCancel}>
           Cancel
         </Button>,
-        <Button key="submit" type="primary" onClick={addToPlaylist}>
-          Add to Playlist
+        <Button disabled={selected.length === 0} key="submit" type="primary" onClick={addToPlaylist}>
+          {selected.length === 0 ? "Select Videos" : `${selected.length} videos selected`}
+          
         </Button>
     ]
   }

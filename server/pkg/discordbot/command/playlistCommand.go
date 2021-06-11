@@ -9,13 +9,16 @@ type PlaylistCmd struct {
 	SubCommands map[string]Command
 }
 type PlaylistLoadCmd struct{ BaseCommand }
+type PlaylistListCmd struct{ BaseCommand }
 
 func init() {
 	cmd := PlaylistCmd{
 		SubCommands: make(map[string]Command),
 	}
 	cmd.SubCommands["load"] = &PlaylistLoadCmd{BaseCommand{"Loads a Playlist"}}
+	cmd.SubCommands["list"] = &PlaylistListCmd{BaseCommand{"lists all playlist"}}
 	Commands["playlist"] = &cmd
+
 }
 
 func (cmd *PlaylistCmd) GetHelp() string {
@@ -61,4 +64,16 @@ func (cmd *PlaylistLoadCmd) Execute(ctx CommandCtx) error {
 		}
 	}
 	return ctx.Reply(fmt.Sprintf("No playlist with the name '%s' was found", playlistName))
+}
+
+func (cmd *PlaylistListCmd) Execute(ctx CommandCtx) error {
+	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
+	if err != nil {
+		return fmt.Errorf("unable to find playlists for the room")
+	}
+	msg := "This Guild contains the following Playlists: \n"
+	for _, playlist := range playlists {
+		msg += fmt.Sprintf("- %s", playlist.Name)
+	}
+	return ctx.Reply(msg)
 }

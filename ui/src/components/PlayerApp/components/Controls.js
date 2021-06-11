@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Space, Card } from 'antd';
 import { Input} from "antd"
-import {connect} from 'react-redux'
+import {useDispatch, useSelector} from 'react-redux'
 import DrawerForm from './UserDrawer';
 import {  VideoCameraOutlined } from '@ant-design/icons';
 import { openNotificationWithIcon } from "../../common/notification"
@@ -10,20 +10,18 @@ import { openNotificationWithIcon } from "../../common/notification"
 import { Row, Col } from 'antd';
 
 import {updateQueue, updateLocalQueue} from '../../../store/room/room.actions'
-import {leave} from '../../../store/room/room.actions'
 import PlaylistDrawer from './playlists/PlaylistDrawer'
 import {createVideoItem, validURL} from '../../../store/video'
 import Share from "./ShareModal"
 import Settings from './SettingsModal'
 
-const Controls = (props) => {
-  
-  const {isHost} = props.user
-  const {title} = props.video
+const Controls = () => {
 
+  const dispatch = useDispatch()
+  const user = useSelector(state => state.user);
+  const queue = useSelector(state => state.room.queue);
+  const title = useSelector(state => state.video.title);
   const [newurl, setURL] = useState("");
-  const { queue } = props.room
-
 
   useEffect(() => {
     if (title === ""){
@@ -42,9 +40,6 @@ const Controls = (props) => {
           }
     }
    
-    const user = props.user
-
-    
     const addToQueue = async () => {
         if (validURL(newurl)){
             let videoList = [...queue]; 
@@ -54,7 +49,7 @@ const Controls = (props) => {
             videoList = [...queue].filter(i => !i.loading); 
             
             videoList.push(await createVideoItem(newurl, user.username));
-            updateQueue(videoList)            
+            dispatch(updateQueue(videoList))            
             setURL("")
         } else {
             openNotificationWithIcon('error', "Invalid URL")
@@ -75,7 +70,7 @@ const Controls = (props) => {
             <Col>
               <Space style={{"marginTop":"1px"}} size={4}>
                 <DrawerForm/>
-                {isHost ?<Settings/>: null}
+                {user.isHost ?<Settings/>: null}
                 <Share/>
               </Space>
             </Col>
@@ -84,7 +79,5 @@ const Controls = (props) => {
     )
 }
 
-const mapStateToProps  = (state) =>{
-  return state
-} 
-export default connect(mapStateToProps, {leave})(Controls)
+
+export default Controls

@@ -13,16 +13,6 @@ export const VideoListComponent = () => {
   const dispatch = useDispatch()
   const queue = useSelector(state => state.room.queue);
   const current_video = useSelector(state => state.video);
-  const isHost = useSelector(state => state.user.isHost);
-
-  const skipTo = (item) => {
-    let videoList = [...queue];
-    let i = videoList.indexOf(item);
-    videoList.splice(i, 1);
-    videoList.unshift(item)
-    dispatch(updateQueue(videoList))
-
-  }
 
   const deleteVideo = (item) => {
     let videoList = [...queue];

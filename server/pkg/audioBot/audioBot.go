@@ -9,7 +9,6 @@ import (
 	"watch2gether/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/robrotheram/dca"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -20,11 +19,9 @@ type AudioBot struct {
 	notficationChannelID string
 	VoiceConnection      *discordgo.VoiceConnection
 	RoomChannel          chan []byte
-	stream               *dca.StreamingSession
 	Running              bool
 	updateTime           time.Time
 	ticker               *time.Ticker
-	wg                   sync.WaitGroup
 	sync.Mutex
 }
 
@@ -48,33 +45,14 @@ func (ab *AudioBot) SendToRoom(evt events.Event) {
 func (ab *AudioBot) RegisterToRoom(rc chan []byte) {
 	ab.RoomChannel = rc
 	ab.audio = NewAudio(ab, ab.VoiceConnection)
-	ab.updateTime = time.Now()
-	ab.ticker = time.NewTicker(10 * time.Second)
-	ab.checker()
 	ab.Running = true
 
 }
 
-func (ab *AudioBot) checker() {
-	go func() {
-		for {
-			select {
-			case <-ab.ticker.C:
-				if ab.updateTime.Add(1 * time.Minute).Before(time.Now()) {
-					if ab.audio == nil {
-						ab.Disconnect()
-					}
-					if !ab.audio.Playing {
-						ab.Disconnect()
-					}
-				}
-			}
-		}
-	}()
-}
-
 func (ab *AudioBot) Send(evt events.RoomState) {
-	go func() { ab.handleEvent(evt) }()
+	ab.Lock()
+	defer ab.Unlock()
+	ab.handleEvent(evt)
 }
 
 func (ab *AudioBot) sendToChannel(msg string) {
@@ -83,8 +61,7 @@ func (ab *AudioBot) sendToChannel(msg string) {
 
 func (ab *AudioBot) handleEvent(evt events.RoomState) {
 	if ab.audio == nil {
-		log.Warn("No AUDIO Session")
-		return
+		ab.audio = NewAudio(ab, ab.VoiceConnection)
 	}
 	switch evt.Action {
 	case events.EVNT_UPDATE_QUEUE:
@@ -118,7 +95,7 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 			ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.GetHostSeek().ProgressPct*100))
 		}
 	case events.EVT_ROOM_EXIT:
-		ab.sendToChannel(fmt.Sprintf("Room has closed down"))
+		ab.sendToChannel(("room has closed down"))
 	}
 }
 
@@ -173,6 +150,5 @@ func (ab *AudioBot) Disconnect() error {
 	if ab.audio != nil {
 		ab.audio.Stop()
 	}
-	ab.ticker.Stop()
 	return ab.VoiceConnection.Disconnect()
 }
