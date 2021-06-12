@@ -1,27 +1,28 @@
-import {AUTH_LOGIN, GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE } from '../event.types';
+import {
+  AUTH_LOGIN, GET_META_SUCCESSFUL, JOIN_SUCCESSFUL, PROGRESS_UPDATE,
+} from '../event.types';
 
 const INITIAL_STATE = {
-  id: "",
-  room: "",
-  auth : false,
-  username: "",
-  icon: "",
+  id: '',
+  room: '',
+  auth: false,
+  username: '',
+  icon: '',
   guilds: [],
   seek: {
-      progress_percent: 0.0,
-      progress_seconds: 0
-  } ,
-  video_id: "",
+    progress_percent: 0.0,
+    progress_seconds: 0,
+  },
+  video_id: '',
   isHost: false,
-  playing: false
-}
-
+  playing: false,
+};
 
 export const userReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case AUTH_LOGIN:
       return {
-        ...state, id: action.id, auth: action.auth, username: action.username, icon: action.icon, guilds: action.guilds
+        ...state, id: action.id, auth: action.auth, username: action.username, icon: action.icon, guilds: action.guilds,
       };
     case JOIN_SUCCESSFUL:
       return {
@@ -34,20 +35,20 @@ export const userReducer = (state = INITIAL_STATE, action) => {
       };
 
     case GET_META_SUCCESSFUL:
-      let video = action.payload.current_video
+      
       return {
         ...state,
-        video_id: video.id,
+        video_id: action.payload.current_video.id,
         playing: action.payload.playing,
-        isHost: isHost(state, action.payload.host)
+        isHost: isHost(state, action.payload.host),
       };
 
-    case "REDUX_WEBSOCKET::MESSAGE":
+    case 'REDUX_WEBSOCKET::MESSAGE':
       try {
-        let data = JSON.parse(action.payload.message)
-        return process_websocket_event(state, data)
+        const data = JSON.parse(action.payload.message);
+        return process_websocket_event(state, data);
       } catch (e) {
-        console.log("Parse Error", action.payload.message, e)
+        console.log('Parse Error', action.payload.message, e);
       }
       return state;
 
@@ -55,19 +56,18 @@ export const userReducer = (state = INITIAL_STATE, action) => {
   }
 };
 
-
 const process_websocket_event = (state, data) => {
- // console.log("video reducer action", data.action, data)
+  // console.log("video reducer action", data.action, data)
   switch (data.action) {
-    case "UPDATE_HOST":                
+    case 'UPDATE_HOST':
       return {
-        ...state, isHost: isHost(state, data.host)
+        ...state, isHost: isHost(state, data.host),
       };
     default:
       return state;
   }
-}
+};
 
-function isHost (user, host){
-  return user.id === host
+function isHost(user, host) {
+  return user.id === host;
 }

@@ -1,83 +1,77 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Space, Card } from 'antd';
-import { Input} from "antd"
-import {useDispatch, useSelector} from 'react-redux'
+import {
+  Button, Space, Card, Input, Row, Col,
+} from 'antd';
+
+import { useDispatch, useSelector } from 'react-redux';
+import { VideoCameraOutlined } from '@ant-design/icons';
 import DrawerForm from './UserDrawer';
-import {  VideoCameraOutlined } from '@ant-design/icons';
-import { openNotificationWithIcon } from "../../common/notification"
+import { openNotificationWithIcon } from '../../common/notification';
 
-
-import { Row, Col } from 'antd';
-
-import {updateQueue, updateLocalQueue} from '../../../store/room/room.actions'
-import PlaylistDrawer from './playlists/PlaylistDrawer'
-import {createVideoItem, validURL} from '../../../store/video'
-import Share from "./ShareModal"
-import Settings from './SettingsModal'
+import { updateQueue, updateLocalQueue } from '../../../store/room/room.actions';
+import PlaylistDrawer from './playlists/PlaylistDrawer';
+import { createVideoItem, validURL } from '../../../store/video';
+import Share from './ShareModal';
+import Settings from './SettingsModal';
 
 const Controls = () => {
-
-  const dispatch = useDispatch()
-  const user = useSelector(state => state.user);
-  const queue = useSelector(state => state.room.queue);
-  const title = useSelector(state => state.video.title);
-  const [newurl, setURL] = useState("");
+  const dispatch = useDispatch();
+  const user = useSelector((state) => state.user);
+  const queue = useSelector((state) => state.room.queue);
+  const title = useSelector((state) => state.video.title);
+  const [newurl, setURL] = useState('');
 
   useEffect(() => {
-    if (title === ""){
-      document.title = "Watch2gether"
-    }else {
-      document.title = "Watch2gether | Playing:"+title
+    if (title === '') {
+      document.title = 'Watch2gether';
+    } else {
+      document.title = `Watch2gether | Playing:${title}`;
     }
-    
   }, [title]);
 
-
-  
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            addToQueue()
-          }
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      dispatch(addToQueue());
     }
-   
-    const addToQueue = async () => {
-        if (validURL(newurl)){
-            let videoList = [...queue]; 
+  };
 
-            videoList.push({url:"", title:"", loading:true})
-            updateLocalQueue(videoList)
-            videoList = [...queue].filter(i => !i.loading); 
-            
-            videoList.push(await createVideoItem(newurl, user.username));
-            dispatch(updateQueue(videoList))            
-            setURL("")
-        } else {
-            openNotificationWithIcon('error', "Invalid URL")
-        }
-    }    
+  const addToQueue = async () => {
+    if (validURL(newurl)) {
+      let videoList = [...queue];
 
-    return (
-        <Card className="contolPanel" style={{"height": "81px"}}>
-          <Row style={{width:"100%", paddingTop:"10px"}}>
-            <Col>
-            <Space style={{"marginTop":"1px"}}>
-                <PlaylistDrawer/>
-              </Space>
-            </Col>
-            <Col flex="auto">
-                <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={e => setURL(e.target.value)}  onKeyDown={handleKeyDown} addonAfter={( <Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)}/>
-            </Col>
-            <Col>
-              <Space style={{"marginTop":"1px"}} size={4}>
-                <DrawerForm/>
-                {user.isHost ?<Settings/>: null}
-                <Share/>
-              </Space>
-            </Col>
-          </Row>
-        </Card>
-    )
-}
+      videoList.push({ url: '', title: '', loading: true });
+      updateLocalQueue(videoList);
+      videoList = [...queue].filter((i) => !i.loading);
 
+      videoList.push(await createVideoItem(newurl, user.username));
+      dispatch(updateQueue(videoList));
+      setURL('');
+    } else {
+      openNotificationWithIcon('error', 'Invalid URL');
+    }
+  };
 
-export default Controls
+  return (
+    <Card className="contolPanel">
+      <Row style={{ width: '100%', paddingTop: '10px' }}>
+        <Col>
+          <Space style={{ marginTop: '1px' }}>
+            <PlaylistDrawer />
+          </Space>
+        </Col>
+        <Col flex="auto">
+          <Input className="videoInput" defaultValue="mysite" value={newurl} onChange={(e) => setURL(e.target.value)} onKeyDown={handleKeyDown} addonAfter={(<Button type="primary" onClick={addToQueue} icon={<VideoCameraOutlined />}>Add Video</Button>)} />
+        </Col>
+        <Col>
+          <Space style={{ marginTop: '1px' }} size={4}>
+            <DrawerForm />
+            {user.isHost ? <Settings /> : null}
+            <Share />
+          </Space>
+        </Col>
+      </Row>
+    </Card>
+  );
+};
+
+export default Controls;

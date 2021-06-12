@@ -1,20 +1,21 @@
-import store from "../index"
-export * from './user.actions'
-export * from './user.reducer'
+import store from '../index';
+
+export * from './user.actions';
+export * from './user.reducer';
 
 export const GetUsername = () => {
-    let user = store.getState().user
-    console.log(user)
-    return user.username
-}
+  const { user } = store.getState();
+  console.log(user);
+  return user.username;
+};
 
 export const GetWatcher = () => {
-    let user = store.getState().user
-    return user
-}
+  const { user } = store.getState();
+  return user;
+};
 
 export const GetID = () => {
-    let user = store.getState().user
-    console.log(user)
-    return user.id
-}
+  const { user } = store.getState();
+  console.log(user);
+  return user.id;
+};

@@ -1,10 +1,12 @@
-import React, { useContext, useState, useEffect, useRef } from 'react';
+import React, {
+  useContext, useState, useEffect, useRef,
+} from 'react';
 import { Table, Input, Form } from 'antd';
-import {EditableCols} from "./colomns"
+import { EditableCols } from './colomns';
 import { validURL } from '../../../../../store/video';
 
 export const EditableContext = React.createContext();
-const EditableRow = ({ index, ...props }) => {
+const EditableRow = ({ ...props }) => {
   const [form] = Form.useForm();
   return (
     <Form form={form} component={false}>
@@ -47,7 +49,7 @@ const EditableCell = ({
       toggleEdit();
       handleSave({ ...record, ...values });
     } catch (errInfo) {
-      console.log("Save failed:", errInfo);
+      console.log('Save failed:', errInfo);
     }
   };
 
@@ -63,14 +65,14 @@ const EditableCell = ({
         rules={[
           {
             required: true,
-            message: `${title} is required.`
+            message: `${title} is required.`,
           },
           {
             validator: async (rule, value) => {
-              if (!validURL(value)){
-                throw new Error("Invalid URL")
+              if (!validURL(value)) {
+                throw new Error('Invalid URL');
               }
-            }
+            },
           },
         ]}
       >
@@ -92,73 +94,60 @@ const EditableCell = ({
   return <td {...restProps}>{childNode}</td>;
 };
 
-
-
-
-
-
-
-
-
-
-
-
-export const EditableTable = ({data, setData}) => {
-    const [datastore, setDatastore] = useState(data)
-    useEffect(() => {setDatastore(data)}, [data]);
+export const EditableTable = ({ data, setData }) => {
+  const [datastore, setDatastore] = useState(data);
+  useEffect(() => { setDatastore(data); }, [data]);
 
   const handleDelete = (key) => {
-    setData(datastore.filter(item => item.key !== key));
+    setData(datastore.filter((item) => item.key !== key));
   };
 
   const handleSave = (row) => {
     const newData = [...datastore];
-    const index = newData.findIndex(item => row.key === item.key);
+    const index = newData.findIndex((item) => row.key === item.key);
     const item = newData[index];
     newData.splice(index, 1, {
       ...item,
       ...row,
     });
-    setData(newData)
+    setData(newData);
   };
-  
-  const columns = EditableCols(handleDelete).map(col => {
+
+  const columns = EditableCols(handleDelete).map((col) => {
     if (!col.editable) {
-        return col;
+      return col;
     }
     return {
-        ...col,
-        onCell: (record) => ({
-            record,
-            editable: col.editable,
-            dataIndex: col.dataIndex,
-            title: col.title,
-            handleSave: handleSave,
-        }),
+      ...col,
+      onCell: (record) => ({
+        record,
+        editable: col.editable,
+        dataIndex: col.dataIndex,
+        title: col.title,
+        handleSave,
+      }),
     };
   });
 
-
-    return (
-        <Table
-        style={{height:"500px", "overflowY":"auto"}}
-          components={{
-            body: {
-                row: EditableRow,
-                cell: EditableCell,
-            }
-          }}
-          rowKey="id"
-          rowClassName={() => 'editable-row'}
-          dataSource={datastore}
-          columns={columns}
-          pagination={false}
-        />
-    );
-}
+  return (
+    <Table
+      style={{ height: '500px', overflowY: 'auto' }}
+      components={{
+        body: {
+          row: EditableRow,
+          cell: EditableCell,
+        },
+      }}
+      rowKey="id"
+      rowClassName={() => 'editable-row'}
+      dataSource={datastore}
+      columns={columns}
+      pagination={false}
+    />
+  );
+};
 
 /*
         {/* <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }}>
           Add a row
         </Button> */
-        

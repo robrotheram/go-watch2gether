@@ -12,8 +12,8 @@ import {history} from '../../store'
 import { withRouter } from "react-router";
 import Controls from './components/Controls';
 
-
 class App extends React.Component {
+  
   state = {
     timer: null,
   };
@@ -59,20 +59,12 @@ class App extends React.Component {
     return (
       <Layout className="dark-theme">
       <Controls/>
-      <div style={{
-        bottom: "60px",
-        "width": "100%", 
-        "overflow": "hidden",
-        padding:"0px 10px 0px 10px", 
-        display:"flex",
-        height: "calc(100vh - 130px)"
-      }}>  
-
-      <div style={{"height":"100%", "width":"500px" , "padding":"5px"}}>
+      <div className="contentWrapper">  
+      <div className="queueWrapper">
         <VideoControls/>
          <VideoList/>
       </div>
-      <div style={{"height":"100%", "width":"100%" , "padding":"10px"}}>
+      <div className="playerWrapper">
       <VideoPlayer/>
       </div>
     

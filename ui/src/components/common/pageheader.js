@@ -1,55 +1,51 @@
 import React, { useState } from 'react';
 import { Button, PageHeader } from 'antd';
 import { SyncOutlined, SettingOutlined } from '@ant-design/icons';
-import {connect} from 'react-redux'
-import {leave, sinkToHost, sinkToME} from '../store/room/room.actions'
-import SettingsModal from './SettingsModal'
+import { connect } from 'react-redux';
+import { leave, sinkToHost, sinkToME } from '../store/room/room.actions';
+import SettingsModal from './SettingsModal';
 
-function Pageheader (props) {
-    const { name, isHost, controls} = props
+function Pageheader(props) {
+  const { name, isHost, controls } = props;
 
-    const [isModalVisible, setIsModalVisible] = useState(false);
-    const showModal = () => {setIsModalVisible(true);};
-    const handleOk = () => {setIsModalVisible(false); };
-    const handleCancel = () => {setIsModalVisible(false);};
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const showModal = () => { setIsModalVisible(true); };
+  const handleOk = () => { setIsModalVisible(false); };
+  const handleCancel = () => { setIsModalVisible(false); };
 
-    const getActionButtons = () => {
-        let buttons = []
-        if (!isHost){
-            buttons.push(
-                <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => sinkToHost()}>Sync to host</Button>
-            );
-        }
-        if (controls || isHost){
-            buttons.push(
-                <Button type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>
-            );
-        }
-        if (isHost){
-            buttons.push(
-                <Button type="primary" onClick={() => setIsModalVisible(true) } icon={<SettingOutlined />} key="1"></Button>
-            );
-        } 
-
-        return buttons
+  const getActionButtons = () => {
+    const buttons = [];
+    if (!isHost) {
+      buttons.push(
+        <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => sinkToHost()}>Sync to host</Button>,
+      );
     }
-    
-    return(
-        <PageHeader
-            ghost={false}
-            onBack={() => { props.leave()} }
-            title={"Room: "+name}
+    if (controls || isHost) {
+      buttons.push(
+        <Button type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>,
+      );
+    }
+    if (isHost) {
+      buttons.push(
+        <Button type="primary" onClick={() => setIsModalVisible(true)} icon={<SettingOutlined />} key="1" />,
+      );
+    }
+
+    return buttons;
+  };
+
+  return (
+    <PageHeader
+      ghost={false}
+      onBack={() => { props.leave(); }}
+      title={`Room: ${name}`}
             // subTitle={currentlyPlaying()}
-            extra={getActionButtons()}
-        >
-            <SettingsModal isModalVisible={isModalVisible} showModal={showModal} handleOk={handleOk} handleCancel={handleCancel}/>
-        </PageHeader>
-    )
+      extra={getActionButtons()}
+    >
+      <SettingsModal isModalVisible={isModalVisible} showModal={showModal} handleOk={handleOk} handleCancel={handleCancel} />
+    </PageHeader>
+  );
 }
 
-const mapStateToProps  = (state) =>{
-    
-    return state.room
-  } 
-  export default connect(mapStateToProps, {leave, sinkToHost, sinkToME })(Pageheader)
-  
+const mapStateToProps = (state) => state.room;
+export default connect(mapStateToProps, { leave, sinkToHost, sinkToME })(Pageheader);

@@ -19,6 +19,9 @@
   border-left: 0px;
   border-right: 0px;
   border-top: 0px;
+  height: 81px;
+  width: 100%;
+  overflow-x: auto;
 }
 .contolPanel > .ant-card-body {
   display: flex;
@@ -146,4 +149,43 @@
 
 .playlistItemContainer:hover{
   background-color: #141414;
+}
+
+
+
+.contentWrapper{
+  bottom: 60px;
+  width: 100%;
+  overflow: hidden;
+  padding: 0px 10px 0px 10px; 
+  display: flex;
+  height: calc(100vh - 130px)
+}
+
+.queueWrapper{
+  height: 100%; 
+  width: 500px; 
+  padding: 5px;
+}
+
+.playerWrapper{
+  height: 100%; 
+  width: 100%; 
+  padding: 10px;
+}
+
+@media only screen and (max-width: 900px) {
+  .contentWrapper{
+    flex-wrap: wrap;
+  }
+  .queueWrapper{
+    height: 50%; 
+    width: 100%;
+  }
+  .playerWrapper{
+    height: 50%; 
+  }
+  .contolPanel > .ant-card-body {
+    width: max-content;
+  } 
 }
