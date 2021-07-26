@@ -35,7 +35,7 @@ const DrawerForm = () => {
     <>
       <Button type="primary" onClick={showDrawer} style={{ height: '33px', margin: '0px 0px 0px 5px' }}>
         <TeamOutlined />
-        Watchers
+        {!isMoble ? "Watchers":null}
       </Button>
       <Drawer
         title="Watchers Progress"

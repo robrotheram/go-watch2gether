@@ -60,7 +60,8 @@ export const VideoListComponent = () => {
         className="list video"
         title={(
           <Paragraph>
-            There are
+            There are 
+            {' '}
             <Text strong>{queue.length}</Text>
             {' '}
             videos in the queue
