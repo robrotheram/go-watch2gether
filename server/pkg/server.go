@@ -24,6 +24,7 @@ func StartServer(connection string, hndlr *api.BaseHandler) error {
 	r.HandleFunc("/auth/login", auth.HandleLogin).Methods("GET")
 	r.HandleFunc("/auth/logout", auth.HandleLogout).Methods("GET")
 	r.HandleFunc("/auth/callback", auth.HandleCallback).Methods("GET")
+	r.HandleFunc("/auth/annLogin", auth.HandleAnonymousLogin).Methods("GET")
 	r.Register("/auth/user", "GET", true, auth.HandleUser)
 
 	r.Register("/api/v1/room/join", "POST", true, hndlr.JoinRoom)

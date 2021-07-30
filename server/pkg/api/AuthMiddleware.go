@@ -79,7 +79,19 @@ func (da *DiscordAuth) getToken(state string, code string) (*oauth2.Token, error
 
 func (da *DiscordAuth) Middleware(next Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		session, err := da.store.Get(r, sessionName)
+		if err != nil || session.Values["type"] == "anonymous" {
+			username := session.Values["token"].(string)
+			user, _ := da.UserDB.FindByField("Username", username)
+			ctx := r.Context()
+			ctx = context.WithValue(ctx, "user", user)
+			r = r.WithContext(ctx)
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		token, err := da.validateToken(r)
+		log.Info(err)
 		if err != nil {
 			w.WriteHeader(http.StatusUnauthorized)
 			w.Write([]byte(err.Error()))
@@ -98,6 +110,28 @@ func (da *DiscordAuth) Middleware(next Handler) http.Handler {
 
 		next.ServeHTTP(w, r)
 	})
+}
+
+func (da *DiscordAuth) HandleAnonymousLogin(w http.ResponseWriter, r *http.Request) {
+	session, _ := da.store.Get(r, sessionName)
+	err := r.ParseForm()
+	var user = user.User{}
+	if err != nil {
+		log.Info(err)
+		return
+	}
+
+	log.Info("CAN YOU SEE ME")
+	user.Username = r.FormValue("username")
+	user.Type = "anonymous"
+	da.UserDB.Create(user)
+	//Save token to session
+	session.Values["token"] = user.Username
+	session.Values["type"] = "anonymous"
+	session.Values["room"] = r.FormValue("roomid")
+	session.Save(r, w)
+	url := "/app/room/" + r.FormValue("roomid")
+	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
 func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
@@ -124,6 +158,7 @@ func (da *DiscordAuth) ClearSession(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	session.Values["token"] = ""
+	session.Values["type"] = ""
 	session.Options.MaxAge = -1
 	err = session.Save(r, w)
 	if err != nil {
@@ -154,6 +189,7 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	//Save token to session
 	str, _ := tokenToJSON(content)
 	session.Values["token"] = str
+	session.Values["type"] = "DISCORD"
 	session.Save(r, w)
 
 	user, err := da.getUser(content.AccessToken)
@@ -219,6 +255,27 @@ func (da *DiscordAuth) getClient(url string, accessToken string) ([]byte, error)
 }
 
 func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error {
+	session, err := da.store.Get(r, sessionName)
+	if err != nil {
+		return err
+	}
+	if session.Values["type"].(string) == "anonymous" {
+		duser, _ := da.UserDB.FindByField("Username", session.Values["token"].(string))
+		room := session.Values["room"].(string)
+		resp := map[string]interface{}{
+			"user": duser,
+			"type": "basic",
+			"guilds": []DiscordGuild{
+				DiscordGuild{
+					ID:   room,
+					Name: room,
+				},
+			},
+		}
+		w.Header().Set("Content-Type", "application/json")
+		return json.NewEncoder(w).Encode(resp)
+	}
+
 	token, err := da.validateToken(r)
 	if err != nil {
 		da.ClearSession(w, r)
@@ -234,11 +291,12 @@ func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error 
 		da.ClearSession(w, r)
 		return err
 	}
+
 	resp := map[string]interface{}{
 		"user":   duser,
 		"guilds": guilds,
+		"type":   "discord",
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	return json.NewEncoder(w).Encode(resp)
 }
