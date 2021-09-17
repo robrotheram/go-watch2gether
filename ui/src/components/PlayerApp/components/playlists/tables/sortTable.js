@@ -2,7 +2,7 @@ import './style.less';
 import React, { useState, useEffect } from 'react';
 import { Table } from 'antd';
 import { sortableContainer, sortableElement } from 'react-sortable-hoc';
-import arrayMove from 'array-move';
+import {arrayMoveImmutable} from 'array-move';
 import { SortableCols } from './colomns';
 
 const SortableItem = sortableElement((props) => <tr {...props} />);
@@ -13,7 +13,7 @@ export const SortableTable = ({ data, setData }) => {
   useEffect(() => { setDatastore(data); }, [data]);
   const onSortEnd = ({ oldIndex, newIndex }) => {
     if (oldIndex !== newIndex) {
-      const newData = arrayMove([].concat(datastore), oldIndex, newIndex).filter((el) => !!el);
+      const newData = arrayMoveImmutable([].concat(datastore), oldIndex, newIndex).filter((el) => !!el);
       console.log('Sorted items: ', newData);
       setData(newData);
     }
