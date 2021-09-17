@@ -9,11 +9,10 @@ import (
 )
 
 func init() {
-	Register(
+	Commands.Register(
 		CMD{
 			Command:     "join",
 			Description: "Summons the bot to the voice channel you are in",
-			Aliases:     []string{"summon"},
 			Function:    JoinCmd,
 		},
 

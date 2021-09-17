@@ -7,7 +7,7 @@ import (
 )
 
 func init() {
-	Register(
+	Commands.Register(
 		CMD{
 			Command:     "watch",
 			Description: "Get Url Watch2gether Room, where the video will be in sync with discord",
@@ -42,7 +42,7 @@ func nowPlayingCmd(ctx CommandCtx) error {
 
 	meta, err := ctx.GetMeta()
 	if err != nil {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+		return fmt.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	video := meta.CurrentVideo
 
@@ -71,7 +71,11 @@ func nowPlayingCmd(ctx CommandCtx) error {
 func queueCMD(ctx CommandCtx) error {
 	meta, err := ctx.GetMeta()
 	if err != nil {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+	}
+
+	if meta.CurrentVideo.Url == "" {
+		return ctx.Reply("Noting is currently playing")
 	}
 
 	msg := EmbedBuilder("Watch2Gether Queue")
@@ -99,6 +103,9 @@ func queueCMD(ctx CommandCtx) error {
 			vidoe.User)
 	}
 
+	if len(queStr) == 0 {
+		queStr = "There is nothing the the queue"
+	}
 	msg.AddField(discordgo.MessageEmbedField{
 		Name:  "Up Next:",
 		Value: queStr,

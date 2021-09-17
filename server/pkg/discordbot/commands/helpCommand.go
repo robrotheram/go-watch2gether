@@ -1,9 +1,13 @@
 package commands
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"fmt"
+
+	"github.com/bwmarrin/discordgo"
+)
 
 func init() {
-	Register(
+	Commands.Register(
 		CMD{
 			Command:     "help",
 			Description: "",
@@ -11,13 +15,14 @@ func init() {
 				embed := EmbedBuilder("Watch2gether Help")
 				msg := ""
 
-				sortkey := SortKeys(Cmds)
+				sortkey := Commands.SortKeys()
 
 				for _, v := range sortkey {
-					cmd := Cmds[v]
+					cmd := Commands.Cmds[v]
 					msg = msg + cmd.Format()
 				}
-				embed.Fields = append(embed.Fields, &discordgo.MessageEmbedField{
+				fmt.Println(len(msg))
+				embed.AddField(discordgo.MessageEmbedField{
 					Name:   "Avalible Commands",
 					Value:  msg,
 					Inline: true,

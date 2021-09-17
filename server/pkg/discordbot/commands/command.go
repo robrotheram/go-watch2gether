@@ -7,7 +7,50 @@ import (
 	"github.com/bwmarrin/discordgo"
 )
 
-var Cmds = make(map[string]CMD)
+var Commands = NewCommandHelper()
+
+type CommandHelper struct {
+	Cmds map[string]CMD
+}
+
+func NewCommandHelper() *CommandHelper {
+	return &CommandHelper{
+		Cmds: make(map[string]CMD),
+	}
+}
+
+func (cmdh *CommandHelper) SortKeys() []string {
+	keys := make([]string, 0, len(cmdh.Cmds))
+	for k := range cmdh.Cmds {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+	return keys
+}
+
+func (cmdh *CommandHelper) GetCommand(name string) (CMD, error) {
+
+	for key, cmd := range cmdh.Cmds {
+		if cmd.Function == nil {
+			continue
+		}
+		if key == name {
+			return cmd, nil
+		}
+		for _, alias := range cmd.Aliases {
+			if alias == name {
+				return cmd, nil
+			}
+		}
+	}
+	return CMD{}, fmt.Errorf("error: Command `%s` not found or not implemneted yet. Stay tuned", name)
+}
+
+func (cmdh *CommandHelper) Register(c ...CMD) {
+	for _, cmd := range c {
+		cmdh.Cmds[cmd.Command] = cmd
+	}
+}
 
 type CMD struct {
 	Command     string
@@ -31,39 +74,6 @@ func (c *CMD) Format() string {
 	`, c.Command, c.Description, c.Usage)
 }
 
-func SortKeys(m map[string]CMD) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
-}
-
-func GetCommand(name string) (CMD, error) {
-
-	for key, cmd := range Cmds {
-		if cmd.Function == nil {
-			continue
-		}
-		if key == name {
-			return cmd, nil
-		}
-		for _, alias := range cmd.Aliases {
-			if alias == name {
-				return cmd, nil
-			}
-		}
-	}
-	return CMD{}, fmt.Errorf("error: Command `%s` not found or not implemneted yet. Stay tuned", name)
-}
-
-func Register(c ...CMD) {
-	for _, cmd := range c {
-		Cmds[cmd.Command] = cmd
-	}
-}
-
 type EmbededMessage struct {
 	discordgo.MessageEmbed
 }
@@ -81,5 +91,8 @@ func EmbedBuilder(title string) *EmbededMessage {
 }
 
 func (embed *EmbededMessage) AddField(field discordgo.MessageEmbedField) {
+	if len(field.Value) > 1000 {
+		field.Value = field.Value[:1000] + "\n\n..."
+	}
 	embed.Fields = append(embed.Fields, &field)
 }

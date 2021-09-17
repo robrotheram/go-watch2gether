@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	Register(
+	Commands.Register(
 		CMD{
 			Command:     "play",
 			Description: "Plays a song with the given name or url",

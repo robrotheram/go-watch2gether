@@ -92,7 +92,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.Mes
 		Args:      args[1:],
 		BaseURL:   db.baseurl,
 	}
-	cmd, err := commands.GetCommand(name)
+	cmd, err := commands.Commands.GetCommand(name)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("%v", err))
 		return
