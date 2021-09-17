@@ -44,7 +44,7 @@ func GetCommand(name string) (CMD, error) {
 
 	for key, cmd := range Cmds {
 		if cmd.Function == nil {
-			break
+			continue
 		}
 		if key == name {
 			return cmd, nil

@@ -20,7 +20,7 @@ func init() {
 		CMD{
 			Command:     "leave",
 			Description: "Disconnects the bot from the voice channel it is in.",
-			Aliases:     []string{"disconect "},
+			Aliases:     []string{"disconect"},
 			Function:    LeaveCmd,
 		},
 	)
