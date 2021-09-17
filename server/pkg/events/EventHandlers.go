@@ -20,6 +20,7 @@ var EventHandlers = map[string]Handler{
 	EVNT_NEXT_VIDEO:      HandleNextVideo,
 	EVNT_UPDATE_SETTINGS: HandleUpdateSettings,
 	EVT_SUFFLE_QUEUE:     HandleSuffleQueue,
+	EVNT_ADD_VIDEO:       HandleNewVideo,
 }
 
 func HandlePlaying(evt *Event, meta *meta.Meta) {
@@ -83,4 +84,9 @@ func HandleFinish(evt *Event, meta *meta.Meta) {
 	meta.NextVideo()
 	evt.Action = EVNT_NEXT_VIDEO
 	log.Debug("CHANGING VIDOE!!!!!!!!!!!!")
+}
+
+func HandleNewVideo(evt *Event, meta *meta.Meta) {
+	video := evt.Video
+	meta.Queue = append(meta.Queue, video)
 }

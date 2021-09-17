@@ -1,4 +1,4 @@
-VER=v0.4.7
+VER=v0.5.0
 
 build-server:
 	cd server; CGO_ENABLED=0 GOOS=linux go build -o ../.

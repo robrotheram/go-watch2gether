@@ -1,4 +1,4 @@
-package command
+package commands
 
 import (
 	"fmt"
@@ -9,12 +9,22 @@ import (
 )
 
 func init() {
-	Commands["join"] = &JoinCmd{BaseCommand{"Join Bot to a channel"}}
-	Commands["leave"] = &LeaveCmd{BaseCommand{"Disconnect Bot from channel"}}
-}
+	Register(
+		CMD{
+			Command:     "join",
+			Description: "Summons the bot to the voice channel you are in",
+			Aliases:     []string{"summon"},
+			Function:    JoinCmd,
+		},
 
-type JoinCmd struct{ BaseCommand }
-type LeaveCmd struct{ BaseCommand }
+		CMD{
+			Command:     "leave",
+			Description: "Disconnects the bot from the voice channel it is in.",
+			Aliases:     []string{"disconect "},
+			Function:    LeaveCmd,
+		},
+	)
+}
 
 func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error) {
 	for _, g := range session.State.Guilds {
@@ -27,7 +37,7 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 	return "", fmt.Errorf("Channel Not found")
 }
 
-func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
+func JoinCmd(ctx CommandCtx) error {
 	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.ID)
 	if err != nil {
 		ctx.Reply("User not connected to voice channel")
@@ -64,7 +74,7 @@ func (cmd *JoinCmd) Execute(ctx CommandCtx) error {
 	return nil
 }
 
-func (cmd *LeaveCmd) Execute(ctx CommandCtx) error {
+func LeaveCmd(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
 	if !ok {
 		return fmt.Errorf("Room %s not active", ctx.Guild.ID)

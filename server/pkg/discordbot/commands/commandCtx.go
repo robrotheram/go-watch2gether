@@ -1,7 +1,6 @@
-package command
+package commands
 
 import (
-	"sort"
 	"watch2gether/pkg/datastore"
 	"watch2gether/pkg/room"
 	meta "watch2gether/pkg/roomMeta"
@@ -38,27 +37,10 @@ func (ctx *CommandCtx) Reply(message string) error {
 	)
 	return err
 }
-
-type Command interface {
-	GetHelp() string
-	Execute(CommandCtx) error
-}
-
-type BaseCommand struct {
-	Help string
-}
-
-func (cmd *BaseCommand) GetHelp() string {
-	return cmd.Help
-}
-
-var Commands = make(map[string]Command)
-
-func SortKeys(m map[string]Command) []string {
-	keys := make([]string, 0, len(m))
-	for k := range m {
-		keys = append(keys, k)
-	}
-	sort.Strings(keys)
-	return keys
+func (ctx *CommandCtx) ReplyEmbed(message *EmbededMessage) error {
+	_, err := ctx.Session.ChannelMessageSendEmbed(
+		ctx.Channel.ID,
+		&message.MessageEmbed,
+	)
+	return err
 }

@@ -139,3 +139,23 @@ func (meta *Meta) UpdateWatcher(rw user.Watcher) error {
 	}
 	return fmt.Errorf("watcher not found")
 }
+
+func insert(array []media.Video, value media.Video, index int) []media.Video {
+	return append(array[:index], append([]media.Video{value}, array[index:]...)...)
+}
+
+func remove(array []media.Video, index int) []media.Video {
+	return append(array[:index], array[index+1:]...)
+}
+
+func move(array []media.Video, srcIndex int, dstIndex int) []media.Video {
+	value := array[srcIndex]
+	return insert(remove(array, srcIndex), value, dstIndex)
+}
+
+func (meta *Meta) ReorderQueue(pos1 int, pos2 int) {
+	meta.Queue = move(meta.Queue, pos1, pos2)
+}
+func (meta *Meta) RemoveFromQueue(pos1 int) {
+	meta.Queue = remove(meta.Queue, pos1)
+}

@@ -54,6 +54,9 @@ func (udb *RoomStore) Find(id string) (*Meta, error) {
 	var room *Meta
 	res.One(&room)
 	res.Close()
+	if room == nil {
+		return nil, fmt.Errorf("meta not found")
+	}
 	return room, nil
 }
 

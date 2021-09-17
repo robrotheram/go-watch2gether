@@ -14,6 +14,11 @@ import (
 
 func main() {
 
+	// //media.YTPlayist("https://www.youtube.com/watch?v=lijFuLFI9RQ")
+	// media.YTPlayist("https://www.youtube.com/watch?v=iyLdoQGBchQ&list=PLnfcpZm6el8iug2BBqZev2IDCt4I_sCH0")
+
+	// return
+
 	log.SetFormatter(&log.TextFormatter{
 		//DisableColors: true,
 		FullTimestamp: true,

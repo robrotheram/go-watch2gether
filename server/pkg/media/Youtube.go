@@ -1,4 +1,4 @@
-package audioBot
+package media
 
 import (
 	"errors"
@@ -13,7 +13,7 @@ import (
 
 var downloader *youtube.Client
 
-func getDownloader() *youtube.Client {
+func GetDownloader() *youtube.Client {
 
 	if downloader != nil {
 		return downloader
@@ -41,8 +41,8 @@ func getDownloader() *youtube.Client {
 	return downloader
 }
 
-func getVideoWithFormat(id string) (*youtube.Video, *youtube.Format, error) {
-	dl := getDownloader()
+func GetVideoWithFormat(id string) (*youtube.Video, *youtube.Format, error) {
+	dl := GetDownloader()
 	video, err := dl.GetVideo(id)
 	if err != nil {
 		return nil, nil, err
@@ -60,9 +60,9 @@ func getVideoWithFormat(id string) (*youtube.Video, *youtube.Format, error) {
 	return video, format, nil
 }
 
-func getYoutubeURL(videoURL string) (string, error) {
-	client := getDownloader()
-	video, format, err := getVideoWithFormat(videoURL)
+func GetYoutubeURL(videoURL string) (string, error) {
+	client := GetDownloader()
+	video, format, err := GetVideoWithFormat(videoURL)
 	if err != nil {
 		return "", err
 	}

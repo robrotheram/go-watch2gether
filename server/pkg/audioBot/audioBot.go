@@ -117,7 +117,7 @@ func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
 
 func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
 
-	downloadURL, err := getYoutubeURL(videoURL)
+	downloadURL, err := media.GetYoutubeURL(videoURL)
 	if err != nil {
 		log.Warnf("unable to get youtube url: %v", err)
 		return

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"watch2gether/pkg/datastore"
-	"watch2gether/pkg/discordbot/command"
+	"watch2gether/pkg/discordbot/commands"
 	user "watch2gether/pkg/user"
 
 	"github.com/bwmarrin/discordgo"
@@ -59,7 +59,7 @@ func (db *DiscordBot) Close() {
 	db.session.Close()
 }
 
-var PREFIX = "!w"
+var PREFIX = "!"
 
 func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
 	guild, err := db.session.Guild(message.GuildID)
@@ -83,7 +83,7 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.Mes
 	}
 	args := strings.Fields(content)
 	name := strings.ToLower(args[0])
-	ctx := command.CommandCtx{
+	ctx := commands.CommandCtx{
 		Datastore: db.Datastore,
 		Session:   s,
 		Guild:     guild,
@@ -92,12 +92,12 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.Mes
 		Args:      args[1:],
 		BaseURL:   db.baseurl,
 	}
-	cmd, found := command.Commands[name]
-	if !found {
-		ctx.Reply(fmt.Sprintf("Error: Command %s not found", name))
+	cmd, err := commands.GetCommand(name)
+	if err != nil {
+		ctx.Reply(fmt.Sprintf("%v", err))
 		return
 	}
-	err = cmd.Execute(ctx)
+	err = cmd.Function(ctx)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("Error: %v", err))
 	}

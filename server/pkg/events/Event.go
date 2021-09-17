@@ -12,13 +12,13 @@ import (
 )
 
 type Event struct {
-	Action       string            `json:"action"`
-	Playing      bool              `json:"playing"`
-	Watcher      user.Watcher      `json:"watcher"`
-	Queue        []media.Video     `json:"queue"`
-	CurrentVideo media.Video       `json:"current_video"`
-	Seek         media.Seek        `json:"seek"`
-	Settings     meta.RoomSettings `json:"settings"`
+	Action   string            `json:"action"`
+	Playing  bool              `json:"playing"`
+	Watcher  user.Watcher      `json:"watcher"`
+	Queue    []media.Video     `json:"queue"`
+	Video    media.Video       `json:"video"`
+	Seek     media.Seek        `json:"seek"`
+	Settings meta.RoomSettings `json:"settings"`
 }
 
 type RoomState struct {
