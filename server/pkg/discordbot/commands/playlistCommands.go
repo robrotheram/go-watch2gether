@@ -56,7 +56,7 @@ func init() {
 			Command:     "summon",
 			Description: "loads the special playlist for the user. Note must have been created ahead of time",
 			Usage:       "!summon @username",
-			Function:    LinkCMD,
+			Function:    SummonCmd,
 		},
 	)
 }
