@@ -12,7 +12,7 @@ export const validURL = (str) => {
       + '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' // port and path
       + '(\\?[;&a-z\\d%_.~+=-]*)?' // query string
       + '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
-  return !!pattern.test(str) && !str.includes('list=');
+  return !!pattern.test(str);
 };
 
 export const getTitle = async (url) => {
@@ -28,4 +28,9 @@ export const createVideoItem = async (url, username) => {
     user: username,
     uid: uid(16),
   };
+};
+
+
+export const addVideosToQueue = async (room_id,url) => {
+  await axios.post(`${API_URL}room/${room_id}/videos`, {"url":url}).catch(err => console.log(err))
 };

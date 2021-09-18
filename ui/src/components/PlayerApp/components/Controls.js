@@ -7,17 +7,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { VideoCameraOutlined } from '@ant-design/icons';
 import DrawerForm from './UserDrawer';
 import { openNotificationWithIcon } from '../../common/notification';
-
-import { updateQueue, updateLocalQueue } from '../../../store/room/room.actions';
 import PlaylistDrawer from './playlists/PlaylistDrawer';
-import { createVideoItem, validURL } from '../../../store/video';
+import { addVideosToQueue, validURL } from '../../../store/video';
 import Share from './ShareModal';
 import Settings from './SettingsModal';
 
 const Controls = () => {
   const dispatch = useDispatch();
   const user = useSelector((state) => state.user);
-  const queue = useSelector((state) => state.room.queue);
+  const room_id = useSelector((state) => state.room.id);
   const title = useSelector((state) => state.video.title);
   const [newurl, setURL] = useState('');
 
@@ -37,14 +35,7 @@ const Controls = () => {
 
   const addToQueue = async () => {
     if (validURL(newurl)) {
-      let videoList = [...queue];
-
-      videoList.push({ url: '', title: '', loading: true });
-      updateLocalQueue(videoList);
-      videoList = [...queue].filter((i) => !i.loading);
-
-      videoList.push(await createVideoItem(newurl, user.username));
-      dispatch(updateQueue(videoList));
+      addVideosToQueue(room_id, newurl)
       setURL('');
     } else {
       openNotificationWithIcon('error', 'Invalid URL');

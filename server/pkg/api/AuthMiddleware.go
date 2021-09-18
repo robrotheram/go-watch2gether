@@ -258,3 +258,8 @@ func tokenFromJSON(jsonStr string) (*oauth2.Token, error) {
 	}
 	return &token, nil
 }
+
+func getUser(r *http.Request) user.User {
+	usr := r.Context().Value("user")
+	return usr.(user.User)
+}

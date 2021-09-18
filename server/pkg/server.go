@@ -36,12 +36,12 @@ func StartServer(connection string, hndlr *api.BaseHandler) error {
 	r.Register("/api/v1/room/{id}/playlist", "PUT", false, hndlr.CretePlaylist)
 	r.Register("/api/v1/room/{id}/playlist", "GET", false, hndlr.GetAllRoomPlaylists)
 
+	r.Register("/api/v1/room/{id}/videos", "POST", true, hndlr.AddVideo)
+
 	r.Handle("/api/v1/room/{id}/ws", hndlr.ConnectRoom())
 	r.Register("/api/v1/room/{id}", "GET", false, hndlr.GetRoomMeta)
 	r.Register("/api/v1/room/{id}", "POST", false, hndlr.UpdateRoomMeta)
 	r.Register("/api/v1/room/{id}", "DELETE", false, hndlr.DeleteRoom)
-
-	r.Register("/api/v1/scrape", "GET", false, getPageInfo)
 
 	r.Register("/api/v1/status/{roomName}", "GET", false, hndlr.GetRoomMeta)
 	r.Register("/api/v1/status", "GET", false, hndlr.HubStatus)

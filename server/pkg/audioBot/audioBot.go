@@ -76,7 +76,7 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 		}
 	case events.EVNT_PLAYING:
 		if !ab.audio.Playing {
-			ab.PlayAudio(evt.CurrentVideo, 0)
+			ab.PlayAudio(evt.Meta.CurrentVideo, 0)
 		} else {
 			ab.audio.Unpause()
 		}

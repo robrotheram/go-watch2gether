@@ -98,12 +98,11 @@ func playCmd(ctx CommandCtx) error {
 		ctx.ReplyEmbed(msg)
 	}
 
-	if !meta.Playing {
-		evt := events.NewEvent(events.EVNT_PLAYING)
-		evt.Watcher = user.DISCORD_BOT
-		r.HandleEvent(evt)
-		ctx.Reply(":play_pause: Resuming :thumbsup:")
-	}
+	evt := events.NewEvent(events.EVNT_PLAYING)
+	evt.Watcher = user.DISCORD_BOT
+	r.HandleEvent(evt)
+	ctx.Reply(":play_pause: Resuming :thumbsup:")
+
 	return nil
 }
 
