@@ -12,21 +12,21 @@ This project spun out of my quest to find something that would allow my group of
 Listen in dissord. Using commands that do not iterfeer with Rythm Bot commands. (Currently supports only YT through the bot)
 Full list of commands 
 ```
-- !w help : This is a Help Command 
-- !w history : List videos alreay played 
-- !w join : Join Bot to a voice channel 
-- !w leave : Disconnect Bot from channel 
+- !help : This is a Help Command 
+- !history : List videos alreay played 
+- !join : Join Bot to a voice channel 
+- !leave : Disconnect Bot from channel 
 
-- !w pause : Pause Video 
-- !w skip : Skip to next video in the Queue 
-- !w play : Play Video 
-- !w stop : Stop Video 
-- !w queue : List videos in the Queue 
-- !w add <video> : Add Video to Queue 
+- !pause : Pause Video 
+- !skip : Skip to next video in the Queue 
+- !play : Play Video 
+- !stop : Stop Video 
+- !queue : List videos in the Queue 
+- !add <video> : Add Video to Queue 
 
-- !w playlist load <name>
-- !w status : Current Status of what is playing 
-- !w watch : Get Link to room
+- !playlist load <name>
+- !status : Current Status of what is playing 
+- !watch : Get Link to room
 ```
 
 ### Playlists
