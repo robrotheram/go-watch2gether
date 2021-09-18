@@ -1,12 +1,10 @@
 import React from "react"
-import { sortableHandle } from 'react-sortable-hoc';
-import { MenuOutlined, DeleteOutlined } from '@ant-design/icons';
+import { DeleteOutlined, ArrowUpOutlined, ArrowDownOutlined } from '@ant-design/icons';
 
-import { Popconfirm, Skeleton } from 'antd';
+import { Popconfirm, Skeleton, Button } from 'antd';
 
 import  VideoThumbnail  from '../../VideoQueue/VideoThumbnail';
 
-const DragHandle = sortableHandle(() => <MenuOutlined style={{ cursor: 'grab', color: '#999' }} />);
 /*eslint react/display-name: "off"*/
 export const cols = [
 
@@ -28,28 +26,28 @@ export const cols = [
   },
 ];
 
-export const EditableCols = (handleDelete) => [
+export const EditableCols = (handleDelete, handleMove) => [
   {
-    title: 'Delete',
-    dataIndex: 'Delete',
+    title: 'Actions',
+    dataIndex: 'Actions',
     width: 80,
-    render: (_, record) => (
-      <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
-        <DeleteOutlined />
-      </Popconfirm>
+    render:( text, record, pos) => (
+      <table style={{width:"100%", border:"0"}}>
+        <tr>
+          <td>
+            <span>
+              <Button type="default" icon={<ArrowUpOutlined />}  onClick={() => handleMove(pos, (pos-1))}/>
+              <Button type="default" icon={<ArrowDownOutlined />} onClick={() => handleMove(pos, (pos+1))}/>
+            </span>
+          </td>
+          <td style={{padding:"5px"}}>
+            <Popconfirm title="Sure to delete?" onConfirm={() => handleDelete(record.key)}>
+            <Button type="default" icon={<DeleteOutlined />}/>
+            </Popconfirm>
+          </td>
+        </tr>
+      </table>
     ),
   },
-
-  ...cols,
-];
-
-export const SortableCols = () => [
-  {
-    title: 'Sort',
-    dataIndex: 'sort',
-    width: 80,
-    className: 'drag-visible',
-    render: () => <DragHandle />,
-  },
-  ...cols,
+  ...cols
 ];

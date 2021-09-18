@@ -3,10 +3,9 @@ import {
   Modal, Button, Form, Input,
 } from 'antd';
 import {
-  EditOutlined, PlusOutlined, MenuOutlined, DeleteOutlined,
+  EditOutlined, PlusOutlined, DeleteOutlined,
 } from '@ant-design/icons';
 import { connect } from 'react-redux';
-import { SortableTable } from './tables/sortTable';
 import { EditableTable } from './tables/editTable';
 
 import { createPlaylists, updatePlaylists } from '../../../../store/playlists/playlists.actions';
@@ -141,13 +140,6 @@ const PlaylistModel = ({
   );
 
   const EditModeButton = () => {
-    if (mode === 'EDIT') {
-      return (
-        <Button icon={<MenuOutlined />} key="edit" onClick={() => setMode('SORT')} style={{ float: 'left' }}>
-          Sort
-        </Button>
-      );
-    }
     return (
       <Button icon={<DeleteOutlined />} key="edit" onClick={() => setMode('EDIT')} style={{ float: 'left' }}>
         Remove
@@ -176,7 +168,6 @@ const PlaylistModel = ({
       </Button>,
       <Button disabled={selected.length === 0} key="submit" type="primary" onClick={addToPlaylist}>
         {selected.length === 0 ? 'Select Videos' : `${selected.length} videos selected`}
-
       </Button>,
     ];
   };
@@ -209,8 +200,6 @@ const PlayistTable = ({
   switch (mode) {
     case 'EDIT':
       return <EditableTable data={data} setData={setData} />;
-    case 'SORT':
-      return <SortableTable data={data} setData={setData} />;
     default:
       return <ViewableTable data={data} selected={selected} setSelected={setSelected} />;
   }

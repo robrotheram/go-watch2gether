@@ -4,6 +4,7 @@ import React, {
 import { Table, Input, Form } from 'antd';
 import { EditableCols } from './colomns';
 import { validURL } from '../../../../../store/video';
+import {arrayMoveImmutable} from 'array-move';
 
 export const EditableContext = React.createContext();
 const EditableRow = ({ ...props }) => {
@@ -102,6 +103,16 @@ export const EditableTable = ({ data, setData }) => {
     setData(datastore.filter((item) => item.key !== key));
   };
 
+  const handleMove = (currentPos, newPos) => {
+    console.log("HandleMove", currentPos, newPos)
+    if (newPos <0 || newPos>=datastore.length -1){
+      return
+    }
+    const newData = arrayMoveImmutable([].concat(datastore), currentPos, newPos).filter((el) => !!el);
+    setData(newData)
+  }
+
+
   const handleSave = (row) => {
     const newData = [...datastore];
     const index = newData.findIndex((item) => row.key === item.key);
@@ -113,7 +124,7 @@ export const EditableTable = ({ data, setData }) => {
     setData(newData);
   };
 
-  const columns = EditableCols(handleDelete).map((col) => {
+  const columns = EditableCols(handleDelete, handleMove).map((col) => {
     if (!col.editable) {
       return col;
     }
@@ -146,8 +157,3 @@ export const EditableTable = ({ data, setData }) => {
     />
   );
 };
-
-/*
-        {/* <Button onClick={this.handleAdd} type="primary" style={{ marginBottom: 16 }}>
-          Add a row
-        </Button> */
