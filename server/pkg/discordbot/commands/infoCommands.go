@@ -73,22 +73,21 @@ func queueCMD(ctx CommandCtx) error {
 	if err != nil {
 		return fmt.Errorf("room %s not active", ctx.Guild.ID)
 	}
-
-	if meta.CurrentVideo.Url == "" {
-		return ctx.Reply("Noting is currently playing")
-	}
-
 	msg := EmbedBuilder("Watch2Gether Queue")
 	msg.Thumbnail = nil
-	msg.AddField(discordgo.MessageEmbedField{
-		Name: "Now Playing",
-		Value: fmt.Sprintf(
-			"[%s](%s) | `%s Requested by: %s`",
-			meta.CurrentVideo.Title,
-			meta.CurrentVideo.Url,
-			meta.CurrentVideo.Duration,
-			meta.CurrentVideo.User),
-	})
+	if meta.CurrentVideo.Url != "" {
+		msg.AddField(discordgo.MessageEmbedField{
+			Name: "Now Playing:",
+			Value: fmt.Sprintf(
+				"[%s](%s) | `%s Requested by: %s`",
+				meta.CurrentVideo.Title,
+				meta.CurrentVideo.Url,
+				meta.CurrentVideo.Duration,
+				meta.CurrentVideo.User),
+		})
+	} else {
+		msg.AddField(discordgo.MessageEmbedField{Name: "Now Playing:", Value: ""})
+	}
 
 	queStr := ""
 	for i, vidoe := range meta.Queue {
