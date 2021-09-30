@@ -49,6 +49,9 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 		return nil, fmt.Errorf("%s Is not a valid URL", uri)
 	}
 	videos := media.NewVideo(u.String(), username)
+	if len(videos) == 0 {
+		return nil, fmt.Errorf("unable to understand the video does it exisit?, sorry ", uri)
+	}
 	video := videos[0]
 	message := EmbedBuilder(fmt.Sprintf("Added %d tracks to the Queue", len(videos)))
 	message.Thumbnail = &discordgo.MessageEmbedThumbnail{
