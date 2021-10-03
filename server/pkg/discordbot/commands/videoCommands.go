@@ -104,7 +104,11 @@ func playCmd(ctx CommandCtx) error {
 	evt := events.NewEvent(events.EVNT_PLAYING)
 	evt.Watcher = user.DISCORD_BOT
 	r.HandleEvent(evt)
-	ctx.Reply(":play_pause: Resuming :thumbsup:")
+	if meta.CurrentVideo.Url != "" {
+		ctx.Reply(":play_pause: Resuming :thumbsup:")
+	} else {
+		ctx.Reply(":play_pause: Video Added to the queue")
+	}
 
 	return nil
 }

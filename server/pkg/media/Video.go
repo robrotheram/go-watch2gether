@@ -1,27 +1,17 @@
 package media
 
 import (
-	"fmt"
-	"net/http"
-	"regexp"
 	"time"
 
 	"github.com/kkdai/youtube/v2"
 	"github.com/segmentio/ksuid"
 )
 
-const (
-	VIDEO_TYPE_YT  = "YOUTUBE"
-	VIDEO_TYPE_MP4 = "MP4"
-)
-
-var YT_REGEX = regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$`)
-
 type Video struct {
 	ID        string        `json:"id"`
 	User      string        `json:"user"`
 	Url       string        `json:"url"`
-	Type      string        `json:"type"`
+	Type      MediaType     `json:"type"`
 	Title     string        `json:"title"`
 	Channel   string        `json:channel`
 	Duration  time.Duration `json:"duration"`
@@ -29,32 +19,8 @@ type Video struct {
 	Order     int           `json:"order,omitempty"`
 }
 
-func (v *Video) GetType() string {
-	if v.Type != "" {
-		return v.Type
-	}
-	if YT_REGEX.Match([]byte(v.Url)) {
-		v.Type = VIDEO_TYPE_YT
-		return v.Type
-	}
-	if isURLMP4(v.Url) {
-		v.Type = VIDEO_TYPE_MP4
-		return v.Type
-	}
-	return ""
-}
-
-func isURLMP4(url string) bool {
-	resp, err := http.Head(url)
-	if err != nil {
-		return false
-	}
-	switch resp.Header.Get("Content-Type") {
-	case "video/mp4":
-		return true
-	default:
-		return false
-	}
+func (v *Video) GetType() MediaType {
+	return v.Type
 }
 
 func (v *Video) Update(m *youtube.Video) {
@@ -65,42 +31,21 @@ func (v *Video) Update(m *youtube.Video) {
 }
 
 func NewVideo(url string, username string) []Video {
-	// Ignore non YT links
-	if !YT_REGEX.Match([]byte(url)) {
+
+	switch typeFromUrl(url) {
+	case VIDEO_TYPE_YT:
+		return videosFromYoutubeURL(url, username)
+	case VIDEO_TYPE_PODCAST:
+		return videosFromPodcast(url, username)
+	default:
 		return []Video{
 			{
-				ID:   ksuid.New().String(),
-				Url:  url,
-				User: username,
+				ID:    ksuid.New().String(),
+				Url:   url,
+				User:  username,
+				Type:  typeFromUrl(url),
+				Title: url,
 			},
 		}
 	}
-	client := GetDownloader()
-	ytPlayist, err := client.GetPlaylist(url)
-	if err == nil {
-		vidoes := []Video{}
-		for _, ytVideo := range ytPlayist.Videos {
-			v := Video{
-				ID:       ksuid.New().String(),
-				Url:      fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID),
-				User:     username,
-				Title:    ytVideo.Title,
-				Duration: ytVideo.Duration,
-				Channel:  ytVideo.Author,
-			}
-			vidoes = append(vidoes, v)
-		}
-		return vidoes
-	}
-	ytVideo, err := client.GetVideo(url)
-	if err == nil {
-		video := Video{
-			ID:   ksuid.New().String(),
-			Url:  url,
-			User: username,
-		}
-		video.Update(ytVideo)
-		return []Video{video}
-	}
-	return []Video{}
 }

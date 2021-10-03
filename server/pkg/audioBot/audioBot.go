@@ -106,6 +106,8 @@ func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
 		ab.PlayYoutube(video.Url, starttime)
 	case media.VIDEO_TYPE_MP4:
 		ab.PlayAudioFile(video.Url, starttime)
+	case media.VIDEO_TYPE_MP3:
+		ab.PlayAudioFile(video.Url, starttime)
 	default:
 		if ab.audio != nil {
 			ab.audio.Stop()

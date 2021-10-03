@@ -85,8 +85,6 @@ func queueCMD(ctx CommandCtx) error {
 				meta.CurrentVideo.Duration,
 				meta.CurrentVideo.User),
 		})
-	} else {
-		msg.AddField(discordgo.MessageEmbedField{Name: "Now Playing:", Value: ""})
 	}
 
 	queStr := ""

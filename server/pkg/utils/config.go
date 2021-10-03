@@ -23,7 +23,7 @@ type Config struct {
 	RethinkURL          string `mapstructure:"RETHINK_URL"`
 	RethinkDatabase     string `mapstructure:"RETHINK_DATABASE"`
 	Dev                 bool   `mapstructure:"DEVELOPMENT"`
-	loglevel            string `mapstructure:"LOG_LEVEL"`
+	Loglevel            string `mapstructure:"LOG_LEVEL"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
@@ -43,8 +43,8 @@ func LoadConfig(path string) (err error) {
 	return
 }
 
-func GetLoglevel() log.Level {
-	switch Configuration.loglevel {
+func (c *Config) GetLoglevel() log.Level {
+	switch c.Loglevel {
 	case "fatal":
 		return log.FatalLevel
 	case "erro":

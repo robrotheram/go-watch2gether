@@ -2,12 +2,14 @@ package media
 
 import (
 	"errors"
+	"fmt"
 	"net"
 	"net/http"
 	"net/url"
 	"time"
 
 	"github.com/kkdai/youtube/v2"
+	"github.com/segmentio/ksuid"
 	"golang.org/x/net/http/httpproxy"
 )
 
@@ -71,4 +73,37 @@ func GetYoutubeURL(videoURL string) (string, error) {
 		return "", err
 	}
 	return url, nil
+}
+
+func videosFromYoutubeURL(url string, username string) []Video {
+	client := GetDownloader()
+	ytPlayist, err := client.GetPlaylist(url)
+	if err == nil {
+		vidoes := []Video{}
+		for _, ytVideo := range ytPlayist.Videos {
+			v := Video{
+				ID:       ksuid.New().String(),
+				Url:      fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID),
+				User:     username,
+				Title:    ytVideo.Title,
+				Type:     VIDEO_TYPE_YT,
+				Duration: ytVideo.Duration,
+				Channel:  ytVideo.Author,
+			}
+			vidoes = append(vidoes, v)
+		}
+		return vidoes
+	}
+	ytVideo, err := client.GetVideo(url)
+	if err == nil {
+		video := Video{
+			ID:   ksuid.New().String(),
+			Url:  url,
+			User: username,
+			Type: VIDEO_TYPE_YT,
+		}
+		video.Update(ytVideo)
+		return []Video{video}
+	}
+	return []Video{}
 }

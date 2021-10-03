@@ -29,6 +29,18 @@ Full list of commands
 - !watch : Get Link to room
 ```
 
+### Supported Media files
+Watch2gether has been tests with the following URL's other sites may work in the UI but not via the bot. 
+
+- Youtube: Single Vidoe and Playlists
+- Podcast-RSS: Currently Supports playing the lastest from the feed
+- Icecast streams: Radio m3u streams can be streemed into a room 
+- MP4 Video files
+- MP3 Files: Note can be used also for podcast if you know the eppisode file
+
+
+
+
 ### Playlists
 ![Screenshot 1](docs/playlists.png)
 Watch2gether can save custom playlists without having them public in youtube. 

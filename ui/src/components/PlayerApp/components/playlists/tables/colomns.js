@@ -7,7 +7,6 @@ import  VideoThumbnail  from '../../VideoQueue/VideoThumbnail';
 
 /*eslint react/display-name: "off"*/
 export const cols = [
-
   {
     title: 'Icon',
     dataIndex: 'url',

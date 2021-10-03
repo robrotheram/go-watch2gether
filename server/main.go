@@ -28,7 +28,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("Config Error: %v", err)
 	}
-	log.SetLevel(utils.GetLoglevel())
+	log.SetLevel(utils.Configuration.GetLoglevel())
 
 	datastore := datastore.NewDatastore(utils.Configuration)
 	SetupDiscordBot(utils.Configuration, datastore)
