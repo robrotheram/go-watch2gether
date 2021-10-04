@@ -35,9 +35,12 @@ func (h BaseHandler) AddVideo(w http.ResponseWriter, r *http.Request) error {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to read message")}
 	}
 	usr := getUser(r)
-	videos := media.NewVideo(msg.Url, usr.Username)
-	meta.Queue = append(meta.Queue, videos...)
+	videos, err := media.NewVideo(msg.Url, usr.Username)
+	if err != nil {
+		return err
+	}
 
+	meta.Queue = append(meta.Queue, videos...)
 	room.HandleEvent(events.Event{
 		Action:  events.EVNT_UPDATE_QUEUE,
 		Watcher: user.NewWatcher(usr),

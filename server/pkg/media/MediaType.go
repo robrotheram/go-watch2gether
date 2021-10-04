@@ -1,6 +1,7 @@
 package media
 
 import (
+	"fmt"
 	"net/http"
 	"regexp"
 	"time"
@@ -15,19 +16,25 @@ const (
 	VIDEO_TYPE_PODCAST = "PODCAST"
 )
 
-func typeFromUrl(url string) MediaType {
+func doRequest(_type string, url string) (*http.Response, error) {
+	var client = &http.Client{
+		Timeout: time.Second,
+	}
+	req, _ := http.NewRequest(_type, url, nil)
+	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36")
+	return client.Do(req)
+}
+
+func typeFromUrl(url string) (MediaType, error) {
 	if isURLYT(url) {
-		return VIDEO_TYPE_YT
+		return VIDEO_TYPE_YT, nil
 	}
 	contentType := ""
-	resp, err := http.Head(url)
+	resp, err := doRequest("HEAD", url)
 	if err != nil || resp.StatusCode != 200 {
-		var client = &http.Client{
-			Timeout: time.Second,
-		}
-		resp, err := client.Get(url)
+		resp, err := doRequest("GET", url)
 		if err != nil {
-			return ""
+			return "", fmt.Errorf("unable to access url")
 		}
 		contentType = resp.Header.Get("Content-Type")
 	} else {
@@ -35,15 +42,17 @@ func typeFromUrl(url string) MediaType {
 	}
 	switch contentType {
 	case "video/mp4":
-		return VIDEO_TYPE_MP4
+		return VIDEO_TYPE_MP4, nil
 	case "audio/mpeg":
-		return VIDEO_TYPE_MP3
+		return VIDEO_TYPE_MP3, nil
+	case "audio/aac":
+		return VIDEO_TYPE_MP3, nil
 	case "application/rss+xml; charset=UTF-8":
-		return VIDEO_TYPE_PODCAST
+		return VIDEO_TYPE_PODCAST, nil
 	case "application/xml; charset=utf-8":
-		return VIDEO_TYPE_PODCAST
+		return VIDEO_TYPE_PODCAST, nil
 	default:
-		return ""
+		return "", fmt.Errorf("unsupported media type %s", contentType)
 	}
 }
 

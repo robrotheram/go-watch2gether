@@ -5,6 +5,7 @@ import (
 	"time"
 	"watch2gether/pkg/audioBot"
 	events "watch2gether/pkg/events"
+	"watch2gether/pkg/metrics"
 	meta "watch2gether/pkg/roomMeta"
 	"watch2gether/pkg/user"
 
@@ -23,7 +24,7 @@ type Room struct {
 	leave chan *Client
 	//Channel to quit the room
 	quit    chan bool
-	clients map[*Client]bool
+	Clients map[*Client]bool
 	Status  string
 	//Discode Bot
 	Bot *audioBot.AudioBot
@@ -39,7 +40,7 @@ func New(meta *meta.Meta, rs *meta.RoomStore) *Room {
 		forward: make(chan []byte),
 		join:    make(chan *Client),
 		leave:   make(chan *Client),
-		clients: make(map[*Client]bool),
+		Clients: make(map[*Client]bool),
 		quit:    make(chan bool),
 		Status:  "Initilised",
 		ID:      meta.ID,
@@ -56,8 +57,14 @@ func (r *Room) ContainsUserID(id string) bool {
 func (r *Room) RegisterBot(bot *audioBot.AudioBot) error {
 	bot.RegisterToRoom(r.forward)
 	r.Bot = bot
-	return nil //r.bot.Start()
-
+	return nil
+}
+func (r *Room) DeRegisterBot() error {
+	if r.Bot != nil {
+		r.Bot.Stop()
+		r.Bot = nil
+	}
+	return nil
 }
 
 func (r *Room) Join(usr user.User) {
@@ -90,7 +97,7 @@ func (r *Room) Send(meta *meta.Meta) {
 	r.SendStateToClient(events.RoomState{Meta: *meta, Action: events.EVNT_UPDATE_STATE})
 }
 func (r *Room) SendStateToClient(state events.RoomState) {
-	for client := range r.clients {
+	for client := range r.Clients {
 		client.send <- state.ToBytes()
 	}
 }
@@ -98,8 +105,8 @@ func (r *Room) SendStateToClient(state events.RoomState) {
 func (r *Room) Stop() {
 	log.Info("Room Stopping")
 	r.Status = events.ROOM_STATUS_STOPPING
-	for client := range r.clients {
-		delete(r.clients, client)
+	for client := range r.Clients {
+		delete(r.Clients, client)
 	}
 	r.Status = events.ROOM_STATUS_STOPPED
 }
@@ -141,7 +148,7 @@ func (r *Room) Run() {
 			r.Stop()
 			return
 		case client := <-r.join:
-			r.clients[client] = true
+			r.Clients[client] = true
 		case client := <-r.leave:
 			// leaving
 			r.Disconnect(client.user)
@@ -158,11 +165,11 @@ func (r *Room) Run() {
 func (r *Room) Disconnect(id string) {
 	meta, _ := r.Store.Find(r.ID)
 	defer r.Store.Update(meta)
-	for k := range r.clients {
+	for k := range r.Clients {
 		if k.user == id {
 			log.Debug("user leaving the room")
 			meta.RemoveWatcher(id)
-			delete(r.clients, k)
+			delete(r.Clients, k)
 			if k.active {
 				close(k.send)
 				k.active = false
@@ -180,7 +187,18 @@ func (r *Room) HandleEvent(evt events.Event) {
 		log.Warnf("error handling event %v", err)
 		return
 	}
+
+	metrics.OpsProcessed.Inc()
 	r.Store.Update(&roomState.Meta)
+
+	if evt.Action == events.EVT_ROOM_EXIT && r.Bot != nil {
+		r.Bot.Disconnect()
+		return
+	}
+	if evt.Action == events.EVNT_BOT_LEAVE {
+		r.DeRegisterBot()
+		return
+	}
 	if r.Bot != nil {
 		r.Bot.Send(roomState)
 	}

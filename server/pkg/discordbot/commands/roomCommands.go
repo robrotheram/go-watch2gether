@@ -63,13 +63,13 @@ func JoinCmd(ctx CommandCtx) error {
 		ctx.Reply("Room has started")
 	}
 
-	bot := audioBot.NewAudioBot(vc, ctx.Channel.ID, voice, ctx.Session)
+	bot := audioBot.NewAudioBot(vc, ctx.Channel.ID, ctx.Guild.ID, voice, ctx.Session)
 	err = r.RegisterBot(bot)
 	if err != nil {
 		ctx.Reply(fmt.Sprintf("Bot error %v", err))
 		bot.Disconnect()
 	}
-	ctx.Reply(fmt.Sprintf("Bot added to the W2G room"))
+	ctx.Reply("Bot added to the room")
 	return nil
 }
 

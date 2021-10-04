@@ -118,10 +118,11 @@ func videosFromPodcast(url string, username string) []Video {
 	}
 
 	item := podcasts.Items[0]
+	mediaType, _ := typeFromUrl(item.Enclosure.Url)
 	return []Video{
 		{
 			Url:       item.Enclosure.Url,
-			Type:      typeFromUrl(item.Enclosure.Url),
+			Type:      mediaType,
 			Thumbnail: item.Image.Url,
 			Title:     item.Title,
 			User:      username,

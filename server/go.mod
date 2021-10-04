@@ -17,6 +17,7 @@ require (
 	github.com/mitchellh/mapstructure v1.4.2 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect
+	github.com/prometheus/client_golang v1.7.1
 	github.com/prometheus/common v0.25.0
 	github.com/robrotheram/dca v0.0.0-20210929214005-7241625e2da3
 	github.com/segmentio/ksuid v1.0.4

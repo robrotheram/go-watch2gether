@@ -82,11 +82,11 @@ func (h *Hub) StartRoom(roomID string) {
 func (hub *Hub) CleanUP(usrStore *user.UserStore) {
 	log.Info("Staring Cleanup Routine")
 	for {
-		time.Sleep(5 * time.Second)
+		time.Sleep(10 * time.Second)
 		//log.Info("Checking Room Infomation")
 		for _, hubRoom := range hub.Rooms {
 			isEmpty := hubRoom.PurgeUsers(false)
-			if isEmpty && hubRoom.GetType() != room.ROOM_TYPE_DISCORD {
+			if isEmpty && hubRoom.Bot == nil { //&& hubRoom.GetType() != room.ROOM_TYPE_DISCORD
 				go hub.DeleteRoom(hubRoom.ID)
 			}
 		}

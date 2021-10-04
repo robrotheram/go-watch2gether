@@ -25,4 +25,6 @@ const (
 	ROOM_STATUS_STOPPING     = "Stopping"
 	ROOM_STATUS_STOPPED      = "Stopped"
 	ROOM_STATUS_INITIALISING = "Initialising"
+
+	EVNT_BOT_LEAVE = "BOT_LEAVE"
 )

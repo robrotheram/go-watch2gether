@@ -13,6 +13,11 @@ type joinMessage struct {
 	Anonymous bool   `json:"anonymous"`
 }
 
+type activeRoom struct {
+	ID        string `json:"id"`
+	BotActive bool   `json:"bot_active"`
+}
+
 // HubStatus Return status of all rooms
 
 func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) error {
@@ -33,6 +38,15 @@ func (h BaseHandler) HubStatus(w http.ResponseWriter, r *http.Request) error {
 		return fmt.Errorf("DB Find error %v", err)
 	}
 
+	activeRooms := []activeRoom{}
+	for _, r := range h.Hub.Rooms {
+		activeRooms = append(activeRooms, activeRoom{
+			ID:        r.ID,
+			BotActive: r.Bot != nil,
+		})
+	}
+
+	resp["active"] = activeRooms
 	resp["rooms"] = rooms
 	resp["users"] = users
 

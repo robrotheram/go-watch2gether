@@ -21,7 +21,11 @@ var EventHandlers = map[string]Handler{
 	EVNT_UPDATE_SETTINGS: HandleUpdateSettings,
 	EVT_SUFFLE_QUEUE:     HandleSuffleQueue,
 	EVNT_ADD_VIDEO:       HandleNewVideo,
+	EVNT_BOT_LEAVE:       EmptyHandler,
+	EVT_ROOM_EXIT:        EmptyHandler,
 }
+
+func EmptyHandler(evt *Event, meta *meta.Meta) {}
 
 func HandlePlaying(evt *Event, meta *meta.Meta) {
 	meta.Playing = true

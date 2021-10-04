@@ -48,9 +48,9 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 	if err != nil {
 		return nil, fmt.Errorf("%s Is not a valid URL", uri)
 	}
-	videos := media.NewVideo(u.String(), username)
-	if len(videos) == 0 {
-		return nil, fmt.Errorf("unable to understand the video does it exisit?, sorry ", uri)
+	videos, err := media.NewVideo(u.String(), username)
+	if len(videos) == 0 || err != nil {
+		return nil, fmt.Errorf("unable to understand the video does it exisit?")
 	}
 	video := videos[0]
 	message := EmbedBuilder(fmt.Sprintf("Added %d tracks to the Queue", len(videos)))
@@ -99,17 +99,26 @@ func playCmd(ctx CommandCtx) error {
 			return err
 		}
 		ctx.ReplyEmbed(msg)
+	} else {
+		r.HandleEvent(events.Event{
+			Action:  events.EVNT_PLAYING,
+			Watcher: user.DISCORD_BOT,
+		})
+		return ctx.Reply(":play_pause: Resuming :thumbsup:")
 	}
 
 	evt := events.NewEvent(events.EVNT_PLAYING)
 	evt.Watcher = user.DISCORD_BOT
 	r.HandleEvent(evt)
-	if meta.CurrentVideo.Url != "" {
-		ctx.Reply(":play_pause: Resuming :thumbsup:")
-	} else {
-		ctx.Reply(":play_pause: Video Added to the queue")
-	}
+	ctx.Reply(":play_pause: Video Added to the queue")
 
+	if meta.CurrentVideo.Url != "" {
+		r.HandleEvent(events.Event{
+			Action:  events.EVNT_NEXT_VIDEO,
+			Watcher: user.DISCORD_BOT,
+		})
+		ctx.Reply(":play_pause: Now Playing :thumbsup:")
+	}
 	return nil
 }
 

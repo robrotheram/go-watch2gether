@@ -8,6 +8,7 @@ import (
 	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/handlers"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -47,6 +48,7 @@ func StartServer(connection string, hndlr *api.BaseHandler) error {
 	r.Register("/api/v1/status", "GET", false, hndlr.HubStatus)
 
 	r.Register("/config", "GET", false, hndlr.GetConfig)
+	r.Handle("/metrics", promhttp.Handler())
 
 	if config.Dev {
 		log.Info("Starting in dev mode")

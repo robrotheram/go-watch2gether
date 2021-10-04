@@ -30,18 +30,21 @@ func main() {
 	}
 	log.SetLevel(utils.Configuration.GetLoglevel())
 
-	datastore := datastore.NewDatastore(utils.Configuration)
-	SetupDiscordBot(utils.Configuration, datastore)
+	ds := datastore.NewDatastore(utils.Configuration)
+	metricCollection := datastore.NewMetricCollection(*ds)
+	metricCollection.Start()
+
+	SetupDiscordBot(utils.Configuration, ds)
 
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")
 	flag.Parse() // parse the flags
 	log.Infof("Starting web server on", *addr)
 
-	datastore.StartCleanUP()
+	ds.StartCleanUP()
 	pkg.SetupServer(&utils.Configuration)
 
 	server := api.BaseHandler{
-		Datastore: datastore,
+		Datastore: ds,
 		Config:    &utils.Configuration,
 	}
 

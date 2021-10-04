@@ -30,22 +30,26 @@ func (v *Video) Update(m *youtube.Video) {
 	v.Channel = m.Author
 }
 
-func NewVideo(url string, username string) []Video {
+func NewVideo(url string, username string) ([]Video, error) {
+	mediaType, err := typeFromUrl(url)
+	if err != nil {
+		return []Video{}, err
+	}
 
-	switch typeFromUrl(url) {
+	switch mediaType {
 	case VIDEO_TYPE_YT:
-		return videosFromYoutubeURL(url, username)
+		return videosFromYoutubeURL(url, username), nil
 	case VIDEO_TYPE_PODCAST:
-		return videosFromPodcast(url, username)
+		return videosFromPodcast(url, username), nil
 	default:
 		return []Video{
 			{
 				ID:    ksuid.New().String(),
 				Url:   url,
 				User:  username,
-				Type:  typeFromUrl(url),
+				Type:  mediaType,
 				Title: url,
 			},
-		}
+		}, nil
 	}
 }
