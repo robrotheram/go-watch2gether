@@ -10,10 +10,11 @@ import (
 )
 
 type Datastore struct {
-	Rooms    *meta.RoomStore
-	Playlist *media.PlayistStore
-	Users    *user.UserStore
-	Hub      *hub.Hub
+	Rooms      *meta.RoomStore
+	Playlist   *media.PlayistStore
+	Users      *user.UserStore
+	Hub        *hub.Hub
+	Migrations *MigrationStore
 }
 
 func NewDatastore(config utils.Config) *Datastore {
@@ -32,11 +33,15 @@ func NewDatastore(config utils.Config) *Datastore {
 	playlistStore := media.NewPlayistStore(rethink)
 	createTable(rethink, config, media.PREFIX)
 
+	migrationStore := NewMigrationStore(rethink)
+	createTable(rethink, config, MIGRATION_PREFIX)
+
 	return &Datastore{
-		Rooms:    roomStore,
-		Playlist: playlistStore,
-		Users:    userStore,
-		Hub:      hub,
+		Rooms:      roomStore,
+		Playlist:   playlistStore,
+		Users:      userStore,
+		Hub:        hub,
+		Migrations: migrationStore,
 	}
 }
 

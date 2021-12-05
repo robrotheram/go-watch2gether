@@ -31,7 +31,7 @@ func (v *Video) Update(m *youtube.Video) {
 }
 
 func NewVideo(url string, username string) ([]Video, error) {
-	mediaType, err := typeFromUrl(url)
+	mediaType, err := TypeFromUrl(url)
 	if err != nil {
 		return []Video{}, err
 	}

@@ -25,7 +25,7 @@ func doRequest(_type string, url string) (*http.Response, error) {
 	return client.Do(req)
 }
 
-func typeFromUrl(url string) (MediaType, error) {
+func TypeFromUrl(url string) (MediaType, error) {
 	if isURLYT(url) {
 		return VIDEO_TYPE_YT, nil
 	}
@@ -46,6 +46,8 @@ func typeFromUrl(url string) (MediaType, error) {
 	case "audio/mpeg":
 		return VIDEO_TYPE_MP3, nil
 	case "audio/aac":
+		return VIDEO_TYPE_MP3, nil
+	case "audio/x-mpegurl":
 		return VIDEO_TYPE_MP3, nil
 	case "application/rss+xml; charset=UTF-8":
 		return VIDEO_TYPE_PODCAST, nil

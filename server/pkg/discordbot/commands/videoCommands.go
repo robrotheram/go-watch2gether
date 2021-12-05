@@ -100,19 +100,15 @@ func playCmd(ctx CommandCtx) error {
 		}
 		ctx.ReplyEmbed(msg)
 	} else {
+
 		r.HandleEvent(events.Event{
 			Action:  events.EVNT_PLAYING,
 			Watcher: user.DISCORD_BOT,
 		})
 		return ctx.Reply(":play_pause: Resuming :thumbsup:")
 	}
-
-	evt := events.NewEvent(events.EVNT_PLAYING)
-	evt.Watcher = user.DISCORD_BOT
-	r.HandleEvent(evt)
-	ctx.Reply(":play_pause: Video Added to the queue")
-
-	if meta.CurrentVideo.Url != "" {
+	meta, _ = ctx.GetMeta()
+	if meta.CurrentVideo.Url == "" {
 		r.HandleEvent(events.Event{
 			Action:  events.EVNT_NEXT_VIDEO,
 			Watcher: user.DISCORD_BOT,

@@ -34,6 +34,8 @@ func main() {
 	metricCollection := datastore.NewMetricCollection(*ds)
 	metricCollection.Start()
 
+	// Run Migrations in the background
+	go func() { ds.RunMigrations() }()
 	SetupDiscordBot(utils.Configuration, ds)
 
 	var addr = flag.String("addr", ":8080", "The addr of the  application.")

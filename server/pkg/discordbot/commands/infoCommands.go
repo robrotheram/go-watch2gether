@@ -2,6 +2,7 @@ package commands
 
 import (
 	"fmt"
+	"watch2gether/pkg/datastore"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -26,6 +27,12 @@ func init() {
 			Description: "Other Usage: !queue <page>: Shows the specified page number.",
 			Aliases:     []string{"q"},
 			Function:    queueCMD,
+		},
+		CMD{
+			Command:     "version",
+			Description: "Watch2Gether Version",
+			Aliases:     []string{"v"},
+			Function:    VersionCMD,
 		},
 	)
 }
@@ -112,4 +119,8 @@ func queueCMD(ctx CommandCtx) error {
 
 	return ctx.ReplyEmbed(msg)
 
+}
+
+func VersionCMD(ctx CommandCtx) error {
+	return ctx.Reply(fmt.Sprintf("Version: %s", datastore.VERSION))
 }

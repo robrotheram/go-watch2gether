@@ -1,28 +1,28 @@
 import React, { useState } from 'react';
 import { Button, PageHeader } from 'antd';
 import { SyncOutlined, SettingOutlined } from '@ant-design/icons';
-import { connect } from 'react-redux';
-import { leave, sinkToHost, sinkToME } from '../store/room/room.actions';
+import { useDispatch, useSelector } from 'react-redux';
+import { sinkToHost, sinkToME } from '../store/room/room.actions';
 import SettingsModal from './SettingsModal';
 
-function Pageheader(props) {
-  const { name, isHost, controls } = props;
-
+function Pageheader() {
+  const { name, isHost, controls } = useSelector(state => state.room)
   const [isModalVisible, setIsModalVisible] = useState(false);
   const showModal = () => { setIsModalVisible(true); };
   const handleOk = () => { setIsModalVisible(false); };
   const handleCancel = () => { setIsModalVisible(false); };
+  const dispatch = useDispatch()
 
   const getActionButtons = () => {
     const buttons = [];
     if (!isHost) {
       buttons.push(
-        <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => sinkToHost()}>Sync to host</Button>,
+        <Button type="primary" icon={<SyncOutlined />} key="3" onClick={() => dispatch(sinkToHost())}>Sync to host</Button>,
       );
     }
     if (controls || isHost) {
       buttons.push(
-        <Button type="primary" icon={<SyncOutlined />} key="2" onClick={() => sinkToME()}>Sync everyone to me</Button>,
+        <Button type="primary" icon={<SyncOutlined />} key="2" onClick={() => dispatch(sinkToME())}>Sync everyone to me</Button>,
       );
     }
     if (isHost) {
@@ -46,6 +46,4 @@ function Pageheader(props) {
     </PageHeader>
   );
 }
-
-const mapStateToProps = (state) => state.room;
-export default connect(mapStateToProps, { leave, sinkToHost, sinkToME })(Pageheader);
+export default (Pageheader);

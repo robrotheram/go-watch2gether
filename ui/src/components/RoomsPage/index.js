@@ -12,7 +12,7 @@ import { PageFooter } from '../common/PageFooter';
 
 import './index.less';
 import logo from '../WelcomePage/logo.jpg';
-import { connect } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { history } from '../../store/index';
 import GuildIcon from '../common/icons/GuildIcon';
 import UserIcon from '../common/icons/UserIcon';
@@ -21,10 +21,14 @@ import { join } from '../../store/room/room.actions';
 
 const { Sider } = Layout;
 
-const RoomPage = ({
-  guilds, icon, username, id, join,
-}) => {
+const RoomPage = () => {
+  
   const [collapsed, setCollapsed] = useState(true);
+  const user = useSelector(state => state.user)
+  const id = useSelector(state => state.room.id)
+  const dispatch = useDispatch()
+
+
 
   const onCollapse = (c) => {
     console.log(c);
@@ -33,7 +37,7 @@ const RoomPage = ({
 
   const handleClick = (guild) => {
     // active
-    join(guild.id, guild.name, username, false);
+    dispatch(join(guild.id, guild.name, user.username, false));
   };
 
   useEffect(() => {
@@ -55,7 +59,7 @@ const RoomPage = ({
           className="guildList"
         >
           {
-            guilds.map((guild) => (
+            user.guilds.map((guild) => (
               <Menu.Item
                 key={guild.id}
                 className="guildMenu"
@@ -71,7 +75,7 @@ const RoomPage = ({
         <Menu theme="dark" defaultSelectedKeys={['1']} defaultOpenKeys={['SubMenu']} mode="inline">
           <Menu.SubMenu
             key="sub1"
-            icon={<UserIcon username={username} icon={icon} />}
+            icon={<UserIcon username={user.username} icon={user.icon} />}
             popupOffset={[0, -3]}
           >
             <Menu.Item>
@@ -110,9 +114,4 @@ const RoomPage = ({
     </Layout>
   );
 };
-
-const mapStateToProps = (state) => ({
-  ...state.user,
-  id: state.room.id,
-});
-export default connect(mapStateToProps, { join })(RoomPage);
+export default RoomPage
