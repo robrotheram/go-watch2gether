@@ -78,7 +78,7 @@ const PlaylistModel = ({
     const data = {
       id: ID(),
       key: ID(),
-      url: '',
+      url: 'enter valid video url',
       order: datastore.length + 1,
     };
     setMode('EDIT');
