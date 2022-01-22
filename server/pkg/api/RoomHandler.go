@@ -9,7 +9,7 @@ import (
 	"watch2gether/pkg/user"
 
 	"github.com/gorilla/mux"
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 func (h BaseHandler) GetRoomMeta(w http.ResponseWriter, r *http.Request) error {

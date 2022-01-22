@@ -3,7 +3,7 @@ package datastore
 import (
 	"watch2gether/pkg/media"
 
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 func init() {

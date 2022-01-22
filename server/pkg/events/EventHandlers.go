@@ -4,7 +4,7 @@ import (
 	"watch2gether/pkg/media"
 	meta "watch2gether/pkg/roomMeta"
 
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 type Handler = func(*Event, *meta.Meta)

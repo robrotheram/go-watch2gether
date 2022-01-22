@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"watch2gether/pkg/room"
 
-	"github.com/prometheus/common/log"
+	log "github.com/sirupsen/logrus"
 )
 
 func enableCors(w *http.ResponseWriter) {

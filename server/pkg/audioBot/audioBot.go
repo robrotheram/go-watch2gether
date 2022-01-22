@@ -118,7 +118,7 @@ func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
 			ab.Audio.Stop()
 			ab.Audio = nil
 		}
-		log.Debugf("Video Type could not be found %v", video)
+		log.Debugf("Video Type could not be found %v", video.Type)
 	}
 }
 
