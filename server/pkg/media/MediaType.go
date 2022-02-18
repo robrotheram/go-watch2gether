@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"regexp"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type MediaType string
@@ -18,7 +20,7 @@ const (
 
 func doRequest(_type string, url string) (*http.Response, error) {
 	var client = &http.Client{
-		Timeout: time.Second,
+		Timeout: time.Second * 10,
 	}
 	req, _ := http.NewRequest(_type, url, nil)
 	req.Header.Set("user-agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/88.0.4324.182 Safari/537.36")
@@ -34,7 +36,7 @@ func TypeFromUrl(url string) (MediaType, error) {
 	if err != nil || resp.StatusCode != 200 {
 		resp, err := doRequest("GET", url)
 		if err != nil {
-			return "", fmt.Errorf("unable to access url")
+			return "", fmt.Errorf("unable to access url %v", err)
 		}
 		contentType = resp.Header.Get("Content-Type")
 	} else {
@@ -54,6 +56,7 @@ func TypeFromUrl(url string) (MediaType, error) {
 	case "application/xml; charset=utf-8":
 		return VIDEO_TYPE_PODCAST, nil
 	default:
+		log.Infof("unsupported media type %s", contentType)
 		return "", fmt.Errorf("unsupported media type %s", contentType)
 	}
 }

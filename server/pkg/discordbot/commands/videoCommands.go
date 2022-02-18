@@ -82,6 +82,7 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 		Watcher: user.DISCORD_BOT,
 		Queue:   queue,
 	})
+	fmt.Println(message)
 	return message, nil
 }
 

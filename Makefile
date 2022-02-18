@@ -1,4 +1,4 @@
-VER=0.8.2
+VER=0.8.3
 
 build-server:
 	sed -i '/ /s/".*"/"${VER}"/' server/pkg/datastore/version.go
