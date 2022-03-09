@@ -1,7 +1,8 @@
-package media
+package playlist
 
 import (
 	"fmt"
+	"watch2gether/pkg/media"
 
 	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
@@ -13,11 +14,11 @@ type PlayistStore struct {
 }
 
 type Playist struct {
-	ID       string  `rethinkdb:"id,omitempty" json:"id"`
-	Username string  `json:"username"`
-	Name     string  `json:"name"`
-	RoomID   string  `json:"room"`
-	Videos   []Video `json:"videos"`
+	ID       string        `rethinkdb:"id,omitempty" json:"id"`
+	Username string        `json:"username"`
+	Name     string        `json:"name"`
+	RoomID   string        `json:"room"`
+	Videos   []media.Media `json:"videos"`
 }
 
 func NewPlayistStore(session *rethinkdb.Session) *PlayistStore {

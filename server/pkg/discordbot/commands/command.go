@@ -28,6 +28,15 @@ func (cmdh *CommandHelper) SortKeys() []string {
 	return keys
 }
 
+func (cmdh *CommandHelper) GetCommandByID(id string) (CMD, error) {
+	for _, cmd := range cmdh.Cmds {
+		if cmd.ID == id {
+			return cmd, nil
+		}
+	}
+	return CMD{}, fmt.Errorf("error: Commands not found or not implemented yet. Stay tuned")
+}
+
 func (cmdh *CommandHelper) GetCommand(name string) (CMD, error) {
 
 	for key, cmd := range cmdh.Cmds {
@@ -48,16 +57,16 @@ func (cmdh *CommandHelper) GetCommand(name string) (CMD, error) {
 
 func (cmdh *CommandHelper) Register(c ...CMD) {
 	for _, cmd := range c {
-		cmdh.Cmds[cmd.Command] = cmd
+		cmd.ApplicationCommand.ID = fmt.Sprintf("wtg_%s", cmd.Name)
+		cmdh.Cmds[cmd.Name] = cmd
 	}
 }
 
 type CMD struct {
-	Command     string
-	Description string
-	Usage       string
-	Aliases     []string
-	Function    func(ctx CommandCtx) error
+	discordgo.ApplicationCommand
+	Aliases  []string
+	Usage    string
+	Function func(ctx CommandCtx) *discordgo.InteractionResponse
 }
 
 func (c *CMD) Format() string {
@@ -65,13 +74,13 @@ func (c *CMD) Format() string {
 		return fmt.Sprintf(`
 		**!%s**
 		%s
-		`, c.Command, c.Description)
+		`, c.Name, c.Description)
 	}
 	return fmt.Sprintf(`
 	**!%s**
 	%s
 	usage: `+"`%s`"+` 
-	`, c.Command, c.Description, c.Usage)
+	`, c.Name, c.Description, c.Usage)
 }
 
 type EmbededMessage struct {

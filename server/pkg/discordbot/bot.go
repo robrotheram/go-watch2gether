@@ -2,7 +2,6 @@ package discordbot
 
 import (
 	"fmt"
-	"strings"
 	"watch2gether/pkg/datastore"
 	"watch2gether/pkg/discordbot/commands"
 	user "watch2gether/pkg/user"
@@ -15,20 +14,22 @@ var DiscordUser user.User
 
 type DiscordBot struct {
 	*datastore.Datastore
-	token   string
-	status  string
-	session *discordgo.Session
-	baseurl string
-	voice   *discordgo.VoiceConnection
+	token    string
+	status   string
+	session  *discordgo.Session
+	baseurl  string
+	voice    *discordgo.VoiceConnection
+	clientID string
 }
 
-func NewDiscordBot(datastore *datastore.Datastore, token string, baseurl string) (*DiscordBot, error) {
+func NewDiscordBot(datastore *datastore.Datastore, token string, baseurl string, clientID string) (*DiscordBot, error) {
 	DiscordUser = user.NewUser("DiscordBot", user.USER_TYPE_DISCORD)
 	bot := DiscordBot{
 		Datastore: datastore,
 		token:     token,
 		status:    "INIT",
 		baseurl:   baseurl,
+		clientID:  clientID,
 	}
 	dg, err := discordgo.New("Bot " + token)
 	if err != nil {
@@ -36,12 +37,53 @@ func NewDiscordBot(datastore *datastore.Datastore, token string, baseurl string)
 	}
 
 	dg.AddHandler(bot.MessageCreate)
+	dg.AddHandler(bot.CommandHandler)
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
 
 	// Open a websocket connection to Discord and begin listening.
 	bot.session = dg
 	return &bot, nil
+}
+
+func (db *DiscordBot) RegisterCommands() error {
+	cmds, err := db.session.ApplicationCommands(db.session.State.User.ID, "")
+	doesCmdExist := func(name string) bool {
+		for _, v := range cmds {
+			if v.Name == name {
+				return true
+			}
+		}
+		return false
+	}
+	if err != nil {
+		log.Warnf("error getting commands: %v", err)
+		return err
+	}
+	for _, v := range cmds {
+		cmd, err := commands.Commands.GetCommand(v.Name)
+		if err == nil {
+			_, err = db.session.ApplicationCommandEdit(db.session.State.User.ID, "", v.ID, &cmd.ApplicationCommand)
+			log.Infof("updating command: %s", cmd.Name)
+		} else {
+			err = db.session.ApplicationCommandDelete(db.session.State.User.ID, "", v.ID)
+			log.Infof("removing command: %s", v.Name)
+		}
+		if err != nil {
+			log.Warnf("error updating command: %v", err)
+		}
+	}
+	for _, cmd := range commands.Commands.Cmds {
+		if !doesCmdExist(cmd.Name) {
+			acc, err := db.session.ApplicationCommandCreate(db.session.State.User.ID, "", &cmd.ApplicationCommand)
+			log.Infof("creating command: %s", acc.Name)
+			if err != nil {
+				log.Warnf("error updating command: %v", err)
+			}
+		}
+	}
+	log.Info("Updating Commands complete")
+	return nil
 }
 
 func (db *DiscordBot) Start() error {
@@ -52,6 +94,8 @@ func (db *DiscordBot) Start() error {
 	if err != nil {
 		return fmt.Errorf("error opening connection: %v", err)
 	}
+
+	go db.RegisterCommands()
 	return nil
 }
 
@@ -59,17 +103,53 @@ func (db *DiscordBot) Close() {
 	db.session.Close()
 }
 
-var PREFIX = "!"
-
-func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
-	guild, err := db.session.Guild(message.GuildID)
+func (db *DiscordBot) CommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
+	fmt.Printf("Running Command %s", i.ApplicationCommandData().Name)
+	guild, err := db.session.Guild(i.GuildID)
 	if err != nil {
-		s.ChannelMessageSend(message.ChannelID, "Guild not found")
+		s.ChannelMessageSend(i.ChannelID, "Guild not found")
 		return
 	}
-	channel, err := db.session.Channel(message.ChannelID)
-	user := message.Author
+	channel, err := db.session.Channel(i.ChannelID)
+	user := i.Interaction.Member
 
+	args := []string{}
+	for _, arg := range i.ApplicationCommandData().Options {
+
+		switch arg.Type {
+		case discordgo.ApplicationCommandOptionString:
+			args = append(args, arg.StringValue())
+		case discordgo.ApplicationCommandOptionSubCommand:
+			args = append(args, arg.Name)
+		}
+	}
+
+	ctx := commands.CommandCtx{
+		Datastore: db.Datastore,
+		Session:   s,
+		Guild:     guild,
+		Channel:   channel,
+		User:      user,
+		Args:      args,
+		BaseURL:   db.baseurl,
+	}
+
+	cmd, err := commands.Commands.GetCommand(i.ApplicationCommandData().Name)
+	if err != nil {
+		ctx.Reply(fmt.Sprintf("%v", err))
+		return
+	}
+	if resp := cmd.Function(ctx); resp != nil {
+		s.InteractionRespond(i.Interaction, resp)
+	} else {
+		s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
+	}
+}
+
+func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
+	var PREFIX = "!"
+
+	channel, _ := db.session.Channel(message.ChannelID)
 	content := message.Content
 	if len(content) <= len(PREFIX) {
 		return
@@ -81,24 +161,11 @@ func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.Mes
 	if len(content) < 1 {
 		return
 	}
-	args := strings.Fields(content)
-	name := strings.ToLower(args[0])
-	ctx := commands.CommandCtx{
-		Datastore: db.Datastore,
-		Session:   s,
-		Guild:     guild,
-		Channel:   channel,
-		User:      user,
-		Args:      args[1:],
-		BaseURL:   db.baseurl,
-	}
-	cmd, err := commands.Commands.GetCommand(name)
-	if err != nil {
-		ctx.Reply(fmt.Sprintf("%v", err))
-		return
-	}
-	err = cmd.Function(ctx)
-	if err != nil {
-		ctx.Reply(fmt.Sprintf("Error: %v", err))
-	}
+
+	registerURL := "https://discord.com/oauth2/authorize?client_id=" + db.clientID + "&permissions=0&scope=bot%20applications.commands"
+	s.ChannelMessageSend(
+		channel.ID,
+		fmt.Sprintf("Version 0.9+ Uses Slash commands. If they do not appear please re-register the bot:  %s", registerURL),
+	)
+
 }

@@ -68,7 +68,7 @@ func MigrationVersions() []string {
 func (data *Datastore) RunMigrations() {
 
 	versions := MigrationVersions()
-	sort.Sort(sort.StringSlice(versions))
+	sort.Strings(sort.StringSlice(versions))
 
 	currentVersion, _ := data.Migrations.Get()
 	if currentVersion.Version == "" {

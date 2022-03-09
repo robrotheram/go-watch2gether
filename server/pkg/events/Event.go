@@ -15,8 +15,8 @@ type Event struct {
 	Action   string            `json:"action"`
 	Playing  bool              `json:"playing"`
 	Watcher  user.Watcher      `json:"watcher"`
-	Queue    []media.Video     `json:"queue"`
-	Video    media.Video       `json:"video"`
+	Queue    []media.Media     `json:"queue"`
+	Video    media.Media       `json:"video"`
 	Seek     media.Seek        `json:"seek"`
 	Settings meta.RoomSettings `json:"settings"`
 }

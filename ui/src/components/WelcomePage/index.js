@@ -47,8 +47,7 @@ const Home = ({
     });
   }, []);
 
-  const inviteBotUrl = (bot) => `https://discord.com/oauth2/authorize?client_id=${bot}&scope=bot`;
-
+  const inviteBotUrl = (bot) => `https://discord.com/oauth2/authorize?client_id=${bot}&permissions=0&scope=bot%20applications.commands`;
   useEffect(() => {
     const values = queryString.parse(location.search);
     const err = values.error;

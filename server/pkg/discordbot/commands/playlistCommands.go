@@ -11,65 +11,57 @@ import (
 )
 
 func init() {
-
-	PlaylistCommands := NewCommandHelper()
-	PlaylistCommands.Register(
-		CMD{
-			Command:     "load",
-			Description: "Loads a Playlist",
-			Usage:       "!playist load <playlist name>",
-			Function:    PlaylistLoadCmd,
-		},
-		CMD{
-			Command:     "list",
-			Description: "lists all playlist",
-			Usage:       "!playist list",
-			Function:    PlaylistListCmd,
-		},
-	)
-
-	playlistDesc := ""
-	for _, cmd := range PlaylistCommands.Cmds {
-		cmd.Command = "playlist " + cmd.Command
-		playlistDesc += cmd.Format()
-	}
-
 	Commands.Register(
 		CMD{
-			Command:     "playlist",
-			Description: "Commands asscoiated with playlist" + playlistDesc,
-			Aliases:     []string{"link"},
-			Function: func(ctx CommandCtx) error {
-				if len(ctx.Args) < 1 {
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "playlist",
+				Description: "Commands associated with playlist",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Name:        "load",
+						Description: "load playlist",
+						Options: []*discordgo.ApplicationCommandOption{
+							{
+								Type:        discordgo.ApplicationCommandOptionString,
+								Name:        "playlist-name",
+								Description: "Name of the playlist to load",
+								Required:    true,
+							},
+						},
+						Type: discordgo.ApplicationCommandOptionSubCommand,
+					},
+					{
+						Name:        "list",
+						Description: "List playlist",
+						Type:        discordgo.ApplicationCommandOptionSubCommand,
+					},
+				},
+			},
+			Function: func(ctx CommandCtx) *discordgo.InteractionResponse {
+				switch ctx.Args[0] {
+				case "load":
+					ctx.Args = ctx.Args[1:]
+					return PlaylistLoadCmd(ctx)
+				case "list":
+					ctx.Args = ctx.Args[1:]
+					return PlaylistListCmd(ctx)
+				default:
 					return nil
 				}
-				cmd, err := PlaylistCommands.GetCommand(ctx.Args[0])
-				if err != nil {
-					return err
-				}
-				ctx.Args = ctx.Args[1:]
-				return cmd.Function(ctx)
 			},
-		},
-
-		CMD{
-			Command:     "summon",
-			Description: "loads the special playlist for the user. Note must have been created ahead of time",
-			Usage:       "!summon @username",
-			Function:    SummonCmd,
 		},
 	)
 }
 
-func PlaylistLoadCmd(ctx CommandCtx) error {
+func PlaylistLoadCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	r, ok := ctx.GetHubRoom()
 	meta, err := ctx.GetMeta()
 	if !ok || err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
 	if err != nil {
-		return fmt.Errorf("unable to find playlists for the room")
+		return ctx.Errorf("unable to find playlists for the room")
 	}
 
 	playlistName := strings.TrimSuffix(strings.Join(ctx.Args, " "), " ")
@@ -85,10 +77,10 @@ func PlaylistLoadCmd(ctx CommandCtx) error {
 	return ctx.Reply(fmt.Sprintf("No playlist with the name '%s' was found", playlistName))
 }
 
-func PlaylistListCmd(ctx CommandCtx) error {
+func PlaylistListCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
 	if err != nil {
-		return fmt.Errorf(":x2: unable to find playlists for the room")
+		return ctx.Errorf(":x2: unable to find playlists for the room")
 	}
 
 	messageStr := ""
@@ -101,19 +93,20 @@ func PlaylistListCmd(ctx CommandCtx) error {
 		Name:  "This room has the following playlists",
 		Value: messageStr,
 	})
-	return ctx.ReplyEmbed(msg)
+	ctx.ReplyEmbed(msg)
+	return nil
 }
 
-func SummonCmd(ctx CommandCtx) error {
+func SummonCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	r, ok := ctx.GetHubRoom()
 	meta, err := ctx.GetMeta()
 	if !ok && err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
 	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
 	if err != nil {
-		return fmt.Errorf("Unable to find playlists for the room")
+		return ctx.Errorf("Unable to find playlists for the room")
 	}
 
 	//Get Username from discord message
@@ -122,7 +115,7 @@ func SummonCmd(ctx CommandCtx) error {
 	usrID = strings.Trim(usrID, "<@!")
 	usr, err := ctx.Session.User(usrID)
 	if err != nil {
-		return fmt.Errorf("unable to find user: %w", err)
+		return ctx.Errorf("unable to find user: %w", err)
 	}
 	playlistName := "@" + usr.Username
 	for _, playlist := range playlists {

@@ -11,16 +11,20 @@ import (
 func init() {
 	Commands.Register(
 		CMD{
-			Command:     "join",
-			Description: "Summons the bot to the voice channel you are in",
-			Function:    JoinCmd,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "join",
+				Description: "Summons the bot to the voice channel you are in",
+			},
+			Function: JoinCmd,
 		},
 
 		CMD{
-			Command:     "leave",
-			Description: "Disconnects the bot from the voice channel it is in.",
-			Aliases:     []string{"disconect"},
-			Function:    LeaveCmd,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "leave",
+				Description: "Disconnects the bot from the voice channel it is in.",
+			},
+			Aliases:  []string{"disconect"},
+			Function: LeaveCmd,
 		},
 	)
 }
@@ -36,8 +40,8 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 	return "", fmt.Errorf("Channel Not found")
 }
 
-func JoinCmd(ctx CommandCtx) error {
-	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.ID)
+func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
+	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.User.ID)
 	if err != nil {
 		ctx.Reply("User not connected to voice channel")
 	}
@@ -69,17 +73,17 @@ func JoinCmd(ctx CommandCtx) error {
 		ctx.Reply(fmt.Sprintf("Bot error %v", err))
 		bot.Disconnect()
 	}
-	ctx.Reply("Bot added to the room")
-	return nil
+	return ctx.Reply("Bot added to the room")
 }
 
-func LeaveCmd(ctx CommandCtx) error {
+func LeaveCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	r, ok := ctx.GetHubRoom()
 	if !ok {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+		return ctx.Reply(fmt.Sprintf("Room %s not active", ctx.Guild.ID))
 	}
 	if r.Bot != nil {
-		return r.Bot.Disconnect()
+		r.Bot.Disconnect()
+		return ctx.Reply(fmt.Sprintf("Watch2gether has left the room"))
 	}
 	return ctx.Reply(fmt.Sprintf("Error Bot not connected"))
 }

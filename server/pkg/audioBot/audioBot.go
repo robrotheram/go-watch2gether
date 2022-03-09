@@ -104,33 +104,19 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 	}
 }
 
-func (ab *AudioBot) PlayAudio(video media.Video, starttime int) {
+func (ab *AudioBot) PlayAudio(video media.Media, starttime int) {
 	ab.updateTime = time.Now()
-	switch video.GetType() {
-	case media.VIDEO_TYPE_YT:
-		ab.PlayYoutube(video.Url, starttime)
-	case media.VIDEO_TYPE_MP4:
-		ab.PlayAudioFile(video.Url, starttime)
-	case media.VIDEO_TYPE_MP3:
-		ab.PlayAudioFile(video.Url, starttime)
-	default:
+	if video.GetType() == "" {
 		if ab.Audio != nil {
 			ab.Audio.Stop()
 			ab.Audio = nil
 		}
 		log.Debugf("Video Type could not be found %v", video.Type)
-	}
-}
-
-func (ab *AudioBot) PlayYoutube(videoURL string, starttime int) {
-
-	downloadURL, err := media.GetYoutubeURL(videoURL)
-	if err != nil {
-		log.Warnf("unable to get youtube url: %v", err)
 		return
 	}
-	ab.PlayAudioFile(downloadURL, starttime)
+	ab.PlayAudioFile(video.GetAudioUrl(), starttime)
 }
+
 func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
 	if ab.Audio == nil {
 		log.Info("Bot not connected to Room")

@@ -3,7 +3,7 @@ package datastore
 import (
 	"log"
 	"watch2gether/pkg/hub"
-	"watch2gether/pkg/media"
+	playlist "watch2gether/pkg/playlists"
 	meta "watch2gether/pkg/roomMeta"
 	"watch2gether/pkg/user"
 	"watch2gether/pkg/utils"
@@ -11,7 +11,7 @@ import (
 
 type Datastore struct {
 	Rooms      *meta.RoomStore
-	Playlist   *media.PlayistStore
+	Playlist   *playlist.PlayistStore
 	Users      *user.UserStore
 	Hub        *hub.Hub
 	Migrations *MigrationStore
@@ -30,8 +30,8 @@ func NewDatastore(config utils.Config) *Datastore {
 	roomStore := meta.NewRoomStore(rethink)
 	createTable(rethink, config, meta.PREFIX)
 
-	playlistStore := media.NewPlayistStore(rethink)
-	createTable(rethink, config, media.PREFIX)
+	playlistStore := playlist.NewPlayistStore(rethink)
+	createTable(rethink, config, playlist.PREFIX)
 
 	migrationStore := NewMigrationStore(rethink)
 	createTable(rethink, config, MIGRATION_PREFIX)

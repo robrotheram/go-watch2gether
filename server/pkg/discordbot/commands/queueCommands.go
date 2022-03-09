@@ -1,51 +1,96 @@
 package commands
 
 import (
-	"fmt"
 	"strconv"
 	"watch2gether/pkg/events"
 	"watch2gether/pkg/media"
 	"watch2gether/pkg/user"
+
+	"github.com/bwmarrin/discordgo"
 )
+
+var integerOptionMinValue = 0.0
 
 func init() {
 	Commands.Register(
 		CMD{
-			Command:     "move",
-			Description: "Moves a certain song to a chosen position in the queue",
-			Usage:       "!move <old positon> <new position>",
-			Function:    moveCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "move",
+				Description: "Moves a certain song to a chosen position in the queue",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Type:        discordgo.ApplicationCommandOptionInteger,
+						Name:        "old-position",
+						Description: "Current position in the queue",
+						MinValue:    &integerOptionMinValue,
+						Required:    true,
+					},
+					{
+						Type:        discordgo.ApplicationCommandOptionInteger,
+						Name:        "new-position",
+						Description: "New position in the queue",
+						MinValue:    &integerOptionMinValue,
+						Required:    true,
+					},
+				},
+			},
+			Function: moveCMD,
 		},
 		CMD{
-			Command:     "remove",
-			Description: "Removes a certain entry from the queue.",
-			Aliases:     []string{"delete"},
-			Usage:       "!remove <numbers>",
-			Function:    removeCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "remove",
+				Description: "Removes a certain entry from the queue.",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Type:        discordgo.ApplicationCommandOptionInteger,
+						Name:        "remove-position",
+						Description: "Remove current position in the queue",
+						MinValue:    &integerOptionMinValue,
+						Required:    true,
+					},
+				},
+			},
+			Usage:    "!remove <numbers>",
+			Function: removeCMD,
 		},
 		CMD{
-			Command:     "skipTo",
-			Description: "Skips to a certain position in the queue",
-			Usage:       "!skipto <position>",
-			Function:    skipToCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "skip",
+				Description: "Skips to a certain position in the queue",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Type:        discordgo.ApplicationCommandOptionInteger,
+						Name:        "skip-position",
+						Description: "Skip to this poisition in the queue",
+						MinValue:    &integerOptionMinValue,
+						Required:    true,
+					},
+				},
+			},
+			Usage:    "!skip <position>",
+			Function: skipToCMD,
 		},
 		CMD{
-			Command:     "shuffle",
-			Description: "Shuffles the entire queue",
-			Function:    shuffleCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "shuffle",
+				Description: "Shuffles the entire queue",
+			},
+			Function: shuffleCMD,
 		},
 		CMD{
-			Command:     "clear",
-			Description: "clears the entire queue",
-			Function:    clearCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "clear",
+				Description: "clears the entire queue",
+			},
+			Function: clearCMD,
 		},
 	)
 }
 
-func shuffleCMD(ctx CommandCtx) error {
+func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	r, ok := ctx.GetHubRoom()
 	if !ok {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	r.HandleEvent(events.Event{
 		Action:  events.EVT_SUFFLE_QUEUE,
@@ -54,7 +99,7 @@ func shuffleCMD(ctx CommandCtx) error {
 	return ctx.Reply(":twisted_rightwards_arrows:  Queue Shuffled :thumbsup:")
 }
 
-func moveCMD(ctx CommandCtx) error {
+func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	if len(ctx.Args) != 2 {
 		return ctx.Reply(":cry: sorry not enough argunments in the command try `!move 1 2`")
@@ -73,7 +118,7 @@ func moveCMD(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
 	meta, err := ctx.GetMeta()
 	if !ok || err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
 	if pos1 < 0 || pos1 > len(meta.Queue)-1 || pos2 < 0 || pos2 > len(meta.Queue)-1 {
@@ -89,7 +134,7 @@ func moveCMD(ctx CommandCtx) error {
 	return ctx.Reply(":white_check_mark: Queue Updated :thumbsup:")
 }
 
-func removeCMD(ctx CommandCtx) error {
+func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	if len(ctx.Args) > 1 {
 		return ctx.Reply(":cry: sorry not enough argunments in the command try `!remove 1 2`")
@@ -97,7 +142,7 @@ func removeCMD(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
 	meta, err := ctx.GetMeta()
 	if !ok || err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
 	for i, arg := range ctx.Args {
@@ -122,7 +167,7 @@ func removeCMD(ctx CommandCtx) error {
 	return ctx.Reply(":white_check_mark: Queue Updated :thumbsup:")
 }
 
-func skipToCMD(ctx CommandCtx) error {
+func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	if len(ctx.Args) == 1 {
 		ctx.Reply(":cry: sorry not enough argunments in the command try `!skipto 10`")
@@ -135,7 +180,7 @@ func skipToCMD(ctx CommandCtx) error {
 	r, ok := ctx.GetHubRoom()
 	meta, err := ctx.GetMeta()
 	if !ok || err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
 	if pos < 0 || pos > len(meta.Queue)-1 {
@@ -158,17 +203,17 @@ func skipToCMD(ctx CommandCtx) error {
 	return ctx.Reply(":white_check_mark: Skiped :thumbsup:")
 }
 
-func clearCMD(ctx CommandCtx) error {
+func clearCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	r, ok := ctx.GetHubRoom()
 	if !ok {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
 	r.HandleEvent(events.Event{
 		Action:  events.EVNT_UPDATE_QUEUE,
 		Watcher: user.DISCORD_BOT,
-		Queue:   []media.Video{},
+		Queue:   []media.Media{},
 	})
 
 	return ctx.Reply(":white_check_mark: Cleared Queue :thumbsup:")

@@ -15,29 +15,36 @@ import (
 func init() {
 	Commands.Register(
 		CMD{
-			Command:     "play",
-			Description: "Plays a song with the given name or url",
-			Usage:       "<link/query>",
-			Aliases:     []string{"p", "add"},
-			Function:    playCmd,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "play",
+				Description: "Plays a song with the given name or url",
+				Options: []*discordgo.ApplicationCommandOption{
+					{
+						Type:        discordgo.ApplicationCommandOptionString,
+						Name:        "video",
+						Description: "Video URL e.g (https://www.youtube.com/watch?v=noneMROp_E8)",
+						Required:    false,
+					},
+				},
+			},
+
+			Function: playCmd,
 		},
 		CMD{
-			Command:     "pause",
-			Description: "Pauses the current playing track",
-			Aliases:     []string{"stop"},
-			Function:    pauseCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "pause",
+				Description: "Pauses the current playing track",
+			},
+			Aliases:  []string{"stop"},
+			Function: pauseCMD,
 		},
 		CMD{
-			Command:     "watch",
-			Description: "Get Url Watch2gether Room, where the video will be in sync with discord",
-			Aliases:     []string{"link"},
-			Function:    LinkCMD,
-		},
-		CMD{
-			Command:     "skip",
-			Description: "Skips the current song and plays the song you requested.",
-			Aliases:     []string{"fs", "skipped", "next"},
-			Function:    skipCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "skip",
+				Description: "Skips the current song and plays the song you requested.",
+			},
+			Aliases:  []string{"fs", "skipped", "next"},
+			Function: skipCMD,
 		},
 	)
 }
@@ -86,22 +93,21 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 	return message, nil
 }
 
-func playCmd(ctx CommandCtx) error {
+func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	r, ok := ctx.GetHubRoom()
 	meta, err := ctx.GetMeta()
 	if !ok || err != nil {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 
 	if len(ctx.Args) > 0 {
-		msg, err := AddVideo(ctx.Args[0], ctx.User.Username, meta, r)
+		msg, err := AddVideo(ctx.Args[0], ctx.User.User.Username, meta, r)
 		if err != nil {
-			return err
+			return ctx.Errorf("Unable to add video: %v", err)
 		}
 		ctx.ReplyEmbed(msg)
 	} else {
-
 		r.HandleEvent(events.Event{
 			Action:  events.EVNT_PLAYING,
 			Watcher: user.DISCORD_BOT,
@@ -119,10 +125,10 @@ func playCmd(ctx CommandCtx) error {
 	return nil
 }
 
-func pauseCMD(ctx CommandCtx) error {
+func pauseCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	r, ok := ctx.GetHubRoom()
 	if !ok {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 	evt := events.NewEvent(events.EVNT_PAUSING)
 	evt.Watcher = user.DISCORD_BOT
@@ -130,10 +136,10 @@ func pauseCMD(ctx CommandCtx) error {
 	return ctx.Reply(":pause_button: Pausing :thumbsup:")
 }
 
-func skipCMD(ctx CommandCtx) error {
+func skipCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	r, ok := ctx.GetHubRoom()
 	if !ok {
-		return fmt.Errorf("Room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 	r.HandleEvent(events.Event{
 		Action:  events.EVNT_NEXT_VIDEO,

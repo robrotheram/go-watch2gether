@@ -24,6 +24,7 @@ type Config struct {
 	RethinkDatabase     string `mapstructure:"RETHINK_DATABASE"`
 	Dev                 bool   `mapstructure:"DEVELOPMENT"`
 	Loglevel            string `mapstructure:"LOG_LEVEL"`
+	ListenPort          string `mapstructure:"LISTEN_PORT"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
@@ -39,7 +40,7 @@ func LoadConfig(path string) (err error) {
 		return
 	}
 	err = viper.Unmarshal(&Configuration)
-	setupRandom()
+	SetDefaults()
 	return
 }
 
@@ -60,9 +61,13 @@ func (c *Config) GetLoglevel() log.Level {
 	}
 }
 
-func setupRandom() {
+func SetDefaults() {
 	if Configuration.Dev {
 		rand.Seed(0)
 	}
 	rand.Seed(time.Now().UnixNano())
+
+	if Configuration.ListenPort == "" {
+		Configuration.ListenPort = "8080"
+	}
 }

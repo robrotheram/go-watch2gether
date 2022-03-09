@@ -10,46 +10,52 @@ import (
 func init() {
 	Commands.Register(
 		CMD{
-			Command:     "watch",
-			Description: "Get Url Watch2gether Room, where the video will be in sync with discord",
-			Aliases:     []string{"link"},
-			Function:    LinkCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "watch",
+				Description: "Get Url Watch2gether Room, where the video will be in sync with discord",
+			},
+			Function: LinkCMD,
 		},
 
 		CMD{
-			Command:     "nowplaying",
-			Description: "Shows what song is currently playing",
-			Function:    nowPlayingCmd,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "nowplaying",
+				Description: "Shows what song is currently playing",
+			},
+			Function: nowPlayingCmd,
 		},
 
 		CMD{
-			Command:     "queue",
-			Description: "Other Usage: !queue <page>: Shows the specified page number.",
-			Aliases:     []string{"q"},
-			Function:    queueCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "queue",
+				Description: "Shows what is in the current queue",
+			},
+			Function: queueCMD,
 		},
 		CMD{
-			Command:     "version",
-			Description: "Watch2Gether Version",
-			Aliases:     []string{"v"},
-			Function:    VersionCMD,
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "version",
+				Description: "Watch2Gether Version",
+			},
+			Function: VersionCMD,
 		},
 	)
 }
 
-func LinkCMD(ctx CommandCtx) error {
+func LinkCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	msg := EmbedBuilder("Watch2Gether")
 	msg.URL = fmt.Sprintf("%s/app/room/%s", ctx.BaseURL, ctx.Guild.ID)
 	msg.Type = discordgo.EmbedTypeArticle
 	msg.Description = fmt.Sprintf("%s/app/room/%s", ctx.BaseURL, ctx.Guild.ID)
-	return ctx.ReplyEmbed(msg)
+	ctx.ReplyEmbed(msg)
+	return nil
 }
 
-func nowPlayingCmd(ctx CommandCtx) error {
+func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	meta, err := ctx.GetMeta()
 	if err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	video := meta.CurrentVideo
 
@@ -70,15 +76,15 @@ func nowPlayingCmd(ctx CommandCtx) error {
 		Value:  video.Duration.String(),
 		Inline: true,
 	})
-
-	return ctx.ReplyEmbed(message)
+	ctx.ReplyEmbed(message)
+	return nil
 
 }
 
-func queueCMD(ctx CommandCtx) error {
+func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	meta, err := ctx.GetMeta()
 	if err != nil {
-		return fmt.Errorf("room %s not active", ctx.Guild.ID)
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	msg := EmbedBuilder("Watch2Gether Queue")
 	msg.Thumbnail = nil
@@ -117,10 +123,11 @@ func queueCMD(ctx CommandCtx) error {
 
 	msg.Description = fmt.Sprintf("%d tracks in total in the queue", len(meta.Queue))
 
-	return ctx.ReplyEmbed(msg)
+	ctx.ReplyEmbed(msg)
+	return nil
 
 }
 
-func VersionCMD(ctx CommandCtx) error {
+func VersionCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	return ctx.Reply(fmt.Sprintf("Version: %s", datastore.VERSION))
 }

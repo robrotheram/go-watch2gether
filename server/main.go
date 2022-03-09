@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 
 	"watch2gether/pkg"
 	"watch2gether/pkg/api"
@@ -13,12 +14,6 @@ import (
 )
 
 func main() {
-
-	// //media.YTPlayist("https://www.youtube.com/watch?v=lijFuLFI9RQ")
-	// media.YTPlayist("https://www.youtube.com/watch?v=iyLdoQGBchQ&list=PLnfcpZm6el8iug2BBqZev2IDCt4I_sCH0")
-
-	// return
-
 	log.SetFormatter(&log.TextFormatter{
 		//DisableColors: true,
 		FullTimestamp: true,
@@ -38,9 +33,8 @@ func main() {
 	go func() { ds.RunMigrations() }()
 	SetupDiscordBot(utils.Configuration, ds)
 
-	var addr = flag.String("addr", ":8080", "The addr of the  application.")
-	flag.Parse() // parse the flags
-	log.Infof("Starting web server on", *addr)
+	addr := fmt.Sprintf(":%s", utils.Configuration.ListenPort)
+	log.Infof("Starting web server on %s", addr)
 
 	ds.StartCleanUP()
 	pkg.SetupServer(&utils.Configuration)
@@ -50,7 +44,7 @@ func main() {
 		Config:    &utils.Configuration,
 	}
 
-	if err := pkg.StartServer(*addr, &server); err != nil {
+	if err := pkg.StartServer(addr, &server); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
 
@@ -67,7 +61,7 @@ func SetupDiscordBot(config utils.Config, datastore *datastore.Datastore) {
 	}
 
 	if token != "" {
-		bot, err := discord.NewDiscordBot(datastore, token, config.BaseURL)
+		bot, err := discord.NewDiscordBot(datastore, token, config.BaseURL, config.DiscordClientID)
 		if err != nil {
 			log.Error(err)
 		} else {

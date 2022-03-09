@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"watch2gether/pkg/media"
+	playlist "watch2gether/pkg/playlists"
 
 	"github.com/gorilla/mux"
 )
@@ -54,7 +54,7 @@ func (h BaseHandler) CretePlaylist(w http.ResponseWriter, req *http.Request) err
 		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
 	}
 
-	var playlist = media.Playist{}
+	var playlist = playlist.Playist{}
 	err = json.NewDecoder(req.Body).Decode(&playlist)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to read message")}
@@ -72,7 +72,7 @@ func (h BaseHandler) UpdatePlaylist(w http.ResponseWriter, req *http.Request) er
 		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
 	}
 
-	var playlist = media.Playist{}
+	var playlist = playlist.Playist{}
 	err = json.NewDecoder(req.Body).Decode(&playlist)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("unable to read message")}

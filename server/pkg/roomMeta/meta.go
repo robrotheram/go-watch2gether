@@ -17,9 +17,9 @@ type Meta struct {
 	Owner        string         `json:"owner"`
 	Host         string         `json:"host"`
 	Icon         string         `json:"icon"`
-	CurrentVideo media.Video    `json:"current_video"`
+	CurrentVideo media.Media    `json:"current_video"`
 	Playing      bool           `json:"playing"`
-	Queue        []media.Video  `json:"queue"`
+	Queue        []media.Media  `json:"queue"`
 	Watchers     []user.Watcher `json:"watchers"`
 	Type         string         `json:"type"`
 	Settings     RoomSettings   `json:"settings"`
@@ -42,7 +42,7 @@ func NewMeta(name string, usr user.User) *Meta {
 		return &Meta{
 			Name:     name,
 			Watchers: []user.Watcher{},
-			Queue:    []media.Video{},
+			Queue:    []media.Media{},
 			ID:       ksuid.New().String(),
 			Owner:    "",
 			Host:     usr.ID,
@@ -53,7 +53,7 @@ func NewMeta(name string, usr user.User) *Meta {
 	return &Meta{
 		Name:     name,
 		Watchers: []user.Watcher{},
-		Queue:    []media.Video{},
+		Queue:    []media.Media{},
 		ID:       ksuid.New().String(),
 		Owner:    usr.ID,
 		Host:     usr.ID,
@@ -74,7 +74,7 @@ func (meta *Meta) NextVideo() {
 		meta.CurrentVideo = meta.Queue[0]
 		meta.Queue = meta.Queue[1:]
 	} else {
-		meta.CurrentVideo = media.Video{}
+		meta.CurrentVideo = media.Media{}
 	}
 }
 
@@ -140,15 +140,15 @@ func (meta *Meta) UpdateWatcher(rw user.Watcher) error {
 	return fmt.Errorf("watcher not found")
 }
 
-func insert(array []media.Video, value media.Video, index int) []media.Video {
-	return append(array[:index], append([]media.Video{value}, array[index:]...)...)
+func insert(array []media.Media, value media.Media, index int) []media.Media {
+	return append(array[:index], append([]media.Media{value}, array[index:]...)...)
 }
 
-func remove(array []media.Video, index int) []media.Video {
+func remove(array []media.Media, index int) []media.Media {
 	return append(array[:index], array[index+1:]...)
 }
 
-func move(array []media.Video, srcIndex int, dstIndex int) []media.Video {
+func move(array []media.Media, srcIndex int, dstIndex int) []media.Media {
 	value := array[srcIndex]
 	return insert(remove(array, srcIndex), value, dstIndex)
 }

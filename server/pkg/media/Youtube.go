@@ -3,22 +3,35 @@ package media
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/url"
+	"regexp"
 	"time"
 
 	"github.com/kkdai/youtube/v2"
 	"github.com/segmentio/ksuid"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/net/http/httpproxy"
 )
 
-var downloader *youtube.Client
+type Youtube struct {
+	downloader *youtube.Client
+	hlsRegex   *regexp.Regexp
+	videoURL   string
+}
 
-func GetDownloader() *youtube.Client {
+func init() {
+	YoutubeClient := &Youtube{}
+	YoutubeClient.Setup()
+	MediaFactory.Register(YoutubeClient)
+}
 
-	if downloader != nil {
-		return downloader
+func (yt *Youtube) Setup() {
+
+	if yt.downloader != nil {
+		return
 	}
 
 	proxyFunc := httpproxy.FromEnvironment().ProxyFunc()
@@ -37,15 +50,13 @@ func GetDownloader() *youtube.Client {
 		}).DialContext,
 	}
 
-	downloader = &youtube.Client{}
-	downloader.HTTPClient = &http.Client{Transport: httpTransport}
-
-	return downloader
+	yt.downloader = &youtube.Client{}
+	yt.downloader.HTTPClient = &http.Client{Transport: httpTransport}
+	yt.hlsRegex = regexp.MustCompile(`(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#,?&*//=]*)(.m3u8)\b([-a-zA-Z0-9@:%_\+.~#,?&//=]*))`)
 }
 
-func GetVideoWithFormat(id string) (*youtube.Video, *youtube.Format, error) {
-	dl := GetDownloader()
-	video, err := dl.GetVideo(id)
+func (yt *Youtube) GetVideoWithFormat(id string) (*youtube.Video, *youtube.Format, error) {
+	video, err := yt.downloader.GetVideo(id)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -62,48 +73,96 @@ func GetVideoWithFormat(id string) (*youtube.Video, *youtube.Format, error) {
 	return video, format, nil
 }
 
-func GetYoutubeURL(videoURL string) (string, error) {
-	client := GetDownloader()
-	video, format, err := GetVideoWithFormat(videoURL)
+func (yt *Youtube) getLiveURL(manifestURL string) (string, error) {
+
+	res, err := http.Get(manifestURL)
 	if err != nil {
 		return "", err
 	}
-	url, err := client.GetStreamURL(video, format)
+	defer res.Body.Close()
+	body, err := io.ReadAll(res.Body)
+	if err != nil {
+		return "", err
+	}
+
+	if hlsURL := yt.hlsRegex.FindString(string(body)); hlsURL != "" {
+		return hlsURL, nil
+	} else {
+		return "", errors.New("no valid URL found within HLS")
+	}
+}
+
+func (yt *Youtube) GetAudioUrl(videoURL string) (string, error) {
+
+	video, format, err := yt.GetVideoWithFormat(videoURL)
+	if err != nil {
+		return "", err
+	}
+
+	if video.HLSManifestURL != "" {
+		logrus.Info("Getting HLS STREAM Url")
+		url, err := yt.getLiveURL(video.HLSManifestURL)
+		if err == nil {
+			logrus.Info("USING HLS STREAM")
+			return url, nil
+		}
+	}
+
+	url, err := yt.downloader.GetStreamURL(video, format)
 	if err != nil {
 		return "", err
 	}
 	return url, nil
 }
 
-func videosFromYoutubeURL(url string, username string) []Video {
-	client := GetDownloader()
-	ytPlayist, err := client.GetPlaylist(url)
+func (yt *Youtube) GetMedia(url string, username string) []Media {
+	ytPlayist, err := yt.downloader.GetPlaylist(url)
 	if err == nil {
-		vidoes := []Video{}
+		vidoes := []Media{}
 		for _, ytVideo := range ytPlayist.Videos {
-			v := Video{
+			ytURL := fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID)
+			v := Media{
 				ID:       ksuid.New().String(),
-				Url:      fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID),
+				Url:      ytURL,
 				User:     username,
 				Title:    ytVideo.Title,
 				Type:     VIDEO_TYPE_YT,
 				Duration: ytVideo.Duration,
 				Channel:  ytVideo.Author,
 			}
+			if audio, err := yt.GetAudioUrl(ytURL); err == nil {
+				v.AudioUrl = audio
+			}
 			vidoes = append(vidoes, v)
 		}
 		return vidoes
 	}
-	ytVideo, err := client.GetVideo(url)
+	ytVideo, err := yt.downloader.GetVideo(url)
 	if err == nil {
-		video := Video{
-			ID:   ksuid.New().String(),
-			Url:  url,
-			User: username,
-			Type: VIDEO_TYPE_YT,
+		video := Media{
+			ID:        ksuid.New().String(),
+			Url:       url,
+			User:      username,
+			Type:      VIDEO_TYPE_YT,
+			Title:     ytVideo.Title,
+			Duration:  ytVideo.Duration,
+			Thumbnail: ytVideo.Thumbnails[0].URL,
+			Channel:   ytVideo.Author,
 		}
-		video.Update(ytVideo)
-		return []Video{video}
+		if audio, err := yt.GetAudioUrl(url); err == nil {
+			video.AudioUrl = audio
+		}
+		return []Media{video}
 	}
-	return []Video{}
+	return []Media{}
+}
+
+func (yt *Youtube) GetType() string {
+	return VIDEO_TYPE_YT
+}
+
+func (yt *Youtube) IsValidUrl(url string, ct *ContentType) bool {
+	YT_REGEX := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$`)
+	match := YT_REGEX.Match([]byte(url))
+	return match
 }

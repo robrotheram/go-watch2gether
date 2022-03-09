@@ -7,28 +7,28 @@ import (
 )
 
 func init() {
-	MigrationFactory["0.8.0"] = verion_1{}
+	MigrationFactory["0.8.0"] = version_1{}
 }
 
-type verion_1 struct{}
+type version_1 struct{}
 
-func (verion_1) Migrate(data *Datastore) error {
-	client := media.GetDownloader()
-	log.Info("Migreating Playlists to new version")
+func (version_1) Migrate(data *Datastore) error {
+
+	log.Info("Migrating Playlists to new version")
 	playlist, _ := data.Playlist.GetAll()
-	for _, playist := range playlist {
-		log.Info("Migrating Playlists:" + playist.Name)
-		for i := range playist.Videos {
-			v := &playist.Videos[i]
-			v.Type, _ = media.TypeFromUrl(v.Url)
+	for _, playlist := range playlist {
+		log.Info("Migrating Playlists:" + playlist.Name)
+		for i := range playlist.Videos {
+			v := &playlist.Videos[i]
+			factory := media.MediaFactory.GetFactory(v.Url)
+			v.Type = media.MediaType(factory.GetType())
+
 			if v.Type == media.VIDEO_TYPE_YT {
-				ytVideo, err := client.GetVideo(v.Url)
-				if err == nil {
-					v.Update(ytVideo)
-				}
+				newMedia := factory.GetMedia(v.Url, playlist.Username)
+				playlist.Videos[i] = newMedia[0]
 			}
 		}
-		data.Playlist.Update(playist)
+		data.Playlist.Update(playlist)
 	}
 	return nil
 }
