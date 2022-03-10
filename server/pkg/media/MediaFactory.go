@@ -3,6 +3,7 @@ package media
 import (
 	"fmt"
 	"net/http"
+	"sort"
 	"time"
 )
 
@@ -21,7 +22,7 @@ func (ct *ContentType) doRequest(_type string, url string) (*http.Response, erro
 
 func (ct *ContentType) getConentType(url string) (string, error) {
 
-	if ct.ContentType == "" {
+	if ct.ContentType != "" {
 		return ct.ContentType, nil
 	}
 
@@ -79,4 +80,15 @@ func (f *Factory) GetMedia(url string, username string) ([]Media, error) {
 func NewVideo(url string, username string) ([]Media, error) {
 	media, err := MediaFactory.GetMedia(url, username)
 	return media, err
+}
+
+func (f *Factory) GetTypes() []string {
+	keys := make([]string, len(f.Factories))
+	i := 0
+	for k := range f.Factories {
+		keys[i] = k
+		i++
+	}
+	sort.Strings(keys)
+	return keys
 }

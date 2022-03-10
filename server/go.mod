@@ -10,16 +10,16 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/sessions v1.2.1
 	github.com/gorilla/websocket v1.5.0
-	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757
 	github.com/kkdai/youtube/v2 v2.7.10
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/prometheus/client_golang v1.12.1
-	github.com/robrotheram/dca v0.0.0-20211204170907-dbf1cab69502 // indirect
+	github.com/robrotheram/dca v0.0.0-20211204170907-dbf1cab69502
 	github.com/segmentio/ksuid v1.0.4
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/afero v1.8.1 // indirect
 	github.com/spf13/viper v1.10.1
+	github.com/stretchr/testify v1.7.0
 	golang.org/x/crypto v0.0.0-20220214200702-86341886e292 // indirect
 	golang.org/x/net v0.0.0-20220225172249-27dd8689420f
 	golang.org/x/oauth2 v0.0.0-20220223155221-ee480838109b

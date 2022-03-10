@@ -12,17 +12,18 @@ func init() {
 func (client *MP3Video) GetMedia(url string, username string) []Media {
 	return []Media{
 		Media{
-			ID:    ksuid.New().String(),
-			Url:   url,
-			User:  username,
-			Type:  MediaType(client.GetType()),
-			Title: url,
+			ID:       ksuid.New().String(),
+			Url:      url,
+			User:     username,
+			Type:     MediaType(client.GetType()),
+			Title:    url,
+			AudioUrl: url,
 		},
 	}
 }
 
 func (client *MP3Video) GetType() string {
-	return VIDEO_TYPE_MP4
+	return VIDEO_TYPE_MP3
 }
 
 func (client *MP3Video) IsValidUrl(url string, ct *ContentType) bool {
