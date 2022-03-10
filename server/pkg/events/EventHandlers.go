@@ -10,19 +10,19 @@ import (
 type Handler = func(*Event, *meta.Meta)
 
 var EventHandlers = map[string]Handler{
-	EVNT_PLAYING:         HandlePlaying,
-	EVNT_PAUSING:         HandlePause,
-	EVNT_UPDATE_QUEUE:    HandleUpdateQueue,
-	EVNT_USER_UPDATE:     HandleUserUpdate,
-	EVNT_USER_LEAVE:      HandleUserLeave,
-	EVNT_SEEK_TO_USER:    HandleForceSeek,
-	ENVT_FINSH:           HandleFinish,
-	EVNT_NEXT_VIDEO:      HandleNextVideo,
-	EVNT_UPDATE_SETTINGS: HandleUpdateSettings,
-	EVT_SUFFLE_QUEUE:     HandleSuffleQueue,
-	EVNT_ADD_VIDEO:       HandleNewVideo,
-	EVNT_BOT_LEAVE:       EmptyHandler,
-	EVT_ROOM_EXIT:        EmptyHandler,
+	EVENT_PLAYING:         HandlePlaying,
+	EVENT_PAUSING:         HandlePause,
+	EVENT_UPDATE_QUEUE:    HandleUpdateQueue,
+	EVENT_USER_UPDATE:     HandleUserUpdate,
+	EVENT_USER_LEAVE:      HandleUserLeave,
+	EVENT_SEEK_TO_USER:    HandleForceSeek,
+	EVENT_FINISH:          HandleFinish,
+	EVENT_NEXT_VIDEO:      HandleNextVideo,
+	EVENT_UPDATE_SETTINGS: HandleUpdateSettings,
+	EVENT_SHUFFLE_QUEUE:   HandleShuffleQueue,
+	EVENT_ADD_VIDEO:       HandleNewVideo,
+	EVENT_BOT_LEAVE:       EmptyHandler,
+	EVENT_ROOM_EXIT:       EmptyHandler,
 }
 
 func EmptyHandler(evt *Event, meta *meta.Meta) {}
@@ -31,7 +31,7 @@ func HandlePlaying(evt *Event, meta *meta.Meta) {
 	meta.Playing = true
 }
 
-func HandleSuffleQueue(evt *Event, meta *meta.Meta) {
+func HandleShuffleQueue(evt *Event, meta *meta.Meta) {
 	meta.ShuffleQueue()
 }
 
@@ -86,8 +86,8 @@ func HandleFinish(evt *Event, meta *meta.Meta) {
 	}
 	meta.ResetWatcher()
 	meta.NextVideo()
-	evt.Action = EVNT_NEXT_VIDEO
-	log.Debug("CHANGING VIDOE!!!!!!!!!!!!")
+	evt.Action = EVENT_NEXT_VIDEO
+	log.Debug("CHANGING VIDEO!!!!!!!!!!!!")
 }
 
 func HandleNewVideo(evt *Event, meta *meta.Meta) {

@@ -224,7 +224,7 @@ func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error 
 		da.ClearSession(w, r)
 		return err
 	}
-	duser, err := da.getUser(token.AccessToken)
+	dUser, err := da.getUser(token.AccessToken)
 	if err != nil {
 		da.ClearSession(w, r)
 		return err
@@ -235,7 +235,7 @@ func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) error 
 		return err
 	}
 	resp := map[string]interface{}{
-		"user":   duser,
+		"user":   dUser,
 		"guilds": guilds,
 	}
 

@@ -59,10 +59,10 @@ func (f *Factory) Register(client MediaClient) {
 
 func (f *Factory) GetFactory(url string) MediaClient {
 	ct := &ContentType{}
-	for _, fcty := range f.Factories {
-		fact := *fcty
+	for _, factory := range f.Factories {
+		fact := *factory
 		if fact.IsValidUrl(url, ct) {
-			return *fcty
+			return *factory
 		}
 	}
 	return nil
@@ -71,7 +71,7 @@ func (f *Factory) GetFactory(url string) MediaClient {
 func (f *Factory) GetMedia(url string, username string) ([]Media, error) {
 	factory := f.GetFactory(url)
 	if factory == nil {
-		return []Media{}, fmt.Errorf("Unsupported URL")
+		return []Media{}, fmt.Errorf("unsupported URL")
 	}
 	media := factory.GetMedia(url, username)
 	return media, nil

@@ -13,29 +13,29 @@ import (
 )
 
 type AudioBot struct {
-	session              *discordgo.Session
-	Audio                *Audio
-	GuildID              string
-	voiceChannelID       string
-	notficationChannelID string
-	VoiceConnection      *discordgo.VoiceConnection
-	RoomChannel          chan []byte
-	Running              bool
-	updateTime           time.Time
-	ticker               *time.Ticker
-	done                 chan bool
+	session               *discordgo.Session
+	Audio                 *Audio
+	GuildID               string
+	voiceChannelID        string
+	notificationChannelID string
+	VoiceConnection       *discordgo.VoiceConnection
+	RoomChannel           chan []byte
+	Running               bool
+	updateTime            time.Time
+	ticker                *time.Ticker
+	done                  chan bool
 	sync.Mutex
 }
 
 func NewAudioBot(voiceCh string, notificationCh string, guildID string, vc *discordgo.VoiceConnection, s *discordgo.Session) *AudioBot {
 	ab := AudioBot{
-		session:              s,
-		voiceChannelID:       voiceCh,
-		notficationChannelID: notificationCh,
-		VoiceConnection:      vc,
-		GuildID:              guildID,
-		Running:              false,
-		ticker:               time.NewTicker(time.Second * 10),
+		session:               s,
+		voiceChannelID:        voiceCh,
+		notificationChannelID: notificationCh,
+		VoiceConnection:       vc,
+		GuildID:               guildID,
+		Running:               false,
+		ticker:                time.NewTicker(time.Second * 10),
 	}
 	return &ab
 }
@@ -61,7 +61,7 @@ func (ab *AudioBot) Send(evt events.RoomState) {
 }
 
 func (ab *AudioBot) sendToChannel(msg string) {
-	ab.session.ChannelMessageSend(ab.notficationChannelID, msg)
+	ab.session.ChannelMessageSend(ab.notificationChannelID, msg)
 }
 
 func (ab *AudioBot) handleEvent(evt events.RoomState) {
@@ -69,17 +69,17 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 		ab.Audio = NewAudio(ab, ab.VoiceConnection)
 	}
 	switch evt.Action {
-	case events.EVNT_UPDATE_QUEUE:
+	case events.EVENT_UPDATE_QUEUE:
 		if utils.Configuration.DiscordNotify {
 			ab.sendToChannel(fmt.Sprintf("Queue Updated by: %s", evt.Watcher.Username))
 		}
-	case events.EVNT_NEXT_VIDEO:
+	case events.EVENT_NEXT_VIDEO:
 		if evt.Playing {
 			ab.PlayAudio(evt.CurrentVideo, 0)
 		} else {
 			ab.Audio.Stop()
 		}
-	case events.EVNT_PLAYING:
+	case events.EVENT_PLAYING:
 		if !ab.Audio.Playing {
 			ab.PlayAudio(evt.Meta.CurrentVideo, 0)
 		} else {
@@ -88,18 +88,18 @@ func (ab *AudioBot) handleEvent(evt events.RoomState) {
 		if utils.Configuration.DiscordNotify {
 			ab.sendToChannel(fmt.Sprintf("User: %s Started the video", evt.Watcher.Username))
 		}
-	case events.EVNT_PAUSING:
+	case events.EVENT_PAUSING:
 		ab.Audio.Paused()
 		if utils.Configuration.DiscordNotify {
 			ab.sendToChannel(fmt.Sprintf("User: %s Paused the video", evt.Watcher.Username))
 		}
-	case events.EVNT_SEEK_TO_USER:
+	case events.EVENT_SEEK_TO_USER:
 		ab.Audio.Stop()
 		ab.PlayAudio(evt.CurrentVideo, int(evt.GetHostSeek().ProgressSec))
 		if utils.Configuration.DiscordNotify {
 			ab.sendToChannel(fmt.Sprintf("User: %s Seeked Video to %f", evt.Watcher.Username, evt.GetHostSeek().ProgressPct*100))
 		}
-	case events.EVT_ROOM_EXIT:
+	case events.EVENT_ROOM_EXIT:
 		ab.sendToChannel(("room has closed down"))
 	}
 }
@@ -138,13 +138,13 @@ func (ab *AudioBot) PlayAudioFile(url string, starttime int) {
 }
 
 func (ab *AudioBot) Disconnect() error {
-	log.Info("Bot diconnecting")
+	log.Info("Bot disconnecting")
 	ab.SendToRoom(CreateBotLeaveEvent())
 	if ab.Audio != nil {
 		ab.Audio.Stop()
 	}
 	err := ab.VoiceConnection.Disconnect()
-	ab.SendToRoom(events.Event{Action: events.EVNT_BOT_LEAVE})
+	ab.SendToRoom(events.Event{Action: events.EVENT_BOT_LEAVE})
 	ab.Running = false
 	log.Error(err)
 	return err

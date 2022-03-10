@@ -70,11 +70,9 @@ func (radio *RadioGarden) GetMedia(url string, username string) []Media {
 
 	radioID := radio.getIDFromURL(url)
 
-	info, err := radio.getRadioInfo(radioID)
+	info, _ := radio.getRadioInfo(radioID)
 	audioUrl := radio.getAudioURL(radioID)
-	if err != nil {
 
-	}
 	fmt.Println(info)
 	fmt.Println(audioUrl)
 

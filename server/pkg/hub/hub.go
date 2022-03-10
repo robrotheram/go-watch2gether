@@ -32,7 +32,7 @@ func (h *Hub) DeleteRoom(roomID string) {
 	// }
 
 	log.Info("DELETING_ROOM")
-	h.Rooms[roomID].HandleEvent(events.Event{Action: events.EVT_ROOM_EXIT})
+	h.Rooms[roomID].HandleEvent(events.Event{Action: events.EVENT_ROOM_EXIT})
 
 	//h.rooms[roomID].quit <- true
 	delete(h.Rooms, roomID)

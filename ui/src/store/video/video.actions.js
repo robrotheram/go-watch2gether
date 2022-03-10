@@ -1,23 +1,23 @@
 import { send } from '@giantmachines/redux-websocket';
 import {
-  PROGRESS_UPDATE, EVNT_SEEK_TO_USER, EVNT_PLAYING, EVNT_PAUSING,
+  PROGRESS_UPDATE, EVENT_SEEK_TO_USER, EVENT_PLAYING, EVENT_PAUSING,
 } from '../event.types';
 import { GetWatcher } from '../user';
 import store from '../index';
 
 export const play = () => (dispatch) => {
-  const evnt = { action: EVNT_PLAYING, watcher: GetWatcher() };
-  dispatch(send(evnt));
+  const EVENT = { action: EVENT_PLAYING, watcher: GetWatcher() };
+  dispatch(send(EVENT));
 };
 
 export const pause = () => (dispatch) => {
-  const evnt = { action: EVNT_PAUSING, watcher: GetWatcher() };
-  dispatch(send(evnt));
+  const EVENT = { action: EVENT_PAUSING, watcher: GetWatcher() };
+  dispatch(send(EVENT));
 };
 
 export const seekToUser = (seek) => (dispatch) => {
   dispatch({
-    type: EVNT_SEEK_TO_USER,
+    type: EVENT_SEEK_TO_USER,
     seek,
   });
 };
@@ -31,8 +31,8 @@ export const seekToHost = () => (dispatch) => {
 };
 
 export const handleFinish = () => (dispatch) => {
-  const evnt = { action: 'HANDLE_FINSH', watcher: GetWatcher() };
-  dispatch(send(evnt));
+  const EVENT = { action: 'HANDLE_FINSH', watcher: GetWatcher() };
+  dispatch(send(EVENT));
   dispatch({
     type: PROGRESS_UPDATE,
     seek: {

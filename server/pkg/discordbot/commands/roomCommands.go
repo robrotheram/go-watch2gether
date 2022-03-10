@@ -23,7 +23,6 @@ func init() {
 				Name:        "leave",
 				Description: "Disconnects the bot from the voice channel it is in.",
 			},
-			Aliases:  []string{"disconect"},
 			Function: LeaveCmd,
 		},
 	)
@@ -37,7 +36,7 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 			}
 		}
 	}
-	return "", fmt.Errorf("Channel Not found")
+	return "", fmt.Errorf("channel not found")
 }
 
 func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
@@ -83,7 +82,7 @@ func LeaveCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 	if r.Bot != nil {
 		r.Bot.Disconnect()
-		return ctx.Reply(fmt.Sprintf("Watch2gether has left the room"))
+		return ctx.Reply("watch2gether has left the room")
 	}
-	return ctx.Reply(fmt.Sprintf("Error Bot not connected"))
+	return ctx.Reply("Error Bot not connected")
 }

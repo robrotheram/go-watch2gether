@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { connect, send } from '@giantmachines/redux-websocket';
 import {
-  CLEAR_ERROR, JOIN_SUCCESSFUL, ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE, EVNT_SEEK_TO_USER,
+  CLEAR_ERROR, JOIN_SUCCESSFUL, ROOM_ERROR, LEAVE_SUCCESSFUL, GET_META_SUCCESSFUL, REJOIN_SUCCESSFUL, PROGRESS_UPDATE, EVENT_SEEK_TO_USER,
 } from '../event.types';
 import store, { API_URL, WS_URL, history } from '../index';
 
@@ -108,36 +108,36 @@ export const updateSeek = (percent, seconds) => {
     type: PROGRESS_UPDATE,
     seek,
   });
-  // let evnt = {action: "ON_PROGRESS_UPDATE", watcher:  GetWatcher(), seek:seek}
-  // store.dispatch(send(evnt))
+  // let EVENT = {action: "ON_PROGRESS_UPDATE", watcher:  GetWatcher(), seek:seek}
+  // store.dispatch(send(EVENT))
 };
 
 export const updateSettings = (cntrls, auto_skip) => {
-  const evnt = { action: 'UPDATE_SETTINGS', watcher: GetWatcher(), settings: { controls: cntrls, auto_skip } };
-  store.dispatch(send(evnt));
+  const EVENT = { action: 'UPDATE_SETTINGS', watcher: GetWatcher(), settings: { controls: cntrls, auto_skip } };
+  store.dispatch(send(EVENT));
 };
 
 export const forceSinkToMe = () => (dispatch) => {
-  const evnt = { action: EVNT_SEEK_TO_USER, watcher: GetWatcher() };
-  dispatch(send(evnt));
+  const EVENT = { action: EVENT_SEEK_TO_USER, watcher: GetWatcher() };
+  dispatch(send(EVENT));
 };
 
 export const updateHost = (host) => {
-  const evnt = { action: 'UPDATE_HOST', watcher: GetWatcher(), host };
-  store.dispatch(send(evnt));
+  const EVENT = { action: 'UPDATE_HOST', watcher: GetWatcher(), host };
+  store.dispatch(send(EVENT));
 };
 
 export async function isAlive() {
-  const evnt = {
+  const EVENT = {
     action: 'USER_UPDATE',
     watcher: GetWatcher(),
   };
-  return store.dispatch(send(evnt));
+  return store.dispatch(send(EVENT));
 }
 
 export const sinkToME = (seek) => {
-  const evnt = { action: 'SEEK_TO_ME', watcher: GetWatcher(), seek };
-  store.dispatch(send(evnt));
+  const EVENT = { action: 'SEEK_TO_ME', watcher: GetWatcher(), seek };
+  store.dispatch(send(EVENT));
 };
 
 export const clearError = () => {
@@ -149,8 +149,8 @@ export const clearError = () => {
 
 export const updateQueue = (queue) => (dispatch) => {
   queue.forEach((v) => { delete v.key; });
-  const evnt = { action: 'UPDATE_QUEUE', queue, watcher: GetWatcher() };
-  dispatch(send(evnt));
+  const EVENT = { action: 'UPDATE_QUEUE', queue, watcher: GetWatcher() };
+  dispatch(send(EVENT));
 };
 
 export const updateLocalQueue = (queue) => {
@@ -162,6 +162,6 @@ export const updateLocalQueue = (queue) => {
 };
 
 export const nextVideo = () => (dispatch) => {
-  const evnt = { action: 'NEXT_VIDEO', watcher: GetWatcher() };
-  dispatch(send(evnt));
+  const EVENT = { action: 'NEXT_VIDEO', watcher: GetWatcher() };
+  dispatch(send(EVENT));
 };

@@ -11,7 +11,7 @@ func init() {
 
 func (client *MP4Video) GetMedia(url string, username string) []Media {
 	return []Media{
-		Media{
+		{
 			ID:       ksuid.New().String(),
 			Url:      url,
 			User:     username,

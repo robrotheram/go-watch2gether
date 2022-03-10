@@ -94,7 +94,7 @@ func (r *Room) UpdateClients() {
 	r.Send(meta)
 }
 func (r *Room) Send(meta *meta.Meta) {
-	r.SendStateToClient(events.RoomState{Meta: *meta, Action: events.EVNT_UPDATE_STATE})
+	r.SendStateToClient(events.RoomState{Meta: *meta, Action: events.EVENT_UPDATE_STATE})
 }
 func (r *Room) SendStateToClient(state events.RoomState) {
 	for client := range r.Clients {
@@ -154,11 +154,11 @@ func (r *Room) Run() {
 			r.Disconnect(client.user)
 		case msg := <-r.forward:
 			// forward message to all clients
-			evnt, err := events.ProcessEvent(msg)
+			EVENT, err := events.ProcessEvent(msg)
 			if err != nil {
 				return
 			}
-			r.HandleEvent(evnt)
+			r.HandleEvent(EVENT)
 		}
 	}
 }
@@ -191,11 +191,11 @@ func (r *Room) HandleEvent(evt events.Event) {
 	metrics.OpsProcessed.Inc()
 	r.Store.Update(&roomState.Meta)
 
-	if evt.Action == events.EVT_ROOM_EXIT && r.Bot != nil {
+	if evt.Action == events.EVENT_ROOM_EXIT && r.Bot != nil {
 		r.Bot.Disconnect()
 		return
 	}
-	if evt.Action == events.EVNT_BOT_LEAVE {
+	if evt.Action == events.EVENT_BOT_LEAVE {
 		r.DeRegisterBot()
 		return
 	}

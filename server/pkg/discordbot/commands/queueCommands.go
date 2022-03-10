@@ -93,7 +93,7 @@ func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 	r.HandleEvent(events.Event{
-		Action:  events.EVT_SUFFLE_QUEUE,
+		Action:  events.EVENT_SHUFFLE_QUEUE,
 		Watcher: user.DISCORD_BOT,
 	})
 	return ctx.Reply(":twisted_rightwards_arrows:  Queue Shuffled :thumbsup:")
@@ -127,7 +127,7 @@ func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	meta.ReorderQueue(pos1, pos2)
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_UPDATE_QUEUE,
+		Action:  events.EVENT_UPDATE_QUEUE,
 		Watcher: user.DISCORD_BOT,
 		Queue:   meta.Queue,
 	})
@@ -160,7 +160,7 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		meta.RemoveFromQueue(pos)
 	}
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_UPDATE_QUEUE,
+		Action:  events.EVENT_UPDATE_QUEUE,
 		Watcher: user.DISCORD_BOT,
 		Queue:   meta.Queue,
 	})
@@ -191,12 +191,12 @@ func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_UPDATE_QUEUE,
+		Action:  events.EVENT_UPDATE_QUEUE,
 		Watcher: user.DISCORD_BOT,
 		Queue:   meta.Queue,
 	})
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_NEXT_VIDEO,
+		Action:  events.EVENT_NEXT_VIDEO,
 		Watcher: user.DISCORD_BOT,
 	})
 
@@ -211,7 +211,7 @@ func clearCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_UPDATE_QUEUE,
+		Action:  events.EVENT_UPDATE_QUEUE,
 		Watcher: user.DISCORD_BOT,
 		Queue:   []media.Media{},
 	})

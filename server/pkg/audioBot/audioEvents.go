@@ -8,14 +8,14 @@ import (
 
 func CreateBotJoinEvent() events.Event {
 	return events.Event{
-		Action:  events.EVNT_USER_UPDATE,
+		Action:  events.EVENT_USER_UPDATE,
 		Watcher: user.DISCORD_BOT,
 	}
 }
 
 func CreateBotUpdateEvent(seek media.Seek) events.Event {
 	evt := events.Event{
-		Action:  events.EVNT_USER_UPDATE,
+		Action:  events.EVENT_USER_UPDATE,
 		Watcher: user.DISCORD_BOT,
 	}
 	evt.Watcher.Seek = seek
@@ -24,7 +24,7 @@ func CreateBotUpdateEvent(seek media.Seek) events.Event {
 
 func CreateBotFinishEvent() events.Event {
 	evt := events.Event{
-		Action:  events.ENVT_FINSH,
+		Action:  events.EVENT_FINISH,
 		Watcher: user.DISCORD_BOT,
 	}
 	evt.Watcher.Seek = media.SEEK_FINISHED
@@ -33,7 +33,7 @@ func CreateBotFinishEvent() events.Event {
 
 func CreateBotLeaveEvent() events.Event {
 	return events.Event{
-		Action:  events.EVNT_USER_LEAVE,
+		Action:  events.EVENT_USER_LEAVE,
 		Watcher: user.DISCORD_BOT,
 	}
 }

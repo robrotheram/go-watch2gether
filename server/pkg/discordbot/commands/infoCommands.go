@@ -67,7 +67,7 @@ func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	message.AddField(discordgo.MessageEmbedField{
 		Name:   "Channel",
-		Value:  video.Channel,
+		Value:  video.ChannelName,
 		Inline: true,
 	})
 
@@ -101,16 +101,16 @@ func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 
 	queStr := ""
-	for i, vidoe := range meta.Queue {
+	for i, video := range meta.Queue {
 		if i >= 5 {
 			break
 		}
 		queStr = queStr + fmt.Sprintf("`%d.` [%s](%s) | `%s Requested by: %s` \n\n",
 			i+1,
-			vidoe.Title,
-			vidoe.Url,
-			vidoe.Duration,
-			vidoe.User)
+			video.Title,
+			video.Url,
+			video.Duration,
+			video.User)
 	}
 
 	if len(queStr) == 0 {

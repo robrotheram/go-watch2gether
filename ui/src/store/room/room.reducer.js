@@ -1,6 +1,6 @@
 import { openNotificationWithIcon } from '../../components/common/notification';
 import {
-  JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL, EVNT_PLAYING, EVNT_PAUSING, EVNT_NEXT_VIDEO, EVNT_UPDATE_QUEUE,
+  JOIN_SUCCESSFUL, ROOM_ERROR, CLEAR_ERROR, GET_META_SUCCESSFUL, LEAVE_SUCCESSFUL, REJOIN_SUCCESSFUL, EVENT_PLAYING, EVENT_PAUSING, EVENT_NEXT_VIDEO, EVENT_UPDATE_QUEUE,
 } from '../event.types';
 
 const INITIAL_STATE = {
@@ -100,16 +100,16 @@ const process_websocket_event = (state, data) => {
 
 const HandleNotification = (data) => {
   switch (data.action) {
-    case EVNT_PLAYING:
+    case EVENT_PLAYING:
       openNotificationWithIcon('info', `${data.watcher.username} has started the video`);
       break;
-    case EVNT_PAUSING:
+    case EVENT_PAUSING:
       openNotificationWithIcon('info', `${data.watcher.username} has stopped the video`);
       break;
-    case EVNT_NEXT_VIDEO:
+    case EVENT_NEXT_VIDEO:
       openNotificationWithIcon('info', `${data.watcher.username} has changed the vidoe the video`);
       break;
-    case EVNT_UPDATE_QUEUE:
+    case EVENT_UPDATE_QUEUE:
       openNotificationWithIcon('info', `${data.watcher.username} has updated the queue`);
       break;
     default:

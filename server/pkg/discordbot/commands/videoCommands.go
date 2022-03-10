@@ -57,7 +57,7 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 	}
 	videos, err := media.NewVideo(u.String(), username)
 	if len(videos) == 0 || err != nil {
-		return nil, fmt.Errorf("unable to understand the video does it exisit?")
+		return nil, fmt.Errorf("unable to understand the video does it exist?")
 	}
 	video := videos[0]
 	message := EmbedBuilder(fmt.Sprintf("Added %d tracks to the Queue", len(videos)))
@@ -68,7 +68,7 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 
 	message.AddField(discordgo.MessageEmbedField{
 		Name:   "Channel",
-		Value:  video.Channel,
+		Value:  video.ChannelName,
 		Inline: true,
 	})
 
@@ -85,7 +85,7 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 	})
 	queue := append(meta.Queue, videos...)
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_UPDATE_QUEUE,
+		Action:  events.EVENT_UPDATE_QUEUE,
 		Watcher: user.DISCORD_BOT,
 		Queue:   queue,
 	})
@@ -109,7 +109,7 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 		ctx.ReplyEmbed(msg)
 	} else {
 		r.HandleEvent(events.Event{
-			Action:  events.EVNT_PLAYING,
+			Action:  events.EVENT_PLAYING,
 			Watcher: user.DISCORD_BOT,
 		})
 		return ctx.Reply(":play_pause: Resuming :thumbsup:")
@@ -117,7 +117,7 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	meta, _ = ctx.GetMeta()
 	if meta.CurrentVideo.Url == "" {
 		r.HandleEvent(events.Event{
-			Action:  events.EVNT_NEXT_VIDEO,
+			Action:  events.EVENT_NEXT_VIDEO,
 			Watcher: user.DISCORD_BOT,
 		})
 		ctx.Reply(":play_pause: Now Playing :thumbsup:")
@@ -130,7 +130,7 @@ func pauseCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if !ok {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-	evt := events.NewEvent(events.EVNT_PAUSING)
+	evt := events.NewEvent(events.EVENT_PAUSING)
 	evt.Watcher = user.DISCORD_BOT
 	r.HandleEvent(evt)
 	return ctx.Reply(":pause_button: Pausing :thumbsup:")
@@ -142,7 +142,7 @@ func skipCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
 	r.HandleEvent(events.Event{
-		Action:  events.EVNT_NEXT_VIDEO,
+		Action:  events.EVENT_NEXT_VIDEO,
 		Watcher: user.DISCORD_BOT,
 	})
 	return ctx.Reply(":fast_forward: ***Skipped*** :thumbsup:")

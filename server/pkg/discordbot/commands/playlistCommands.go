@@ -115,7 +115,7 @@ func SummonCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	usrID = strings.Trim(usrID, "<@!")
 	usr, err := ctx.Session.User(usrID)
 	if err != nil {
-		return ctx.Errorf("unable to find user: %w", err)
+		return ctx.Errorf("unable to find user: %v", err)
 	}
 	playlistName := "@" + usr.Username
 	for _, playlist := range playlists {
@@ -124,7 +124,7 @@ func SummonCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 			queue := meta.Queue
 			queue = append(queue, video)
 			r.HandleEvent(events.Event{
-				Action:  events.EVNT_UPDATE_QUEUE,
+				Action:  events.EVENT_UPDATE_QUEUE,
 				Watcher: user.DISCORD_BOT,
 				Queue:   queue,
 			})

@@ -19,7 +19,6 @@ import (
 type Youtube struct {
 	downloader *youtube.Client
 	hlsRegex   *regexp.Regexp
-	videoURL   string
 }
 
 func init() {
@@ -116,38 +115,38 @@ func (yt *Youtube) GetAudioUrl(videoURL string) (string, error) {
 }
 
 func (yt *Youtube) GetMedia(url string, username string) []Media {
-	ytPlayist, err := yt.downloader.GetPlaylist(url)
+	ytPlaylist, err := yt.downloader.GetPlaylist(url)
 	if err == nil {
-		vidoes := []Media{}
-		for _, ytVideo := range ytPlayist.Videos {
+		videos := []Media{}
+		for _, ytVideo := range ytPlaylist.Videos {
 			ytURL := fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID)
 			v := Media{
-				ID:       ksuid.New().String(),
-				Url:      ytURL,
-				User:     username,
-				Title:    ytVideo.Title,
-				Type:     VIDEO_TYPE_YT,
-				Duration: ytVideo.Duration,
-				Channel:  ytVideo.Author,
+				ID:          ksuid.New().String(),
+				Url:         ytURL,
+				User:        username,
+				Title:       ytVideo.Title,
+				Type:        VIDEO_TYPE_YT,
+				Duration:    ytVideo.Duration,
+				ChannelName: ytVideo.Author,
 			}
 			if audio, err := yt.GetAudioUrl(ytURL); err == nil {
 				v.AudioUrl = audio
 			}
-			vidoes = append(vidoes, v)
+			videos = append(videos, v)
 		}
-		return vidoes
+		return videos
 	}
 	ytVideo, err := yt.downloader.GetVideo(url)
 	if err == nil {
 		video := Media{
-			ID:        ksuid.New().String(),
-			Url:       url,
-			User:      username,
-			Type:      VIDEO_TYPE_YT,
-			Title:     ytVideo.Title,
-			Duration:  ytVideo.Duration,
-			Thumbnail: ytVideo.Thumbnails[0].URL,
-			Channel:   ytVideo.Author,
+			ID:          ksuid.New().String(),
+			Url:         url,
+			User:        username,
+			Type:        VIDEO_TYPE_YT,
+			Title:       ytVideo.Title,
+			Duration:    ytVideo.Duration,
+			Thumbnail:   ytVideo.Thumbnails[0].URL,
+			ChannelName: ytVideo.Author,
 		}
 		if audio, err := yt.GetAudioUrl(url); err == nil {
 			video.AudioUrl = audio

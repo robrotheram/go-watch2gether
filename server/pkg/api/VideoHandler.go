@@ -26,7 +26,7 @@ func (h BaseHandler) AddVideo(w http.ResponseWriter, r *http.Request) error {
 
 	meta, err := h.Datastore.Rooms.Find(id)
 	if err != nil {
-		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exisit")}
+		return StatusError{http.StatusBadRequest, fmt.Errorf("room does not exist")}
 	}
 
 	var msg = VideoMsg{}
@@ -42,7 +42,7 @@ func (h BaseHandler) AddVideo(w http.ResponseWriter, r *http.Request) error {
 
 	meta.Queue = append(meta.Queue, videos...)
 	room.HandleEvent(events.Event{
-		Action:  events.EVNT_UPDATE_QUEUE,
+		Action:  events.EVENT_UPDATE_QUEUE,
 		Watcher: user.NewWatcher(usr),
 		Queue:   meta.Queue,
 	})

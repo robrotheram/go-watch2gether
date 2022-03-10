@@ -65,7 +65,7 @@ func NewAudio(bot *AudioBot, voice *discordgo.VoiceConnection) *Audio {
 
 func (audio *Audio) Play(url string, startTime int) error {
 	if audio.Playing {
-		return fmt.Errorf("Playing already started")
+		return fmt.Errorf("playing already started")
 	}
 	audio.Stop()
 	audio.Lock()
@@ -79,7 +79,7 @@ func (audio *Audio) Play(url string, startTime int) error {
 
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
-		return fmt.Errorf("Failed creating an encoding session: %v", err)
+		return fmt.Errorf("failed creating an encoding session: %v", err)
 	}
 	go func() {
 		audio.Duration, _ = ParseDuration(audio.Url)

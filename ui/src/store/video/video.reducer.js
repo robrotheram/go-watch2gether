@@ -1,5 +1,5 @@
 import {
-  AUTH_LOGIN, GET_META_SUCCESSFUL, PROGRESS_UPDATE, EVNT_SEEK_TO_USER, EVNT_PLAYING,
+  AUTH_LOGIN, GET_META_SUCCESSFUL, PROGRESS_UPDATE, EVENT_SEEK_TO_USER, EVENT_PLAYING,
 } from '../event.types';
 
 const INITIAL_STATE = {
@@ -40,7 +40,7 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
         ...state, current_seek: action.seek,
       };
 
-    case EVNT_SEEK_TO_USER:
+    case EVENT_SEEK_TO_USER:
       return {
         ...state, seek_to_user: action.seek,
       };
@@ -64,12 +64,12 @@ export const videoReducer = (state = INITIAL_STATE, action) => {
 const process_websocket_event = (state, data) => {
   const video = data.current_video;
   switch (data.action) {
-    case EVNT_PLAYING:
+    case EVENT_PLAYING:
       if (state.current_seek.progress_percent < 1) {
         return { ...state, playing: data.playing };
       }
       break;
-    case EVNT_SEEK_TO_USER:
+    case EVENT_SEEK_TO_USER:
       const user = data.watchers.filter((w) => w.id === state.user_id);
       console.log('video-user', user);
       if (user.length > 0) {

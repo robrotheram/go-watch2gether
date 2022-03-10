@@ -131,10 +131,10 @@ func (sc *SoundCloudApi) getTrackID(html []byte) (string, error) {
 	return trackID, nil
 }
 
-func (sc *SoundCloudApi) getTrackData(trackID string, clinetID string) SoundcloudTrackInfo {
+func (sc *SoundCloudApi) getTrackData(trackID string, clientID string) SoundcloudTrackInfo {
 	var track SoundcloudTrackInfo
 
-	url := fmt.Sprintf("https://api-v2.soundcloud.com/tracks?ids=%s&client_id=%s", trackID, clinetID)
+	url := fmt.Sprintf("https://api-v2.soundcloud.com/tracks?ids=%s&client_id=%s", trackID, clientID)
 	data, err := sc.getSoundcloudData(url)
 	if err != nil {
 		logrus.Warn("unable to get track data")
@@ -144,7 +144,7 @@ func (sc *SoundCloudApi) getTrackData(trackID string, clinetID string) Soundclou
 	return track
 }
 
-func (sc *SoundCloudApi) getClinetID(html []byte) (string, error) {
+func (sc *SoundCloudApi) getClientID(html []byte) (string, error) {
 	var re = regexp.MustCompile(`<script crossorigin src="(.+?)"><\/script>`)
 	url := re.FindAllStringSubmatch(string(html), -1)[4][1]
 
@@ -166,7 +166,7 @@ func (sc *SoundCloudApi) GetMedia(url string, username string) []Media {
 	if err != nil {
 		return media
 	}
-	clientID, err := sc.getClinetID(html)
+	clientID, err := sc.getClientID(html)
 	if err != nil {
 		return media
 	}
@@ -188,15 +188,15 @@ func (sc *SoundCloudApi) GetMedia(url string, username string) []Media {
 	json.Unmarshal(data, &scm)
 
 	m := Media{
-		ID:        ksuid.New().String(),
-		Url:       url,
-		User:      username,
-		Type:      VIDEO_TYPE_SC,
-		Title:     tackData.Title,
-		Duration:  time.Duration(tackData.Duration / 1000),
-		Thumbnail: tackData.ArtworkURL,
-		Channel:   tackData.User.Username,
-		AudioUrl:  scm.Url,
+		ID:          ksuid.New().String(),
+		Url:         url,
+		User:        username,
+		Type:        VIDEO_TYPE_SC,
+		Title:       tackData.Title,
+		Duration:    time.Duration(tackData.Duration / 1000),
+		Thumbnail:   tackData.ArtworkURL,
+		ChannelName: tackData.User.Username,
+		AudioUrl:    scm.Url,
 	}
 
 	return append(media, m)

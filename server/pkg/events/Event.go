@@ -49,14 +49,14 @@ func (e *Event) Handle(meta *meta.Meta) (RoomState, error) {
 }
 
 func ProcessEvent(data []byte) (Event, error) {
-	var evnt Event
+	var EVENT Event
 	in := bytes.NewReader(data)
-	err := json.NewDecoder(in).Decode(&evnt)
+	err := json.NewDecoder(in).Decode(&EVENT)
 	if err != nil {
 		log.Errorf("Error Decoding Event: %v", err)
 		return Event{}, err
 	}
-	return evnt, nil
+	return EVENT, nil
 }
 
 func NewEvent(action string) Event {
