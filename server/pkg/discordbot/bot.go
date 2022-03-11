@@ -104,8 +104,10 @@ func (db *DiscordBot) Close() {
 }
 
 func (db *DiscordBot) CommandHandler(s *discordgo.Session, i *discordgo.InteractionCreate) {
-	fmt.Printf("Running Command %s", i.ApplicationCommandData().Name)
+
 	guild, err := db.session.Guild(i.GuildID)
+	log.Infof("Guild %s -running command: %s", guild.Name, i.ApplicationCommandData().Name)
+
 	if err != nil {
 		s.ChannelMessageSend(i.ChannelID, "Guild not found")
 		return

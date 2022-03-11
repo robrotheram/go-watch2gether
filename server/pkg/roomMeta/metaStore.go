@@ -49,7 +49,7 @@ func (udb *RoomStore) Find(id string) (*Meta, error) {
 		return nil, err
 	}
 	if res.IsNil() {
-		return nil, fmt.Errorf("User not found")
+		return nil, fmt.Errorf("Room %s not found", id)
 	}
 	var room *Meta
 	res.One(&room)

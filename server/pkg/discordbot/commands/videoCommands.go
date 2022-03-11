@@ -5,8 +5,6 @@ import (
 	"net/url"
 	"watch2gether/pkg/events"
 	"watch2gether/pkg/media"
-	"watch2gether/pkg/room"
-	meta "watch2gether/pkg/roomMeta"
 	"watch2gether/pkg/user"
 
 	"github.com/bwmarrin/discordgo"
@@ -17,18 +15,24 @@ func init() {
 		CMD{
 			ApplicationCommand: discordgo.ApplicationCommand{
 				Name:        "play",
-				Description: "Plays a song with the given name or url",
+				Description: "play",
+			},
+			Function: playCmd,
+		},
+		CMD{
+			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "add",
+				Description: "add media(youtube, soundcloud, radio garden, mp3, mp4)",
 				Options: []*discordgo.ApplicationCommandOption{
 					{
 						Type:        discordgo.ApplicationCommandOptionString,
-						Name:        "video",
-						Description: "Video URL e.g (https://www.youtube.com/watch?v=noneMROp_E8)",
-						Required:    false,
+						Name:        "media",
+						Description: "Video/Audio URL e.g (https://www.youtube.com/watch?v=noneMROp_E8)",
+						Required:    true,
 					},
 				},
 			},
-
-			Function: playCmd,
+			Function: addCmd,
 		},
 		CMD{
 			ApplicationCommand: discordgo.ApplicationCommand{
@@ -49,15 +53,14 @@ func init() {
 	)
 }
 
-func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*EmbededMessage, error) {
+func AddVideo(ctx CommandCtx, uri string) {
 
-	u, err := url.ParseRequestURI(uri)
-	if err != nil {
-		return nil, fmt.Errorf("%s Is not a valid URL", uri)
-	}
-	videos, err := media.NewVideo(u.String(), username)
+	r, _ := ctx.GetHubRoom()
+	meta, _ := ctx.GetMeta()
+
+	videos, err := media.NewVideo(uri, ctx.User.User.Username)
 	if len(videos) == 0 || err != nil {
-		return nil, fmt.Errorf("unable to understand the video does it exist?")
+		return
 	}
 	video := videos[0]
 	message := EmbedBuilder(fmt.Sprintf("Added %d tracks to the Queue", len(videos)))
@@ -89,31 +92,8 @@ func AddVideo(uri string, username string, meta *meta.Meta, r *room.Room) (*Embe
 		Watcher: user.DISCORD_BOT,
 		Queue:   queue,
 	})
-	fmt.Println(message)
-	return message, nil
-}
+	ctx.ReplyEmbed(message)
 
-func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-
-	r, ok := ctx.GetHubRoom()
-	meta, err := ctx.GetMeta()
-	if !ok || err != nil {
-		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
-	}
-
-	if len(ctx.Args) > 0 {
-		msg, err := AddVideo(ctx.Args[0], ctx.User.User.Username, meta, r)
-		if err != nil {
-			return ctx.Errorf("Unable to add video: %v", err)
-		}
-		ctx.ReplyEmbed(msg)
-	} else {
-		r.HandleEvent(events.Event{
-			Action:  events.EVENT_PLAYING,
-			Watcher: user.DISCORD_BOT,
-		})
-		return ctx.Reply(":play_pause: Resuming :thumbsup:")
-	}
 	meta, _ = ctx.GetMeta()
 	if meta.CurrentVideo.Url == "" {
 		r.HandleEvent(events.Event{
@@ -122,7 +102,43 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 		})
 		ctx.Reply(":play_pause: Now Playing :thumbsup:")
 	}
+
+}
+
+func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
+
+	if _, ok := ctx.GetHubRoom(); !ok {
+		return ctx.Errorf("room %s not active please get bot to join room", ctx.Guild.ID)
+	}
+
+	if len(ctx.Args) <= 0 {
+		return ctx.Errorf("no media url found")
+	}
+
+	_, err := url.ParseRequestURI(ctx.Args[0])
+	if err != nil {
+		return ctx.Errorf("%s Is not a valid URL", ctx.Args[0])
+	}
+
+	if media.MediaFactory.GetFactory(ctx.Args[0]) == nil {
+		return ctx.Errorf("%s is a unsupported media type", ctx.Args[0])
+	}
+
+	go AddVideo(ctx, ctx.Args[0])
+
 	return nil
+}
+
+func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
+	r, ok := ctx.GetHubRoom()
+	if !ok {
+		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
+	}
+	r.HandleEvent(events.Event{
+		Action:  events.EVENT_PLAYING,
+		Watcher: user.DISCORD_BOT,
+	})
+	return ctx.Reply(":play_pause: Now Playing :thumbsup:")
 }
 
 func pauseCMD(ctx CommandCtx) *discordgo.InteractionResponse {

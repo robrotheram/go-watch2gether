@@ -131,6 +131,8 @@ func (yt *Youtube) GetMedia(url string, username string) []Media {
 			}
 			if audio, err := yt.GetAudioUrl(ytURL); err == nil {
 				v.AudioUrl = audio
+			} else {
+				fmt.Println(err)
 			}
 			videos = append(videos, v)
 		}

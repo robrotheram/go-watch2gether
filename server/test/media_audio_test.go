@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 	"watch2gether/pkg/media"
 
@@ -10,13 +11,25 @@ import (
 var username = "test-username"
 
 func TestYoutubeGetAudioURL(t *testing.T) {
-	url := "https://www.youtube.com/watch?v=l9nh1l8ZIJQ&t=2968s"
+	url := "https://www.youtube.com/watch?v=l9nh1l8ZIJQ"
 	assert := assert.New(t)
 	m, _ := media.MediaFactory.GetMedia(url, username)
 	assert.Equal(len(m), 1)
 	assert.Equal(m[0].GetType(), media.MediaType("YOUTUBE"))
 	assert.NotEmpty(m[0].AudioUrl)
+	fmt.Println("URL:" + m[0].AudioUrl)
 }
+
+func TestYoutubeGetAudioOtherURL(t *testing.T) {
+	url := "https://www.youtube.com/watch?v=k3WkJq478To"
+	assert := assert.New(t)
+	m, _ := media.MediaFactory.GetMedia(url, username)
+	assert.Equal(len(m), 1)
+	assert.Equal(m[0].GetType(), media.MediaType("YOUTUBE"))
+	assert.NotEmpty(m[0].AudioUrl)
+	fmt.Println("URL:" + m[0].AudioUrl)
+}
+
 func TestYoutubeGetLiveAudioURL(t *testing.T) {
 	url := "https://www.youtube.com/watch?v=5qap5aO4i9A"
 	assert := assert.New(t)

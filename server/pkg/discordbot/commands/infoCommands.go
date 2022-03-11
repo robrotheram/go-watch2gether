@@ -78,7 +78,6 @@ func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	})
 	ctx.ReplyEmbed(message)
 	return nil
-
 }
 
 func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {

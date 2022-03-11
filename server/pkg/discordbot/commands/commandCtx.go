@@ -31,13 +31,6 @@ func (ctx *CommandCtx) SaveMeta(meta *meta.Meta) error {
 	return ctx.Rooms.Update(meta)
 }
 
-// func (ctx *CommandCtx) Reply(message string) error {
-// 	_, err := ctx.Session.ChannelMessageSend(
-// 		ctx.Channel.ID,
-// 		message,
-// 	)
-// 	return err
-// }
 func (ctx *CommandCtx) ReplyEmbed(message *EmbededMessage) error {
 	_, err := ctx.Session.ChannelMessageSendEmbed(
 		ctx.Channel.ID,
@@ -57,7 +50,7 @@ func (ctx *CommandCtx) Reply(message string) *discordgo.InteractionResponse {
 
 func (ctx *CommandCtx) Errorf(format string, a ...interface{}) *discordgo.InteractionResponse {
 	return &discordgo.InteractionResponse{
-		Type: discordgo.InteractionApplicationCommandAutocompleteResult,
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: fmt.Sprintf(format, a...),
 		},

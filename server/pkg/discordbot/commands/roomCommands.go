@@ -53,7 +53,7 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if !ok {
 		roomMeta, err := ctx.Rooms.Find(ctx.Guild.ID)
 		if err != nil {
-			return ctx.Reply(fmt.Sprintf("Bot error %v", err))
+			return ctx.Reply(fmt.Sprintf("Bot error: %v", err))
 		}
 		roomMeta.Type = room.ROOM_TYPE_DISCORD
 		if err != nil {
@@ -69,7 +69,7 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	bot := audioBot.NewAudioBot(vc, ctx.Channel.ID, ctx.Guild.ID, voice, ctx.Session)
 	err = r.RegisterBot(bot)
 	if err != nil {
-		ctx.Reply(fmt.Sprintf("Bot error %v", err))
+		ctx.Reply(fmt.Sprintf("Bot error: %v", err))
 		bot.Disconnect()
 	}
 	return ctx.Reply("Bot added to the room")

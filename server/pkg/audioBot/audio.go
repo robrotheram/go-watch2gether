@@ -75,6 +75,7 @@ func (audio *Audio) Play(url string, startTime int) error {
 	opts.Bitrate = 96
 	opts.StartTime = startTime
 	opts.Application = "audio"
+	opts.PacketLoss = 10
 	audio.startTime = startTime
 
 	encodeSession, err := dca.EncodeFile(url, opts)
