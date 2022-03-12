@@ -58,6 +58,10 @@ func AddVideo(ctx CommandCtx, uri string) {
 	r, _ := ctx.GetHubRoom()
 	meta, _ := ctx.GetMeta()
 
+	if media.MediaFactory.GetFactory(ctx.Args[0]) == nil {
+		ctx.Reply(fmt.Sprintf("%s is a unsupported media type", ctx.Args[0]))
+	}
+
 	videos, err := media.NewVideo(uri, ctx.User.User.Username)
 	if len(videos) == 0 || err != nil {
 		return
@@ -118,10 +122,6 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	_, err := url.ParseRequestURI(ctx.Args[0])
 	if err != nil {
 		return ctx.Errorf("%s Is not a valid URL", ctx.Args[0])
-	}
-
-	if media.MediaFactory.GetFactory(ctx.Args[0]) == nil {
-		return ctx.Errorf("%s is a unsupported media type", ctx.Args[0])
 	}
 
 	go AddVideo(ctx, ctx.Args[0])

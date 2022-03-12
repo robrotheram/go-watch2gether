@@ -52,3 +52,10 @@ func TestMP4Type(t *testing.T) {
 	factory := media.MediaFactory.GetFactory(url)
 	assert.Equal(factory.GetType(), "MP4")
 }
+
+func TestCRAZY(t *testing.T) {
+	url := "https://vs-cmaf-pushb-uk.live.cf.md.bbci.co.uk/x=3/i=urn:bbc:pips:service:bbc_one_west_midlands/pc_hd_abr_v2.mpd"
+	assert := assert.New(t)
+	factory := media.MediaFactory.GetFactory(url)
+	assert.Equal(factory.GetType(), "MP4")
+}

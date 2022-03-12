@@ -31,5 +31,5 @@ func (client *MP4Video) IsValidUrl(url string, ct *ContentType) bool {
 	if err != nil {
 		return false
 	}
-	return contentetType == "video/mp4" || contentetType == "application/octet-stream" || contentetType == "application/vnd.apple.mpegurl"
+	return contentetType == "video/mp4" || contentetType == "application/dash+mpeg-url" || contentetType == "application/octet-stream" || contentetType == "application/vnd.apple.mpegurl"
 }
