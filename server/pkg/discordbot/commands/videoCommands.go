@@ -78,13 +78,11 @@ func AddVideo(ctx CommandCtx, uri string) {
 		Value:  video.ChannelName,
 		Inline: true,
 	})
-
 	message.AddField(discordgo.MessageEmbedField{
 		Name:   "Song Duration",
 		Value:  video.Duration.String(),
 		Inline: true,
 	})
-
 	message.AddField(discordgo.MessageEmbedField{
 		Name:   "Position in the Queue",
 		Value:  fmt.Sprintf("%d", len(meta.Queue)+1),
@@ -126,7 +124,7 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 	go AddVideo(ctx, ctx.Args[0])
 
-	return nil
+	return ctx.Replyf("Proccessing media: %s, will be added to the queue shortly", ctx.Args[0])
 }
 
 func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {

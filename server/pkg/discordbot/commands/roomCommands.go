@@ -2,8 +2,11 @@ package commands
 
 import (
 	"fmt"
+	"strings"
 	"watch2gether/pkg/audioBot"
 	"watch2gether/pkg/room"
+	meta "watch2gether/pkg/roomMeta"
+	"watch2gether/pkg/user"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -39,6 +42,11 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 	return "", fmt.Errorf("channel not found")
 }
 
+func CreateRoom(ctx CommandCtx) (*meta.Meta, error) {
+	usr := user.NewUser(ctx.Guild.OwnerID, user.USER_TYPE_DISCORD)
+	return ctx.Rooms.GetOrCreate(ctx.Guild.ID, ctx.Guild.Name, usr)
+}
+
 func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.User.ID)
 	if err != nil {
@@ -53,7 +61,12 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if !ok {
 		roomMeta, err := ctx.Rooms.Find(ctx.Guild.ID)
 		if err != nil {
-			return ctx.Reply(fmt.Sprintf("Bot error: %v", err))
+			if strings.Contains(err.Error(), "not found") {
+				roomMeta, err = CreateRoom(ctx)
+				if err != nil {
+					return ctx.Reply(fmt.Sprintf("Bot error: %v", err))
+				}
+			}
 		}
 		roomMeta.Type = room.ROOM_TYPE_DISCORD
 		if err != nil {

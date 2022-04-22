@@ -47,8 +47,7 @@ func LinkCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	msg.URL = fmt.Sprintf("%s/app/room/%s", ctx.BaseURL, ctx.Guild.ID)
 	msg.Type = discordgo.EmbedTypeArticle
 	msg.Description = fmt.Sprintf("%s/app/room/%s", ctx.BaseURL, ctx.Guild.ID)
-	ctx.ReplyEmbed(msg)
-	return nil
+	return ctx.CmdReplyEmbed(msg)
 }
 
 func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
@@ -76,8 +75,7 @@ func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 		Value:  video.Duration.String(),
 		Inline: true,
 	})
-	ctx.ReplyEmbed(message)
-	return nil
+	return ctx.CmdReplyEmbed(message)
 }
 
 func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {
@@ -121,10 +119,7 @@ func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	})
 
 	msg.Description = fmt.Sprintf("%d tracks in total in the queue", len(meta.Queue))
-
-	ctx.ReplyEmbed(msg)
-	return nil
-
+	return ctx.CmdReplyEmbed(msg)
 }
 
 func VersionCMD(ctx CommandCtx) *discordgo.InteractionResponse {

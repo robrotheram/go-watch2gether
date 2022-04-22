@@ -1,3 +1,3 @@
 package datastore
 
-const VERSION = "0.9.3	"
+const VERSION = "0.9.6"

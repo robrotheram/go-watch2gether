@@ -166,7 +166,7 @@ func (sc *SoundCloudApi) GetMedia(url string, username string) []Media {
 	if err != nil {
 		return media
 	}
-	clientID, err := sc.getClientID(html)
+	clientID := "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
 	if err != nil {
 		return media
 	}

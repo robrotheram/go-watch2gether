@@ -39,6 +39,19 @@ func (ctx *CommandCtx) ReplyEmbed(message *EmbededMessage) error {
 	return err
 }
 
+func (ctx *CommandCtx) CmdReplyEmbed(message *EmbededMessage) *discordgo.InteractionResponse {
+	embeds := []*discordgo.MessageEmbed{}
+	embeds = append(embeds, &message.MessageEmbed)
+	return ctx.CmdReplyEmbeds(embeds)
+}
+func (ctx *CommandCtx) CmdReplyEmbeds(embeds []*discordgo.MessageEmbed) *discordgo.InteractionResponse {
+	return &discordgo.InteractionResponse{
+		Type: discordgo.InteractionResponseChannelMessageWithSource,
+		Data: &discordgo.InteractionResponseData{
+			Embeds: embeds,
+		},
+	}
+}
 func (ctx *CommandCtx) Reply(message string) *discordgo.InteractionResponse {
 	return &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
@@ -47,12 +60,15 @@ func (ctx *CommandCtx) Reply(message string) *discordgo.InteractionResponse {
 		},
 	}
 }
-
-func (ctx *CommandCtx) Errorf(format string, a ...interface{}) *discordgo.InteractionResponse {
+func (ctx *CommandCtx) Replyf(format string, a ...interface{}) *discordgo.InteractionResponse {
 	return &discordgo.InteractionResponse{
 		Type: discordgo.InteractionResponseChannelMessageWithSource,
 		Data: &discordgo.InteractionResponseData{
 			Content: fmt.Sprintf(format, a...),
 		},
 	}
+}
+
+func (ctx *CommandCtx) Errorf(format string, a ...interface{}) *discordgo.InteractionResponse {
+	return ctx.Replyf(format, a...)
 }

@@ -93,8 +93,7 @@ func PlaylistListCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 		Name:  "This room has the following playlists",
 		Value: messageStr,
 	})
-	ctx.ReplyEmbed(msg)
-	return nil
+	return ctx.CmdReplyEmbed(msg)
 }
 
 func SummonCmd(ctx CommandCtx) *discordgo.InteractionResponse {

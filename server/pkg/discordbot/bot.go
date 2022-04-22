@@ -36,7 +36,6 @@ func NewDiscordBot(datastore *datastore.Datastore, token string, baseurl string,
 		return nil, fmt.Errorf("Error Creating Discord Session: %v", err)
 	}
 
-	dg.AddHandler(bot.MessageCreate)
 	dg.AddHandler(bot.CommandHandler)
 
 	dg.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
@@ -95,7 +94,7 @@ func (db *DiscordBot) Start() error {
 		return fmt.Errorf("error opening connection: %v", err)
 	}
 
-	go db.RegisterCommands()
+	//go db.RegisterCommands()
 	return nil
 }
 
@@ -143,31 +142,5 @@ func (db *DiscordBot) CommandHandler(s *discordgo.Session, i *discordgo.Interact
 	}
 	if resp := cmd.Function(ctx); resp != nil {
 		s.InteractionRespond(i.Interaction, resp)
-	} else {
-		s.InteractionResponseDelete(s.State.User.ID, i.Interaction)
 	}
-}
-
-func (db *DiscordBot) MessageCreate(s *discordgo.Session, message *discordgo.MessageCreate) {
-	var PREFIX = "!"
-
-	channel, _ := db.session.Channel(message.ChannelID)
-	content := message.Content
-	if len(content) <= len(PREFIX) {
-		return
-	}
-	if content[:len(PREFIX)] != PREFIX {
-		return
-	}
-	content = content[len(PREFIX):]
-	if len(content) < 1 {
-		return
-	}
-
-	registerURL := "https://discord.com/oauth2/authorize?client_id=" + db.clientID + "&permissions=0&scope=bot%20applications.commands"
-	s.ChannelMessageSend(
-		channel.ID,
-		fmt.Sprintf("Version 0.9+ Uses Slash commands. If they do not appear please re-register the bot:  %s", registerURL),
-	)
-
 }
