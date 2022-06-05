@@ -10,7 +10,6 @@ import (
 	"regexp"
 	"time"
 
-	yt "github.com/89z/mech/youtube"
 	"github.com/kkdai/youtube/v2"
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
@@ -92,30 +91,27 @@ func (yt *Youtube) getLiveURL(manifestURL string) (string, error) {
 	}
 }
 
-func (ytc *Youtube) GetAudioUrl(videoURL string) (string, error) {
-	id, err := yt.VideoID(videoURL)
+func (yt *Youtube) GetAudioUrl(videoURL string) (string, error) {
+
+	video, format, err := yt.GetVideoWithFormat(videoURL)
 	if err != nil {
 		return "", err
 	}
-	player, err := yt.Android.Player(id)
-	if err != nil {
-		return "", err
-	}
-	if player.StreamingData.HLSManifestUrl != "" {
+
+	if video.HLSManifestURL != "" {
 		logrus.Info("Getting HLS STREAM Url")
-		url, _ := ytc.getLiveURL(player.StreamingData.HLSManifestUrl)
-		return url, nil
-	}
-	meida := yt.Format{}
-	for _, form := range player.StreamingData.AdaptiveFormats {
-		if form.AudioQuality == "AUDIO_QUALITY_LOW" && form.Bitrate >= meida.Bitrate {
-			meida = form
+		url, err := yt.getLiveURL(video.HLSManifestURL)
+		if err == nil {
+			logrus.Info("USING HLS STREAM")
+			return url, nil
 		}
 	}
-	if meida.URL != "" {
-		return meida.URL, nil
+
+	url, err := yt.downloader.GetStreamURL(video, format)
+	if err != nil {
+		return "", err
 	}
-	return "", fmt.Errorf("unable to get streaming url")
+	return url, nil
 }
 
 func (yt *Youtube) GetMedia(url string, username string) []Media {
