@@ -59,3 +59,17 @@ func TestCRAZY(t *testing.T) {
 	factory := media.MediaFactory.GetFactory(url)
 	assert.Equal(factory.GetType(), "MP4")
 }
+
+func TestJupiter(t *testing.T) {
+	url := "https://jupiter.tube/w/sroVsxapHuMc4VjpgTb1em"
+	assert := assert.New(t)
+	factory := media.MediaFactory.GetFactory(url)
+	assert.Equal(factory.GetType(), "PEERTUBE")
+}
+
+func TestJupiterM3u8(t *testing.T) {
+	url := "https://jupiter.tube/static/streaming-playlists/hls/d619534d-4820-4ffa-a760-25e88d724ae6/master.m3u8"
+	assert := assert.New(t)
+	factory := media.MediaFactory.GetFactory(url)
+	assert.Equal(factory.GetType(), "MP4")
+}
