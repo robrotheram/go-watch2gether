@@ -31,7 +31,7 @@ func TestYoutubeGetAudioOtherURL(t *testing.T) {
 }
 
 func TestYoutubeGetLiveAudioURL(t *testing.T) {
-	url := "https://www.youtube.com/watch?v=5qap5aO4i9A"
+	url := "https://www.youtube.com/watch?v=jfKfPfyJRdk"
 	assert := assert.New(t)
 	m, _ := media.MediaFactory.GetMedia(url, username)
 	assert.Equal(len(m), 1)

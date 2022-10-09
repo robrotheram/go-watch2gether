@@ -10,7 +10,7 @@ import (
 func TestGetMediaTypes(t *testing.T) {
 	assert := assert.New(t)
 	types := media.MediaFactory.GetTypes()
-	assert.ElementsMatch(types, []string{"MP3", "MP4", "PODCAST", "RADIO_GARDEN", "SOUNDCLOUD", "YOUTUBE"})
+	assert.ElementsMatch(types, []string{"MP3", "MP4", "PEERTUBE", "PODCAST", "RADIO_GARDEN", "SOUNDCLOUD", "YOUTUBE"})
 }
 
 func TestYoutubeTypes(t *testing.T) {
