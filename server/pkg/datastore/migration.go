@@ -1,10 +1,9 @@
 package datastore
 
 import (
-	"fmt"
-	"log"
 	"sort"
 
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
@@ -43,13 +42,11 @@ func (udb *MigrationStore) Get() (MigrationVersion, error) {
 	// Fetch all the items from the database
 	res, err := rethinkdb.Table(MIGRATION_PREFIX).Run(udb.session)
 	if err != nil {
-		fmt.Println(err)
 		return version, err
 	}
 	err = res.One(&version)
 
 	if err != nil {
-		fmt.Println(err)
 		return version, err
 	}
 	return version, nil
@@ -76,7 +73,7 @@ func (data *Datastore) RunMigrations() {
 	}
 	pos := -1
 
-	log.Println("Current Version: " + currentVersion.Version)
+	log.Info("Current Version: " + currentVersion.Version)
 	for i, version := range versions {
 		if currentVersion.Version == version {
 			pos = i
@@ -87,7 +84,7 @@ func (data *Datastore) RunMigrations() {
 	}
 
 	for _, version := range versions {
-		log.Println("Running Migration for version: " + version)
+		log.Info("Running Migration for version: " + version)
 		MigrationFactory[version].Migrate(data)
 	}
 

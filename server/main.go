@@ -47,7 +47,6 @@ func main() {
 	if err := pkg.StartServer(addr, &server); err != nil {
 		log.Fatal("ListenAndServe:", err)
 	}
-
 }
 
 func SetupDiscordBot(config utils.Config, datastore *datastore.Datastore) {

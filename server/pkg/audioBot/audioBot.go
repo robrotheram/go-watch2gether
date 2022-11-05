@@ -158,7 +158,7 @@ func (ab *AudioBot) Start() {
 		for {
 			select {
 			case <-ab.done:
-				fmt.Println("DONE")
+				log.Debug("DONE")
 				return
 			case <-ab.ticker.C:
 				ab.LeaveCheck()

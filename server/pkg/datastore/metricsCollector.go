@@ -1,9 +1,10 @@
 package datastore
 
 import (
-	"fmt"
 	"time"
 	"watch2gether/pkg/metrics"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type MetricCollections struct {
@@ -25,7 +26,7 @@ func (mc *MetricCollections) Start() {
 		for {
 			select {
 			case <-mc.done:
-				fmt.Println("DONE")
+				log.Debug("DONE")
 				return
 			case <-mc.ticker.C:
 				mc.ClollectMetrics()

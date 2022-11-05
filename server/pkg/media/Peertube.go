@@ -190,7 +190,6 @@ func (pt *Peertube) GetMedia(url string, username string) []Media {
 	apiURL := fmt.Sprintf("%s/api/v1/videos/%s", host[1], video[1])
 	info, _ := pt.getPeerTubeData(apiURL)
 
-	fmt.Println(info)
 	m := Media{
 		ID:        ksuid.New().String(),
 		Url:       info.URL,

@@ -22,14 +22,12 @@ func init() {
 						Type:        discordgo.ApplicationCommandOptionInteger,
 						Name:        "old-position",
 						Description: "Current position in the queue",
-						MinValue:    &integerOptionMinValue,
 						Required:    true,
 					},
 					{
 						Type:        discordgo.ApplicationCommandOptionInteger,
 						Name:        "new-position",
 						Description: "New position in the queue",
-						MinValue:    &integerOptionMinValue,
 						Required:    true,
 					},
 				},
@@ -100,7 +98,6 @@ func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-
 	if len(ctx.Args) != 2 {
 		return ctx.Reply(":cry: sorry not enough argunments in the command try `!move 1 2`")
 	}

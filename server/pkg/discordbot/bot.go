@@ -2,6 +2,7 @@ package discordbot
 
 import (
 	"fmt"
+	"strconv"
 	"watch2gether/pkg/datastore"
 	"watch2gether/pkg/discordbot/commands"
 	user "watch2gether/pkg/user"
@@ -120,6 +121,8 @@ func (db *DiscordBot) CommandHandler(s *discordgo.Session, i *discordgo.Interact
 		switch arg.Type {
 		case discordgo.ApplicationCommandOptionString:
 			args = append(args, arg.StringValue())
+		case discordgo.ApplicationCommandOptionInteger:
+			args = append(args, strconv.FormatInt(arg.IntValue(), 10))
 		case discordgo.ApplicationCommandOptionSubCommand:
 			args = append(args, arg.Name)
 		}

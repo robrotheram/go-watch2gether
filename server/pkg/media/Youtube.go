@@ -12,7 +12,7 @@ import (
 
 	"github.com/kkdai/youtube/v2"
 	"github.com/segmentio/ksuid"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/http/httpproxy"
 )
 
@@ -99,10 +99,10 @@ func (yt *Youtube) GetAudioUrl(videoURL string) (string, error) {
 	}
 
 	if video.HLSManifestURL != "" {
-		logrus.Info("Getting HLS STREAM Url")
+		log.Info("Getting HLS STREAM Url")
 		url, err := yt.getLiveURL(video.HLSManifestURL)
 		if err == nil {
-			logrus.Info("USING HLS STREAM")
+			log.Info("USING HLS STREAM")
 			return url, nil
 		}
 	}
@@ -132,7 +132,7 @@ func (yt *Youtube) GetMedia(url string, username string) []Media {
 			if audio, err := yt.GetAudioUrl(ytURL); err == nil {
 				v.AudioUrl = audio
 			} else {
-				fmt.Println(err)
+				log.Warn(err)
 			}
 			videos = append(videos, v)
 		}

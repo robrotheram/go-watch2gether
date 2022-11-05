@@ -73,9 +73,6 @@ func (radio *RadioGarden) GetMedia(url string, username string) []Media {
 	info, _ := radio.getRadioInfo(radioID)
 	audioUrl := radio.getAudioURL(radioID)
 
-	fmt.Println(info)
-	fmt.Println(audioUrl)
-
 	m := Media{
 		ID:        ksuid.New().String(),
 		Url:       url,
