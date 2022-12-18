@@ -136,7 +136,7 @@ func (r *Room) DeleteIfEmpty() {
 	meta, _ := r.Store.Find(r.ID)
 	if meta.Owner == "" {
 		log.Infof("No Owner was created annon deleting")
-		r.Store.Delete(r.ID)
+		r.Store.Delete(meta)
 	}
 }
 

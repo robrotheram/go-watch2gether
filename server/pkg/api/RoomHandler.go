@@ -91,11 +91,9 @@ func (h BaseHandler) LeaveRoom(w http.ResponseWriter, r *http.Request) error {
 	}
 
 	//Check user exists
-	usr, err := h.Users.FindByField("Name", roomMsg.Username)
+	usr, err := h.Users.FindByName(roomMsg.Username)
 	if err != nil {
-
 		log.Error(err)
-
 	}
 
 	room, ok := h.Hub.FindRoom(roomMsg.ID)

@@ -4,3 +4,4 @@ docker-compose.dev.yml
 **/app.env
 docs
 __debug_bin
+*.db

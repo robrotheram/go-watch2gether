@@ -24,7 +24,7 @@ func (h BaseHandler) GetRoomPlaylist(w http.ResponseWriter, r *http.Request) err
 func (h BaseHandler) GetAllRoomPlaylists(w http.ResponseWriter, r *http.Request) error {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	playist, err := h.Playlist.FindByField("RoomID", id)
+	playist, err := h.Playlist.FindByRoomID(id)
 	if err != nil {
 		return StatusError{http.StatusNotFound, fmt.Errorf("playists does not exisit: %v", err)}
 	}
@@ -38,11 +38,11 @@ func (h BaseHandler) DeletePlaylist(w http.ResponseWriter, req *http.Request) er
 	w.Header().Set("Content-Type", "application/json")
 	id := vars["id"]
 
-	_, err := h.Playlist.Find(id)
+	playlist, err := h.Playlist.Find(id)
 	if err != nil {
 		return StatusError{http.StatusBadRequest, fmt.Errorf("playlist not found message")}
 	}
-	return h.Playlist.Delete(id)
+	return h.Playlist.Delete(*playlist)
 }
 
 func (h BaseHandler) CretePlaylist(w http.ResponseWriter, req *http.Request) error {

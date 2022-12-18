@@ -4,39 +4,33 @@ import (
 	"fmt"
 	user "watch2gether/pkg/user"
 
+	"github.com/asdine/storm"
 	log "github.com/sirupsen/logrus"
-	"gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 var PREFIX = "room"
 
 type RoomStore struct {
-	session *rethinkdb.Session
+	session *storm.DB
 }
 
 func (u *RoomStore) GetRedisKey(id string) string {
 	return fmt.Sprintf("%s:%s", PREFIX, id)
 }
 
-func NewRoomStore(session *rethinkdb.Session) *RoomStore {
+func NewRoomStore(session *storm.DB) *RoomStore {
 	rs := &RoomStore{session: session}
 	rs.Cleanup()
 	return rs
 }
 
 func (udb *RoomStore) Create(room *Meta) error {
-	_, err := rethinkdb.Table(PREFIX).Insert(room).RunWrite(udb.session)
-	return err
+	return udb.session.Save(room)
 }
 
 func (udb *RoomStore) GetAll() ([]*Meta, error) {
 	rooms := []*Meta{}
-	// Fetch all the items from the database
-	res, err := rethinkdb.Table(PREFIX).Run(udb.session)
-	if err != nil {
-		return rooms, err
-	}
-	err = res.All(&rooms)
+	err := udb.session.All(&rooms)
 	if err != nil {
 		return rooms, err
 	}
@@ -44,49 +38,32 @@ func (udb *RoomStore) GetAll() ([]*Meta, error) {
 }
 
 func (udb *RoomStore) Find(id string) (*Meta, error) {
-	res, err := rethinkdb.Table(PREFIX).Get(id).Run(udb.session)
+	var room []Meta
+	err := udb.session.Find("ID", id, &room)
 	if err != nil {
 		return nil, err
 	}
-	if res.IsNil() {
-		return nil, fmt.Errorf("Room %s not found", id)
+	if len(room) <= 0 {
+		return nil, fmt.Errorf("room not found")
 	}
-	var room *Meta
-	res.One(&room)
-	res.Close()
-	if room == nil {
-		return nil, fmt.Errorf("meta not found")
-	}
-	return room, nil
+	return &room[0], err
 }
 
 func (udb *RoomStore) FindByField(feild, value string) (*Meta, error) {
-	res, err := rethinkdb.Table(PREFIX).Filter(rethinkdb.Row.Field(feild).Eq(value)).Run(udb.session)
-	var room Meta
-	if err != nil {
-		return nil, err
-	}
-
-	if res.IsNil() {
-		return nil, fmt.Errorf("room not found")
-	}
-
-	res.One(&room)
-	res.Close()
-	return &room, nil
+	var room *Meta
+	err := udb.session.Find(feild, value, room)
+	return room, err
 }
 
 func (udb *RoomStore) Update(meta *Meta) error {
 	if meta == nil {
 		return fmt.Errorf("can not update meta if nil")
 	}
-	_, err := rethinkdb.Table(PREFIX).Get(meta.ID).Update(meta).RunWrite(udb.session)
-	return err
+	return udb.session.Save(meta)
 }
 
-func (udb *RoomStore) Delete(id string) error {
-	_, err := rethinkdb.Table(PREFIX).Get(id).Delete().RunWrite(udb.session)
-	return err
+func (udb *RoomStore) Delete(meta *Meta) error {
+	return udb.session.DeleteStruct(meta)
 }
 
 func (udb *RoomStore) Cleanup() {
@@ -96,7 +73,7 @@ func (udb *RoomStore) Cleanup() {
 	}
 	for _, r := range rooms {
 		if r.Owner == "" {
-			udb.Delete(r.ID)
+			udb.Delete(r)
 		}
 	}
 }

@@ -29,8 +29,6 @@ func main() {
 	metricCollection := datastore.NewMetricCollection(*ds)
 	metricCollection.Start()
 
-	// Run Migrations in the background
-	go func() { ds.RunMigrations() }()
 	SetupDiscordBot(utils.Configuration, ds)
 
 	addr := fmt.Sprintf(":%s", utils.Configuration.ListenPort)

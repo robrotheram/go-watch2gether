@@ -90,8 +90,8 @@ func (hub *Hub) CleanUP(usrStore *user.UserStore) {
 				go hub.DeleteRoom(hubRoom.ID)
 			}
 		}
-		annonUsers, _ := usrStore.FindAllByField("Type", user.USER_TYPE_ANON)
-		unknownUsers, _ := usrStore.FindAllByField("Type", "")
+		annonUsers, _ := usrStore.FindByType(user.USER_TYPE_ANON)
+		unknownUsers, _ := usrStore.FindByType("")
 		users := append(annonUsers, unknownUsers...)
 		for _, u := range users {
 			found := false
@@ -102,7 +102,7 @@ func (hub *Hub) CleanUP(usrStore *user.UserStore) {
 			}
 			if !found {
 				log.Infof("Removing user: %s, due to being annon", u.Username)
-				go usrStore.Delete(u.ID)
+				go usrStore.Delete(u)
 			}
 		}
 	}

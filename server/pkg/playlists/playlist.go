@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"watch2gether/pkg/media"
 
-	"gopkg.in/rethinkdb/rethinkdb-go.v6"
+	"github.com/asdine/storm"
 )
 
 var PREFIX = "playlist"
 
 type PlayistStore struct {
-	session *rethinkdb.Session
+	session *storm.DB
 }
 
 type Playist struct {
@@ -21,65 +21,44 @@ type Playist struct {
 	Videos   []media.Media `json:"videos"`
 }
 
-func NewPlayistStore(session *rethinkdb.Session) *PlayistStore {
+func NewPlayistStore(session *storm.DB) *PlayistStore {
 	rs := &PlayistStore{session: session}
 	return rs
 }
 func (udb *PlayistStore) Create(playlist *Playist) error {
-	_, err := rethinkdb.Table(PREFIX).Insert(playlist).RunWrite(udb.session)
-	return err
+	return udb.session.Save(playlist)
 }
 
 func (udb *PlayistStore) GetAll() ([]*Playist, error) {
 	users := []*Playist{}
-	// Fetch all the items from the database
-	res, err := rethinkdb.Table(PREFIX).Run(udb.session)
-	if err != nil {
-		return users, err
-	}
-	err = res.All(&users)
-	if err != nil {
-		return users, err
-	}
-	return users, nil
+	err := udb.session.All(&users)
+	return users, err
 }
 
 func (udb *PlayistStore) Find(id string) (*Playist, error) {
-	res, err := rethinkdb.Table(PREFIX).Get(id).Run(udb.session)
-	if err != nil {
-		return nil, err
-	}
-	if res.IsNil() {
-		return nil, fmt.Errorf("playist not found")
-	}
-	var playlist *Playist
-	res.One(&playlist)
-	res.Close()
-	return playlist, nil
+	var playist *Playist
+	err := udb.session.Find("ID", id, playist)
+	return playist, err
 }
 
-func (udb *PlayistStore) FindByField(feild, value string) ([]Playist, error) {
-	res, err := rethinkdb.Table(PREFIX).Filter(rethinkdb.Row.Field(feild).Eq(value)).Run(udb.session)
-	var playlist []Playist
+func (udb *PlayistStore) FindByRoomID(roomID string) ([]Playist, error) {
+	playists, err := udb.GetAll()
 	if err != nil {
-		return nil, err
+		return []Playist{}, err
 	}
-
-	if res.IsNil() {
-		return []Playist{}, nil
+	filteredPlaylist := []Playist{}
+	for _, playist := range playists {
+		if playist.RoomID == roomID {
+			filteredPlaylist = append(filteredPlaylist, *playist)
+		}
 	}
-
-	res.All(&playlist)
-	res.Close()
-	return playlist, nil
+	return filteredPlaylist, fmt.Errorf("Playlist not found")
 }
 
 func (udb *PlayistStore) Update(playlist *Playist) error {
-	_, err := rethinkdb.Table(PREFIX).Get(playlist.ID).Update(playlist).RunWrite(udb.session)
-	return err
+	return udb.session.Save(playlist)
 }
 
-func (udb *PlayistStore) Delete(id string) error {
-	_, err := rethinkdb.Table(PREFIX).Get(id).Delete().RunWrite(udb.session)
-	return err
+func (udb *PlayistStore) Delete(playist Playist) error {
+	return udb.session.DeleteStruct(playist)
 }

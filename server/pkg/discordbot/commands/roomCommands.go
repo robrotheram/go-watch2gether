@@ -2,7 +2,6 @@ package commands
 
 import (
 	"fmt"
-	"strings"
 	"watch2gether/pkg/audioBot"
 	"watch2gether/pkg/room"
 	meta "watch2gether/pkg/roomMeta"
@@ -61,12 +60,12 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if !ok {
 		roomMeta, err := ctx.Rooms.Find(ctx.Guild.ID)
 		if err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				roomMeta, err = CreateRoom(ctx)
-				if err != nil {
-					return ctx.Reply(fmt.Sprintf("Bot error: %v", err))
-				}
+			//if strings.Contains(err.Error(), "not found") {
+			roomMeta, err = CreateRoom(ctx)
+			if err != nil {
+				return ctx.Reply(fmt.Sprintf("Bot error: %v", err))
 			}
+			//}
 		}
 		roomMeta.Type = room.ROOM_TYPE_DISCORD
 		if err != nil {

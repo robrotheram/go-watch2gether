@@ -84,7 +84,7 @@ func TestMP4GetAudioURL(t *testing.T) {
 }
 
 func TestPeerTubeAudioURL(t *testing.T) {
-	url := "https://jupiter.tube/w/sroVsxapHuMc4VjpgTb1em"
+	url := "https://jupiter.tube/w/hNMXcK3L9XzQ5xxQj1YLXP"
 	assert := assert.New(t)
 	m, _ := media.MediaFactory.GetMedia(url, username)
 	assert.Equal(len(m), 1)

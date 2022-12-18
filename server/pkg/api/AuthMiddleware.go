@@ -161,7 +161,7 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_, err = da.UserDB.Find(user.ID)
+	_, err = da.UserDB.FindById(user.ID)
 	if err != nil {
 		da.UserDB.Create(user)
 	}

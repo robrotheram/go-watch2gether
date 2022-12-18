@@ -12,7 +12,7 @@ import (
 )
 
 type Meta struct {
-	ID           string         `rethinkdb:"id,omitempty" json:"id"`
+	ID           string         `storm:"id" json:"id"`
 	Name         string         `json:"name"`
 	Owner        string         `json:"owner"`
 	Host         string         `json:"host"`

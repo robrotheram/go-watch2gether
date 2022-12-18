@@ -59,7 +59,7 @@ func PlaylistLoadCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if !ok || err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
-	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
+	playlists, err := ctx.Playlist.FindByRoomID(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("unable to find playlists for the room")
 	}
@@ -78,7 +78,7 @@ func PlaylistLoadCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func PlaylistListCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
+	playlists, err := ctx.Playlist.FindByRoomID(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf(":x2: unable to find playlists for the room")
 	}
@@ -103,7 +103,7 @@ func SummonCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
 
-	playlists, err := ctx.Playlist.FindByField("RoomID", ctx.Guild.ID)
+	playlists, err := ctx.Playlist.FindByRoomID(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("Unable to find playlists for the room")
 	}

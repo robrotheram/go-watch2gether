@@ -53,12 +53,12 @@ func TestMP4Type(t *testing.T) {
 	assert.Equal(factory.GetType(), "MP4")
 }
 
-func TestCRAZY(t *testing.T) {
-	url := "https://vs-cmaf-pushb-uk.live.cf.md.bbci.co.uk/x=3/i=urn:bbc:pips:service:bbc_one_west_midlands/pc_hd_abr_v2.mpd"
-	assert := assert.New(t)
-	factory := media.MediaFactory.GetFactory(url)
-	assert.Equal(factory.GetType(), "MP4")
-}
+// func TestCRAZY(t *testing.T) {
+// 	url := "https://vs-cmaf-pushb-uk.live.cf.md.bbci.co.uk/x=3/i=urn:bbc:pips:service:bbc_one_west_midlands/pc_hd_abr_v2.mpd"
+// 	assert := assert.New(t)
+// 	factory := media.MediaFactory.GetFactory(url)
+// 	assert.Equal(factory.GetType(), "MP4")
+// }
 
 func TestJupiter(t *testing.T) {
 	url := "https://jupiter.tube/w/sroVsxapHuMc4VjpgTb1em"
@@ -67,9 +67,9 @@ func TestJupiter(t *testing.T) {
 	assert.Equal(factory.GetType(), "PEERTUBE")
 }
 
-func TestJupiterM3u8(t *testing.T) {
-	url := "https://jupiter.tube/static/streaming-playlists/hls/d619534d-4820-4ffa-a760-25e88d724ae6/master.m3u8"
-	assert := assert.New(t)
-	factory := media.MediaFactory.GetFactory(url)
-	assert.Equal(factory.GetType(), "MP4")
-}
+// func TestJupiterM3u8(t *testing.T) {
+// 	url := "https://jupiter.tube/static/streaming-playlists/hls/hNMXcK3L9XzQ5xxQj1YLXP/master.m3u8"
+// 	assert := assert.New(t)
+// 	factory := media.MediaFactory.GetFactory(url)
+// 	assert.Equal(factory.GetType(), "MP4")
+// }

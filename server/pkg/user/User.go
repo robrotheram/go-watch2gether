@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/asdine/storm"
 	"github.com/segmentio/ksuid"
 	log "github.com/sirupsen/logrus"
-	rethinkdb "gopkg.in/rethinkdb/rethinkdb-go.v6"
 )
 
 const (
@@ -17,7 +17,7 @@ const (
 )
 
 type User struct {
-	ID         string `rethinkdb:"id,omitempty" json:"id"`
+	ID         string `storm:"id" json:"id"`
 	Username   string `json:"username"`
 	Type       string `json:"type"`
 	Avatar     string `json:"avatar"`
@@ -48,94 +48,75 @@ func NewUser(name string, _type string) User {
 var PREFIX = "user"
 
 type UserStore struct {
-	session *rethinkdb.Session
+	session *storm.DB
 }
 
 func (u *UserStore) GetKey(id string) string {
 	return fmt.Sprintf("%s:%s", PREFIX, id)
 }
 
-func NewUserStore(session *rethinkdb.Session) *UserStore {
+func NewUserStore(session *storm.DB) *UserStore {
 	us := &UserStore{session: session}
 	us.Cleanup()
 	return us
 }
 
 func (udb *UserStore) Create(user User) error {
-	_, err := rethinkdb.Table(PREFIX).Insert(user).RunWrite(udb.session)
-	return err
-
+	return udb.session.Save(user)
 }
 
-func (udb *UserStore) GetAll() ([]*User, error) {
-	users := []*User{}
-	// Fetch all the items from the database
-	res, err := rethinkdb.Table(PREFIX).Run(udb.session)
-	if err != nil {
-		return users, err
-	}
-	err = res.All(&users)
-	if err != nil {
-		return users, err
-	}
-	return users, nil
-}
-
-func (udb *UserStore) Find(id string) (*User, error) {
-	res, err := rethinkdb.Table(PREFIX).Get(id).Run(udb.session)
-	if err != nil {
-		return nil, err
-	}
-	if res.IsNil() {
-		return nil, fmt.Errorf("User not found")
-	}
-	var user *User
-	res.One(&user)
-	res.Close()
-	return user, nil
-}
-
-func (udb *UserStore) FindByField(feild, value string) (User, error) {
-	res, err := rethinkdb.Table(PREFIX).Filter(rethinkdb.Row.Field(feild).Eq(value)).Run(udb.session)
-	var user User
-	if err != nil {
-		return user, err
-	}
-
-	if res.IsNil() {
-		return user, fmt.Errorf("User not found")
-	}
-
-	res.One(&user)
-	res.Close()
-	return user, nil
-}
-
-func (udb *UserStore) FindAllByField(feild, value string) ([]User, error) {
-	res, err := rethinkdb.Table(PREFIX).Filter(rethinkdb.Row.Field(feild).Eq(value)).Run(udb.session)
+func (udb *UserStore) GetAll() ([]User, error) {
 	users := []User{}
+	err := udb.session.All(&users)
+	return users, err
+}
+
+func (udb *UserStore) FindByType(value string) ([]User, error) {
+	users, err := udb.GetAll()
 	if err != nil {
 		return users, err
 	}
-
-	if res.IsNil() {
-		return users, fmt.Errorf("User not found")
+	filteredUsers := []User{}
+	for _, user := range users {
+		if user.Type == value {
+			filteredUsers = append(filteredUsers, user)
+		}
 	}
-
-	res.All(&users)
-	res.Close()
-
-	return users, nil
+	return filteredUsers, nil
 }
-
-func (udb *UserStore) Delete(id string) error {
-	_, err := rethinkdb.Table(PREFIX).Get(id).Delete().RunWrite(udb.session)
-	return err
+func (udb *UserStore) FindById(value string) ([]User, error) {
+	users, err := udb.GetAll()
+	if err != nil {
+		return users, err
+	}
+	filteredUsers := []User{}
+	for _, user := range users {
+		if user.ID == value {
+			filteredUsers = append(filteredUsers, user)
+		}
+	}
+	return filteredUsers, nil
+}
+func (udb *UserStore) FindByName(value string) (User, error) {
+	users, err := udb.GetAll()
+	if err != nil {
+		return User{}, err
+	}
+	filteredUsers := []User{}
+	for _, user := range users {
+		if user.Username == value {
+			filteredUsers = append(filteredUsers, user)
+		}
+	}
+	return filteredUsers[0], nil
+}
+func (udb *UserStore) Delete(user User) error {
+	return udb.session.DeleteStruct(user)
 }
 
 func (udb *UserStore) Cleanup() {
-	users, _ := udb.FindAllByField("Type", USER_TYPE_ANON)
+	users, _ := udb.FindByType(USER_TYPE_ANON)
 	for _, u := range users {
-		udb.Delete(u.ID)
+		udb.Delete(u)
 	}
 }

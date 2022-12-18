@@ -20,8 +20,7 @@ type Config struct {
 	SessionSecret       string `mapstructure:"SESSION_SECRET"`
 	BaseURL             string `mapstructure:"BASE_URL"`
 	ServerAddress       string `mapstructure:"SERVER_ADDRESS"`
-	RethinkURL          string `mapstructure:"RETHINK_URL"`
-	RethinkDatabase     string `mapstructure:"RETHINK_DATABASE"`
+	DatabasePath        string `mapstructure:"DATABASE_PATH"`
 	Dev                 bool   `mapstructure:"DEVELOPMENT"`
 	Loglevel            string `mapstructure:"LOG_LEVEL"`
 	ListenPort          string `mapstructure:"LISTEN_PORT"`
