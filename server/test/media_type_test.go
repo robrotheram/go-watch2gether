@@ -73,3 +73,10 @@ func TestJupiter(t *testing.T) {
 // 	factory := media.MediaFactory.GetFactory(url)
 // 	assert.Equal(factory.GetType(), "MP4")
 // }
+
+func TestODYSEE(t *testing.T) {
+	url := "https://odysee.com/@pianomusic:b/Christmas-Again:4"
+	assert := assert.New(t)
+	factory := media.MediaFactory.GetFactory(url)
+	assert.Equal(factory.GetType(), "ODYSEE")
+}

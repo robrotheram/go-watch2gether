@@ -38,8 +38,12 @@ func (udb *RoomStore) GetAll() ([]*Meta, error) {
 }
 
 func (udb *RoomStore) Find(id string) (*Meta, error) {
+	return udb.FindByField("ID", id)
+}
+
+func (udb *RoomStore) FindByField(feild, value string) (*Meta, error) {
 	var room []Meta
-	err := udb.session.Find("ID", id, &room)
+	err := udb.session.Find(feild, value, &room)
 	if err != nil {
 		return nil, err
 	}
@@ -47,12 +51,6 @@ func (udb *RoomStore) Find(id string) (*Meta, error) {
 		return nil, fmt.Errorf("room not found")
 	}
 	return &room[0], err
-}
-
-func (udb *RoomStore) FindByField(feild, value string) (*Meta, error) {
-	var room *Meta
-	err := udb.session.Find(feild, value, room)
-	return room, err
 }
 
 func (udb *RoomStore) Update(meta *Meta) error {
@@ -90,7 +88,7 @@ func (rooms *RoomStore) GetOrCreate(roomID string, roomName string, usr user.Use
 			}
 			err := rooms.Create(roomMeta)
 			if err != nil {
-				return roomMeta, fmt.Errorf("Room Create error:  %w", err)
+				return roomMeta, fmt.Errorf("room Create error:  %w", err)
 			}
 		}
 	}

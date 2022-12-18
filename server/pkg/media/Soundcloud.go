@@ -12,12 +12,14 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+var re = regexp.MustCompile(`(?m)"contentUrl": "(.*)"`)
+
 type SoundCloudApi struct{}
 
-func init() {
-	SoundCloudClient := &SoundCloudApi{}
-	MediaFactory.Register(SoundCloudClient)
-}
+// func init() {
+// 	SoundCloudClient := &SoundCloudApi{}
+// 	MediaFactory.Register(SoundCloudClient)
+// }
 
 type SoundcloudTrackInfo []struct {
 	ArtworkURL        string      `json:"artwork_url"`

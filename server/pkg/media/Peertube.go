@@ -205,7 +205,7 @@ func (pt *Peertube) GetMedia(url string, username string) []Media {
 }
 
 func (pt *Peertube) IsValidUrl(url string, ct *ContentType) bool {
-	re := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?(?:.*)\/w\/(\S+)?$`)
+	re := regexp.MustCompile(`(https:\/\/)?(?:.*)\/w\/(\S+)?$`)
 	match := re.Match([]byte(url))
 	return match
 }

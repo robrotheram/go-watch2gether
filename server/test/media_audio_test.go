@@ -91,3 +91,12 @@ func TestPeerTubeAudioURL(t *testing.T) {
 	assert.Equal(m[0].GetType(), media.MediaType("PEERTUBE"))
 	assert.NotEmpty(m[0].AudioUrl)
 }
+
+func TestODYSEEAudioURL(t *testing.T) {
+	url := "https://odysee.com/@pianomusic:b/Christmas-Again:4"
+	assert := assert.New(t)
+	m, _ := media.MediaFactory.GetMedia(url, username)
+	assert.Equal(len(m), 1)
+	assert.Equal(media.MediaType("ODYSEE"), m[0].GetType())
+	assert.NotEmpty(m[0].AudioUrl)
+}
