@@ -10,7 +10,7 @@ import (
 func TestGetMediaTypes(t *testing.T) {
 	assert := assert.New(t)
 	types := media.MediaFactory.GetTypes()
-	assert.ElementsMatch(types, []string{"MP3", "MP4", "PEERTUBE", "PODCAST", "RADIO_GARDEN", "SOUNDCLOUD", "YOUTUBE"})
+	assert.ElementsMatch(types, []string{"MP3", "MP4", "PEERTUBE", "PODCAST", "RADIO_GARDEN", "YOUTUBE", "ODYSEE"})
 }
 
 func TestYoutubeTypes(t *testing.T) {
@@ -19,12 +19,13 @@ func TestYoutubeTypes(t *testing.T) {
 	factory := media.MediaFactory.GetFactory(url)
 	assert.Equal(factory.GetType(), "YOUTUBE")
 }
-func TestSoudCloudType(t *testing.T) {
-	url := "https://soundcloud.com/guy-j/guy_las-palapas"
-	assert := assert.New(t)
-	factory := media.MediaFactory.GetFactory(url)
-	assert.Equal(factory.GetType(), "SOUNDCLOUD")
-}
+
+// func TestSoudCloudType(t *testing.T) {
+// 	url := "https://soundcloud.com/guy-j/guy_las-palapas"
+// 	assert := assert.New(t)
+// 	factory := media.MediaFactory.GetFactory(url)
+// 	assert.Equal(factory.GetType(), "SOUNDCLOUD")
+// }
 
 func TestRadioGardenType(t *testing.T) {
 	url := "https://radio.garden/listen/the-source/JL0Q8bRp"
@@ -61,7 +62,14 @@ func TestMP4Type(t *testing.T) {
 // }
 
 func TestJupiter(t *testing.T) {
-	url := "https://jupiter.tube/w/sroVsxapHuMc4VjpgTb1em"
+	url := "https://video.blender.org/w/rJH1ZsahbNi6MzJNFTH9cE"
+	assert := assert.New(t)
+	factory := media.MediaFactory.GetFactory(url)
+	assert.Equal(factory.GetType(), "PEERTUBE")
+}
+
+func TestJupiterLive(t *testing.T) {
+	url := "https://jupiter.tube/w/vkUdpEKCv763vjWnqL1pc7"
 	assert := assert.New(t)
 	factory := media.MediaFactory.GetFactory(url)
 	assert.Equal(factory.GetType(), "PEERTUBE")

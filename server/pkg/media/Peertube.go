@@ -13,6 +13,21 @@ import (
 var PeertubeServerRegex = regexp.MustCompile(`(?m)^(((https:)\/\/).*)\/w\/`)
 var PeertubeVideoRegex = regexp.MustCompile(`(?m)/w\/(.*)`)
 
+type PeertubeFile struct {
+	ID         int `json:"id"`
+	Resolution struct {
+		ID    int    `json:"id"`
+		Label string `json:"label"`
+	} `json:"resolution"`
+	MagnetURI          string `json:"magnetUri"`
+	Size               int    `json:"size"`
+	Fps                int    `json:"fps"`
+	TorrentURL         string `json:"torrentUrl"`
+	TorrentDownloadURL string `json:"torrentDownloadUrl"`
+	FileURL            string `json:"fileUrl"`
+	FileDownloadURL    string `json:"fileDownloadUrl"`
+	MetadataURL        string `json:"metadataUrl"`
+}
 type PeertubeInfo struct {
 	ID        int    `json:"id"`
 	UUID      string `json:"uuid"`
@@ -36,7 +51,7 @@ type PeertubeInfo struct {
 		Label string `json:"label"`
 	} `json:"privacy"`
 	Nsfw                  bool        `json:"nsfw"`
-	Description           interface{} `json:"description"`
+	Description           string      `json:"description"`
 	IsLocal               bool        `json:"isLocal"`
 	Duration              int         `json:"duration"`
 	Views                 int         `json:"views"`
@@ -136,20 +151,20 @@ type PeertubeInfo struct {
 	Blacklisted        bool        `json:"blacklisted"`
 	BlacklistedReason  interface{} `json:"blacklistedReason"`
 	StreamingPlaylists []struct {
-		ID                int           `json:"id"`
-		Type              int           `json:"type"`
-		PlaylistURL       string        `json:"playlistUrl"`
-		SegmentsSha256URL string        `json:"segmentsSha256Url"`
-		Redundancies      []interface{} `json:"redundancies"`
-		Files             []interface{} `json:"files"`
+		ID                int            `json:"id"`
+		Type              int            `json:"type"`
+		PlaylistURL       string         `json:"playlistUrl"`
+		SegmentsSha256URL string         `json:"segmentsSha256Url"`
+		Redundancies      []interface{}  `json:"redundancies"`
+		Files             []PeertubeFile `json:"files"`
 	} `json:"streamingPlaylists"`
-	Files           []interface{} `json:"files"`
-	Support         interface{}   `json:"support"`
-	DescriptionPath string        `json:"descriptionPath"`
-	Tags            []interface{} `json:"tags"`
-	CommentsEnabled bool          `json:"commentsEnabled"`
-	DownloadEnabled bool          `json:"downloadEnabled"`
-	WaitTranscoding bool          `json:"waitTranscoding"`
+	Files           []PeertubeFile `json:"files"`
+	Support         interface{}    `json:"support"`
+	DescriptionPath string         `json:"descriptionPath"`
+	Tags            []interface{}  `json:"tags"`
+	CommentsEnabled bool           `json:"commentsEnabled"`
+	DownloadEnabled bool           `json:"downloadEnabled"`
+	WaitTranscoding bool           `json:"waitTranscoding"`
 	State           struct {
 		ID    int    `json:"id"`
 		Label string `json:"label"`
@@ -190,6 +205,27 @@ func (pt *Peertube) GetMedia(url string, username string) []Media {
 	apiURL := fmt.Sprintf("%s/api/v1/videos/%s", host[1], video[1])
 	info, _ := pt.getPeerTubeData(apiURL)
 
+	audioUrl := ""
+
+	if len(info.Files) > 0 {
+		for _, file := range info.Files {
+			if file.Resolution.Label == "Audio" {
+				audioUrl = file.FileURL
+			}
+		}
+	} else if len(info.StreamingPlaylists) > 0 {
+		//audioUrl = info.StreamingPlaylists[0].PlaylistURL
+		playlist := info.StreamingPlaylists[0].Files[0]
+		for _, play := range info.StreamingPlaylists {
+			for _, file := range play.Files {
+				if file.Size < playlist.Size {
+					playlist = file
+				}
+			}
+		}
+		audioUrl = playlist.FileDownloadURL
+	}
+
 	m := Media{
 		ID:        ksuid.New().String(),
 		Url:       info.URL,
@@ -198,7 +234,7 @@ func (pt *Peertube) GetMedia(url string, username string) []Media {
 		Title:     info.Name,
 		Duration:  time.Duration(0),
 		Thumbnail: fmt.Sprintf("%s%s", host[1], info.ThumbnailPath),
-		AudioUrl:  info.StreamingPlaylists[0].PlaylistURL,
+		AudioUrl:  audioUrl,
 	}
 
 	return append(media, m)
