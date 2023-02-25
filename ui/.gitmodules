@@ -1,6 +1,0 @@
-[submodule "theme"]
-	path = theme
-	url = https://github.com/PaulPCIO/antd-themed-cssvars
-[submodule "src/theme"]
-	path = src/theme
-	url = https://github.com/PaulPCIO/antd-themed-cssvars
