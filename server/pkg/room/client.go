@@ -1,6 +1,7 @@
 package room
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -36,6 +37,7 @@ func (c *Client) Read() {
 	for {
 		_, msg, err := c.socket.ReadMessage()
 		if err != nil {
+			fmt.Printf("ERROR decoding %v", err)
 			return
 		}
 		c.room.forward <- msg

@@ -22,13 +22,23 @@ type DiscordAuth struct {
 }
 
 type DiscordGuild struct {
-	ID             string        `json:"id"`
-	Name           string        `json:"name"`
-	Icon           string        `json:"icon"`
-	Owner          bool          `json:"owner"`
-	Permissions    int           `json:"permissions"`
-	Features       []interface{} `json:"features"`
-	PermissionsNew string        `json:"permissions_new"`
+	ID             string   `json:"id"`
+	Name           string   `json:"name"`
+	Icon           string   `json:"icon"`
+	Owner          bool     `json:"owner"`
+	Permissions    int      `json:"permissions"`
+	Features       []string `json:"features"`
+	PermissionsNew string   `json:"permissions_new"`
+}
+
+type DiscordGuilds []struct {
+	ID             string   `json:"id"`
+	Name           string   `json:"name"`
+	Icon           string   `json:"icon"`
+	Owner          bool     `json:"owner"`
+	Permissions    int      `json:"permissions"`
+	Features       []string `json:"features"`
+	PermissionsNew string   `json:"permissions_new"`
 }
 
 var discordEndpoint = oauth2.Endpoint{
@@ -105,7 +115,7 @@ func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	next := r.URL.Query().Get("next")
 
 	if err == nil && token != nil {
-		http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/app", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -130,11 +140,10 @@ func (da *DiscordAuth) ClearSession(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("failed to delete session: %v", err)
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 func (da *DiscordAuth) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	da.ClearSession(w, r)
-	http.Redirect(w, r, "/", http.StatusFound)
 }
 
 func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
@@ -145,7 +154,7 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	redirect := "/"
+	redirect := "/app"
 	session, _ := da.store.Get(r, sessionName)
 	next := (session.Values["next"]).(string)
 	if len(next) > 1 {
@@ -182,15 +191,16 @@ func (da *DiscordAuth) getUser(accessToken string) (user.User, error) {
 	return usr, nil
 }
 
-func (da *DiscordAuth) getGuilds(accessToken string) ([]DiscordGuild, error) {
-	var guilds []DiscordGuild
+func (da *DiscordAuth) getGuilds(accessToken string) (DiscordGuilds, error) {
+	var guilds DiscordGuilds
 	data, err := da.getClient("https://discord.com/api/users/@me/guilds", accessToken)
 	if err != nil {
 		return guilds, err
 	}
-	log.Debug(string(data))
 	if err := json.Unmarshal(data, &guilds); err != nil {
-		return nil, err
+		log.Info(string(data))
+		log.Infof("get guilds %v", err)
+		return nil, nil
 	}
 	return guilds, nil
 }

@@ -33,6 +33,7 @@ func NewDiscordBot(datastore *datastore.Datastore, token string, baseurl string,
 		clientID:  clientID,
 	}
 	dg, err := discordgo.New("Bot " + token)
+
 	if err != nil {
 		return nil, fmt.Errorf("Error Creating Discord Session: %v", err)
 	}
