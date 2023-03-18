@@ -1,12 +1,10 @@
-VER=0.11.0
+VER=0.11.3
 
-build-server:
-	sed -i '/ /s/".*"/"${VER}"/' server/pkg/datastore/version.go
+build-server:	
 	cd server; CGO_ENABLED=0 GOOS=linux go build -o ../.
 
 build-ui:
 	cd ui; npm ci; npm run build
-	sed -i 's/{WATCH2GETHER_VERSION}/$(VER)/g' ui/build/index.html
 
 build-docker:
 	docker build . --build-arg VER=${VER} -t robrotheram/watch2gether:${VER}

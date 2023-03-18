@@ -1,3 +1,3 @@
 package datastore
 
-const VERSION = "0.11.0"
+const VERSION = "{WATCH2GETHER_VERSION}"
