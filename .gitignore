@@ -5,3 +5,5 @@ docker-compose.dev.yml
 docs
 __debug_bin
 *.db
+notes
+

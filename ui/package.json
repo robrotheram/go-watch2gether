@@ -1,30 +1,27 @@
 {
-  "name": "my-vue-app",
+  "name": "ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:host": "vite --host",
     "build": "vite build",
     "preview": "vite preview"
   },
   "dependencies": {
-    "@ant-design/icons": "^5.0.1",
-    "antd": "^5",
-    "array-move": "^4.0.0",
-    "axios": "^0.21.0",
-    "less": "^4.1.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-player": "^2.9.0",
-    "react-redux": "^7.2.2",
-    "react-router": "^6.8.1",
-    "react-router-dom": "^6.8.1",
-    "react-use-websocket": "^4.3.1",
-    "uid": "^2.0.1"
+    "react-router-dom": "^6.11.0",
+    "react-swipeable": "^7.0.0"
   },
   "devDependencies": {
+    "@types/react": "^18.0.28",
+    "@types/react-dom": "^18.0.11",
     "@vitejs/plugin-react": "^3.1.0",
-    "vite": "^4.1.0"
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.22",
+    "tailwindcss": "^3.3.1",
+    "vite": "^4.2.0"
   }
 }
