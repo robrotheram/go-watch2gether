@@ -63,9 +63,6 @@ func NewDiscordAuth(conf *utils.Config) DiscordAuth {
 
 func (da *DiscordAuth) validateToken(c echo.Context) (*oauth2.Token, error) {
 	jsonStr := c.Get("token")
-
-	fmt.Println("TOKEN:", jsonStr)
-
 	if jsonStr == nil {
 		return nil, fmt.Errorf("invalid session token could not be decoded")
 	}
@@ -130,7 +127,6 @@ func (da *DiscordAuth) Middleware() echo.MiddlewareFunc {
 			user, _ := da.getUser(token.(string))
 			c.Set("user", user)
 			c.Set("token", token.(string))
-			fmt.Println(token)
 			da.validateToken(c)
 			return next(c)
 		}

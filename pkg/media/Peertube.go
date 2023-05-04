@@ -192,15 +192,15 @@ func (pt *Peertube) getPeerTubeData(apiURL string) (PeertubeInfo, error) {
 	return info, err
 }
 
-func (pt *Peertube) GetMedia(url string, username string) []Media {
+func (pt *Peertube) GetMedia(url string, username string) ([]Media, error) {
 	media := []Media{}
 	host := PeertubeServerRegex.FindStringSubmatch(url)
 	if len(host) < 2 {
-		return media
+		return media, fmt.Errorf("unable to parse peertube url")
 	}
 	video := PeertubeVideoRegex.FindStringSubmatch(url)
 	if len(video) < 2 {
-		return media
+		return media, fmt.Errorf("unable to parse peertube url")
 	}
 	apiURL := fmt.Sprintf("%s/api/v1/videos/%s", host[1], video[1])
 	info, _ := pt.getPeerTubeData(apiURL)
@@ -237,7 +237,7 @@ func (pt *Peertube) GetMedia(url string, username string) []Media {
 		AudioUrl:  audioUrl,
 	}
 
-	return append(media, m)
+	return append(media, m), nil
 }
 
 func (pt *Peertube) IsValidUrl(url string, ct *ContentType) bool {
@@ -248,4 +248,9 @@ func (pt *Peertube) IsValidUrl(url string, ct *ContentType) bool {
 
 func (pt *Peertube) GetType() string {
 	return VIDEO_TYPE_PEERTUBE
+}
+
+func (client *Peertube) Refresh(media *Media) error {
+	//Nothing to refresh
+	return nil
 }

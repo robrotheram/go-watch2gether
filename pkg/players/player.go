@@ -44,3 +44,7 @@ type Player struct {
 	Proccessing time.Duration
 	Current     media.Media
 }
+
+func (p *Player) MediaRefresh() {
+	media.RefreshAudioURL(&p.Current)
+}

@@ -117,10 +117,10 @@ func (pod *PodcastRSS) fetch(url string) (pd Podcast, err error) {
 	return pod.parse(buff)
 }
 
-func (pod *PodcastRSS) GetMedia(url string, username string) []Media {
+func (pod *PodcastRSS) GetMedia(url string, username string) ([]Media, error) {
 	podcasts, err := pod.fetch(url)
 	if err != nil {
-		return []Media{}
+		return []Media{}, err
 	}
 
 	item := podcasts.Items[0]
@@ -134,7 +134,7 @@ func (pod *PodcastRSS) GetMedia(url string, username string) []Media {
 			User:      username,
 			AudioUrl:  item.Enclosure.Url,
 		},
-	}
+	}, nil
 }
 
 func (pod *PodcastRSS) GetType() string {
@@ -147,4 +147,9 @@ func (pod *PodcastRSS) IsValidUrl(url string, ct *ContentType) bool {
 		return false
 	}
 	return contentetType == "application/rss+xml; charset=UTF-8" || contentetType == "application/xml; charset=utf-8"
+}
+
+func (client *PodcastRSS) Refresh(media *Media) error {
+	//Nothing to refresh
+	return nil
 }

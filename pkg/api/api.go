@@ -59,7 +59,10 @@ func (api *API) handleAddVideo(c echo.Context) error {
 	if err := c.Bind(&url); err != nil {
 		return err
 	}
-	videos, _ := media.NewVideo(url, user.Username)
+	videos, err := media.NewVideo(url, user.Username)
+	if err != nil {
+		return err
+	}
 	controller.Queue = append(controller.Queue, videos...)
 	api.Save(controller)
 	return c.JSON(http.StatusOK, controller)
@@ -123,8 +126,8 @@ func NewApi(store *players.Store) error {
 		Store: store,
 	}
 	e := echo.New()
-	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
-	e.Use(middleware.Logger())
+	e.Use(session.Middleware(sessions.NewCookieStore([]byte(utils.Configuration.SessionSecret))))
+	// e.Use(middleware.Logger())
 	e.Use(middleware.CORS())
 	e.Use(auth.Middleware())
 

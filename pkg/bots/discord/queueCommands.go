@@ -72,6 +72,13 @@ func init() {
 		},
 		CMD{
 			ApplicationCommand: discordgo.ApplicationCommand{
+				Name:        "loop",
+				Description: "enable/disable loop the current video",
+			},
+			Function: loopCMD,
+		},
+		CMD{
+			ApplicationCommand: discordgo.ApplicationCommand{
 				Name:        "clear",
 				Description: "clears the entire queue",
 			},
@@ -87,6 +94,18 @@ func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 	r.Shuffle()
 	return ctx.Reply(":twisted_rightwards_arrows:  Queue Shuffled :thumbsup:")
+}
+
+func loopCMD(ctx CommandCtx) *discordgo.InteractionResponse {
+	r, err := ctx.GetChannel(ctx.Guild.ID)
+	if err != nil {
+		return ctx.Errorf("room %s not active", ctx.Guild.ID)
+	}
+	r.SetLoop(!r.GetState().Loop)
+	if r.GetState().Loop {
+		return ctx.Reply(":arrows_counterclockwise:  Looping enabled")
+	}
+	return ctx.Reply(":arrows_counterclockwise:  Looping disabled")
 }
 
 // func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {

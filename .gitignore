@@ -6,4 +6,4 @@ docs
 __debug_bin
 *.db
 notes
-
+.kube

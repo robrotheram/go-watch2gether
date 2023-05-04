@@ -114,7 +114,7 @@ func (yt *Youtube) GetAudioUrl(videoURL string) (string, error) {
 	return url, nil
 }
 
-func (yt *Youtube) GetMedia(url string, username string) []Media {
+func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 	ytPlaylist, err := yt.downloader.GetPlaylist(url)
 	if err == nil {
 		videos := []Media{}
@@ -128,15 +128,16 @@ func (yt *Youtube) GetMedia(url string, username string) []Media {
 				Type:        VIDEO_TYPE_YT,
 				Duration:    ytVideo.Duration,
 				ChannelName: ytVideo.Author,
+				Thumbnail:   ytVideo.Thumbnails[0].URL,
 			}
-			if audio, err := yt.GetAudioUrl(ytURL); err == nil {
-				v.AudioUrl = audio
-			} else {
-				log.Warn(err)
-			}
+			// if audio, err := yt.GetAudioUrl(ytURL); err == nil {
+			// 	v.AudioUrl = audio
+			// } else {
+			// 	log.Warn(err)
+			// }
 			videos = append(videos, v)
 		}
-		return videos
+		return videos, nil
 	}
 	ytVideo, err := yt.downloader.GetVideo(url)
 	if err == nil {
@@ -150,12 +151,14 @@ func (yt *Youtube) GetMedia(url string, username string) []Media {
 			Thumbnail:   ytVideo.Thumbnails[0].URL,
 			ChannelName: ytVideo.Author,
 		}
-		if audio, err := yt.GetAudioUrl(url); err == nil {
-			video.AudioUrl = audio
-		}
-		return []Media{video}
+		// audio, err := yt.GetAudioUrl(url)
+		// if err != nil {
+		// 	return []Media{}, err
+		// }
+		// video.AudioUrl = audio
+		return []Media{video}, nil
 	}
-	return []Media{}
+	return []Media{}, fmt.Errorf("Unable find valid audio for this url, %v", err)
 }
 
 func (yt *Youtube) GetType() string {
@@ -166,4 +169,10 @@ func (yt *Youtube) IsValidUrl(url string, ct *ContentType) bool {
 	YT_REGEX := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$`)
 	match := YT_REGEX.Match([]byte(url))
 	return match
+}
+
+func (yt *Youtube) Refresh(media *Media) error {
+	audio, err := yt.GetAudioUrl(media.Url)
+	media.AudioUrl = audio
+	return err
 }

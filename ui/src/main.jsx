@@ -1,8 +1,8 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import App from './App'
-import Index from './index'
-import './index.css'
+import App from './pages/app/App'
+import Index from './pages/index'
+import './main.css'
 import { BrowserRouter, Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { UserContextProvider } from './context/user';
 

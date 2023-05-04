@@ -10,7 +10,7 @@ import (
 
 	"github.com/asdine/storm"
 	"github.com/bwmarrin/discordgo"
-	"github.com/jonas747/dca"
+	"github.com/robrotheram/dca"
 )
 
 type DiscordPlayer struct {
@@ -41,7 +41,7 @@ func (dp *DiscordPlayer) process() {
 		dp.Lock()
 		state := dp.state
 		dp.Unlock()
-		if len(state.Current.AudioUrl) > 0 && state.State == PLAYING {
+		if len(state.Current.Url) > 0 && state.State == PLAYING {
 			log.Println(dp.Stream())
 			if !state.Loop {
 				dp.Next()
@@ -73,12 +73,9 @@ func (dp *DiscordPlayer) Load() {
 }
 
 func (dp *DiscordPlayer) Skip() {
-	dp.Lock()
-	defer dp.Unlock()
 	if dp.encodingSession != nil {
 		dp.encodingSession.Cleanup()
 	}
-	dp.update()
 }
 
 func (dp *DiscordPlayer) UpdateQueue(videos []media.Media) {
@@ -155,8 +152,6 @@ func (dp *DiscordPlayer) GetQueue() []media.Media {
 }
 
 func (dp *DiscordPlayer) GetCurrentVideo() media.Media {
-	dp.Lock()
-	defer dp.Unlock()
 	return dp.state.Current
 }
 
@@ -217,7 +212,8 @@ func (dp *DiscordPlayer) Stream() error {
 	options.Application = "lowdelay"
 
 	var err error
-	dp.encodingSession, err = dca.EncodeFile(dp.state.Current.AudioUrl, options)
+	dp.state.MediaRefresh()
+	dp.encodingSession, err = dca.EncodeFile(dp.GetCurrentVideo().AudioUrl, options)
 	if err != nil {
 		return err
 	}

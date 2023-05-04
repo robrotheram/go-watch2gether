@@ -1,0 +1,41 @@
+.shadow-head {
+    background: -webkit-gradient(linear, left top, left bottom, from(transparent), to(rgba(0, 0, 0, .5)));
+    background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
+}
+
+
+.shadow-body {
+    /* background-image: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, .6)), to(rgba(0, 0, 0))); */
+    /* background-image: linear-gradient(rgba(0, 0, 0, .6) 0, transparent 100%); */
+    background: linear-gradient(0deg, rgba(0,0,0,1) 85%,  rgba(0,212,255,0) 100%);
+}
+
+
+.shadow-left {
+    -webkit-box-shadow: 10px 0px 40px -4px rgba(0,0,0,0.75);
+    -moz-box-shadow: 10px 0px 40px -4px rgba(0,0,0,0.75);
+    box-shadow: 10px 0px 40px -4px rgba(0,0,0,0.75);
+}
+
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Hide scrollbar for IE, Edge and Firefox */
+  .hide-scrollbar {
+    -ms-overflow-style: none;  /* IE and Edge */
+    scrollbar-width: none;  /* Firefox */
+  }
+
+
+.icon-shadow:hover{
+    -webkit-box-shadow: 0px 0px 25px 4px rgba(135,36,163,1);
+    -moz-box-shadow: 0px 0px 25px 4px rgba(135,36,163,1);
+    box-shadow: 0px 0px 25px 4px rgba(135,36,163,1);
+}
+
+
+.animate-ping {
+  animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite !important;
+}

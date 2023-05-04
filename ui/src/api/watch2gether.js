@@ -1,4 +1,4 @@
-const getRoomId = () => {
+export const getRoomId = () => {
     const room = window.location.pathname.replace("/app/","")
     return room
 }
@@ -14,15 +14,25 @@ export async function getController() {
 }
 
 export async function addVideoController(video) {
-    const response = await fetch(`/api/channel/${getRoomId()}/add`, {
-        method: "PUT", // or 'PUT'
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(video),
-    });
+    let response;
+    try{
+        response = await fetch(`/api/channel/${getRoomId()}/add`, {
+            method: "PUT", // or 'PUT'
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(video),
+        });
+    }catch(e){
+        throw e
+    }
+
     const jsonData = await response.json();
+    if (!response.ok){
+        throw (jsonData.message)
+    }
     return jsonData
+    
 }
 
 export async function updateQueueController(video) {
@@ -34,6 +44,9 @@ export async function updateQueueController(video) {
         body: JSON.stringify(video),
     });
     const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
     return jsonData
 }
 
@@ -45,6 +58,9 @@ export async function playVideoController(video) {
         },
     });
     const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
     return jsonData
 }
 
@@ -56,6 +72,9 @@ export async function pauseVideoController(video) {
         },
     });
     const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
     return jsonData
 }
 
@@ -67,6 +86,9 @@ export async function skipVideoController(video) {
         },
     });
     const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
     return jsonData
 }
 
@@ -79,6 +101,9 @@ export async function loopVideoController(video) {
         },
     });
     const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
     return jsonData
 }
 
@@ -90,19 +115,21 @@ export async function shuffleVideoController(video) {
         },
     });
     const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
     return jsonData
 }
 
 
 export async function getGuilds() {
-    try{
+    
         const response = await fetch(`/api/guilds`);
         const jsonData = await response.json();
+        if (!response.ok){
+            throw jsonData.message
+        }
         return jsonData
-    }catch(e){
-        return []
-        console.log(e)
-    }
     
 }
 

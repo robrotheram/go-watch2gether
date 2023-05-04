@@ -57,5 +57,5 @@ func LeaveCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		ctx.Reply("Error Bot not connected")
 	}
-	return nil
+	return ctx.Reply("Good bye :wave:")
 }

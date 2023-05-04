@@ -2,7 +2,6 @@ package media
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 	"regexp"
@@ -94,17 +93,19 @@ func parse(text string) (data []string) {
 	}
 }
 
-func (sc *OdyseeAPI) GetMedia(url string, username string) []Media {
+func (sc *OdyseeAPI) GetMedia(url string, username string) ([]Media, error) {
 	data, _ := sc.getOdyseePage(url)
 	parsedData := parse(string(data))[0]
 	parsedData = strings.ReplaceAll(parsedData, "\n", "")
 	parsedData = strings.ReplaceAll(parsedData, "\\", "")
 	dataInBytes := []byte(parsedData)
 	var tackData odyseeStruct
-	err := json.Unmarshal(dataInBytes, &tackData)
-	fmt.Println(err)
-
 	media := []Media{}
+
+	err := json.Unmarshal(dataInBytes, &tackData)
+	if err != nil {
+		return media, err
+	}
 
 	m := Media{
 		ID:    ksuid.New().String(),
@@ -118,7 +119,7 @@ func (sc *OdyseeAPI) GetMedia(url string, username string) []Media {
 		AudioUrl:    tackData.ContentURL,
 	}
 
-	return append(media, m)
+	return append(media, m), nil
 }
 
 func (sc *OdyseeAPI) IsValidUrl(url string, ct *ContentType) bool {
@@ -129,4 +130,9 @@ func (sc *OdyseeAPI) IsValidUrl(url string, ct *ContentType) bool {
 
 func (sc *OdyseeAPI) GetType() string {
 	return VIDEO_TYPE_ODYSEE
+}
+
+func (client *OdyseeAPI) Refresh(media *Media) error {
+	//Nothing to refresh
+	return nil
 }

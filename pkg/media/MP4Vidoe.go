@@ -9,7 +9,7 @@ func init() {
 	MediaFactory.Register(mp4Client)
 }
 
-func (client *MP4Video) GetMedia(url string, username string) []Media {
+func (client *MP4Video) GetMedia(url string, username string) ([]Media, error) {
 	return []Media{
 		{
 			ID:       ksuid.New().String(),
@@ -19,7 +19,12 @@ func (client *MP4Video) GetMedia(url string, username string) []Media {
 			Title:    url,
 			AudioUrl: url,
 		},
-	}
+	}, nil
+}
+
+func (client *MP4Video) Refresh(media *Media) error {
+	//Nothing to refresh
+	return nil
 }
 
 func (client *MP4Video) GetType() string {

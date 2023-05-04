@@ -65,7 +65,7 @@ func (radio *RadioGarden) getIDFromURL(targetUrl string) string {
 	}
 	return (path.Base(myUrl.Path))
 }
-func (radio *RadioGarden) GetMedia(url string, username string) []Media {
+func (radio *RadioGarden) GetMedia(url string, username string) ([]Media, error) {
 	media := []Media{}
 
 	radioID := radio.getIDFromURL(url)
@@ -84,7 +84,7 @@ func (radio *RadioGarden) GetMedia(url string, username string) []Media {
 		AudioUrl:  audioUrl,
 	}
 
-	return append(media, m)
+	return append(media, m), nil
 }
 
 func (radio *RadioGarden) IsValidUrl(url string, ct *ContentType) bool {
@@ -95,4 +95,9 @@ func (radio *RadioGarden) IsValidUrl(url string, ct *ContentType) bool {
 
 func (client *RadioGarden) GetType() string {
 	return VIDEO_TYPE_RG
+}
+
+func (client *RadioGarden) Refresh(media *Media) error {
+	//Nothing to refresh
+	return nil
 }

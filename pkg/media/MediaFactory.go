@@ -42,7 +42,8 @@ func (ct *ContentType) getConentType(url string) (string, error) {
 type MediaClient interface {
 	GetType() string
 	IsValidUrl(string, *ContentType) bool
-	GetMedia(string, string) []Media
+	GetMedia(string, string) ([]Media, error)
+	Refresh(media *Media) error
 }
 
 type Factory struct {
@@ -73,13 +74,17 @@ func (f *Factory) GetMedia(url string, username string) ([]Media, error) {
 	if factory == nil {
 		return []Media{}, fmt.Errorf("unsupported URL")
 	}
-	media := factory.GetMedia(url, username)
-	return media, nil
+	return factory.GetMedia(url, username)
 }
 
 func NewVideo(url string, username string) ([]Media, error) {
 	media, err := MediaFactory.GetMedia(url, username)
 	return media, err
+}
+
+func RefreshAudioURL(media *Media) {
+	factory := MediaFactory.GetFactory(media.Url)
+	factory.Refresh(media)
 }
 
 func (f *Factory) GetTypes() []string {

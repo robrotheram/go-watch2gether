@@ -22,18 +22,19 @@ func NewStore(path string) (*Store, error) {
 }
 
 func (store *Store) FindChannelById(id string) (*Player, error) {
-	var channel Player
-	err := store.One("Id", id, &channel)
+	var player Player
+	err := store.One("Id", id, &player)
 	if err != nil {
 		fmt.Println(err)
 		return nil, err
 	}
-	if player, ok := store.Channels[id]; ok {
-		player.GetState().Active = true
-		return player.GetState(), nil
+	if ch, ok := store.Channels[id]; ok {
+		player.Active = true
+		player.Proccessing = ch.GetState().Proccessing
+		return &player, nil
 	}
-	channel.Active = false
-	return &channel, nil
+	player.Active = false
+	return &player, nil
 }
 
 func (store *Store) FindControllerById(id string) (Controller, error) {
@@ -44,6 +45,7 @@ func (store *Store) FindControllerById(id string) (Controller, error) {
 		return nil, err
 	}
 	if player, ok := store.Channels[id]; ok {
+		player.UpdaetState(&channel)
 		return player, nil
 	}
 	return nil, fmt.Errorf("no controller is active")
@@ -58,8 +60,9 @@ func (store *Store) FindAllChannels() []*Player {
 	store.All(&players)
 	for _, p := range players {
 		p.Active = false
-		if _, ok := store.Channels[p.Id]; ok {
+		if ch, ok := store.Channels[p.Id]; ok {
 			p.Active = true
+			p.Proccessing = ch.GetState().Proccessing
 		}
 	}
 	return players
