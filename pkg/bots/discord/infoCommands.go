@@ -43,9 +43,9 @@ func init() {
 
 func LinkCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	msg := EmbedBuilder("Watch2Gether")
-	msg.URL = fmt.Sprintf("%s/app/room/%s", ctx.BaseURL, ctx.Guild.ID)
+	msg.URL = fmt.Sprintf("%s/app/%s", ctx.BaseURL, ctx.Guild.ID)
 	msg.Type = discordgo.EmbedTypeArticle
-	msg.Description = fmt.Sprintf("%s/app/room/%s", ctx.BaseURL, ctx.Guild.ID)
+	msg.Description = fmt.Sprintf("%s/app/%s", ctx.BaseURL, ctx.Guild.ID)
 	return ctx.CmdReplyEmbed(msg)
 }
 

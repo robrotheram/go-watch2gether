@@ -3,19 +3,20 @@ package discordbot
 import (
 	"fmt"
 	"watch2gether/pkg/players"
+	"watch2gether/pkg/playlists"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 type CommandCtx struct {
 	*players.Store
-
-	Session *discordgo.Session
-	Guild   *discordgo.Guild
-	Channel *discordgo.Channel
-	User    *discordgo.Member
-	Args    []string
-	BaseURL string
+	Playlists *playlists.PlaylistStore
+	Session   *discordgo.Session
+	Guild     *discordgo.Guild
+	Channel   *discordgo.Channel
+	User      *discordgo.Member
+	Args      []string
+	BaseURL   string
 }
 
 func (ctx *CommandCtx) ReplyEmbed(message *EmbededMessage) error {

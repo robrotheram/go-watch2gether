@@ -25,7 +25,7 @@ func (store *Store) FindChannelById(id string) (*Player, error) {
 	var player Player
 	err := store.One("Id", id, &player)
 	if err != nil {
-		fmt.Println(err)
+		// fmt.Println(err)
 		return nil, err
 	}
 	if ch, ok := store.Channels[id]; ok {

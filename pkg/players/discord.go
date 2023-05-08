@@ -159,6 +159,7 @@ func (dp *DiscordPlayer) Clear() {
 	dp.Lock()
 	defer dp.Unlock()
 	dp.state.Queue = []media.Media{}
+	dp.update()
 }
 
 func (dp *DiscordPlayer) Pause() {

@@ -2,23 +2,18 @@ import { useEffect, useState } from "react";
 import Card from "./Cards"
 import Header from "./Header"
 import Player from "./Player"
-import toast, { Toaster, useToaster } from 'react-hot-toast';
-import { addVideoController, getController } from "../api/watch2gether";
+import toast from 'react-hot-toast';
+import { addVideoController, getChannelPlaylists, getController, updateQueueController } from "../api/watch2gether";
 import { useNavigate } from "react-router-dom";
+import { PlaylistBtn } from "../pages/app/playlists/playtlist";
 
-export const AddVideoCtrl = () => {
+export const AddVideoCtrl = ({onAddVideo}) => {
     const [video, setVideo] = useState("");
     const addVideo = async () => {
         if (video.length == 0) {
             return
         }
-
-        try {
-            await addVideoController(video)
-            toast.success("Video is being added to the queue please wait");
-        } catch (e) {
-            toast.error("Unable to add video: invalid video url");
-        }
+        onAddVideo(video)
         setVideo("")
     }
     const handleKeyPress = (e) => {
@@ -41,48 +36,7 @@ export const AddVideoCtrl = () => {
     )
 }
 
-const Notifications = () => {
-    const { toasts } = useToaster();
-    
 
-    const SusccessIcon = (
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
-            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
-            <span class="sr-only">Check icon</span>
-        </div>
-    )
-
-    const WarningIcon = (
-        <div class="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-orange-500 bg-orange-100 rounded-lg dark:bg-orange-700 dark:text-orange-200">
-            <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
-            <span class="sr-only">Warning icon</span>
-        </div>
-    )
-
-
-
-    return (
-        <div className="absolute z-50 top-2 right-2 left-2 sm:left-auto md:left-auto">
-            {toasts.filter((toast) => toast.visible)
-                .map((t) => {
-                    setTimeout(() => toast.dismiss(t.id), t.duration)
-                    return (
-                        <div key={t.id} style={{ opacity: t.visible ? 1 : 0 }}  {...t.ariaProps} id="toast-default" class="flex items-center w-full p-4 mb-2 rounded-xl text-white bg-zinc-800" role="alert">
-                            {t.type === "success" ? SusccessIcon : WarningIcon}
-                            <div class="ml-3 text-md font-normal px-5">{t.message}</div>
-                            <button onClick={() => toast.dismiss(t.id)} type="button" class="ml-auto -mx-1.5 -my-1.5 hover:text-purple-900 rounded-lg focus:ring-2 focus:ring-gray-300 p-1.5 hover:bg-gray-100 inline-flex h-8 w-8 dark:text-white dark:hover:text-white dark:bg-purple-800 dark:hover:bg-purple-700" data-dismiss-target="#toast-default" aria-label="Close">
-                                <span class="sr-only">Close</span>
-                                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                            </button>
-                        </div>
-                    )
-                }
-                )
-            }
-        </div>
-    );
-
-};
 
 const Controller = () => {
     const navigate = useNavigate();
@@ -93,18 +47,20 @@ const Controller = () => {
             duration: 0
         }, Queue: []
     })
-
+    const [playlists, setPlaylists] = useState([])
+    const updatePlaylists = async() => {setPlaylists(await getChannelPlaylists())}
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
                 let _state = await getController()
                 setState(_state)
             } catch (e) {
-                navigate(`/app?error`)
+                navigate(`/app?error=`)
             }
             setLoading(false)
 
         }, 1000);
+        updatePlaylists()
         return () => clearInterval(interval);
     }, []);
 
@@ -119,18 +75,40 @@ const Controller = () => {
         )
     }
 
+    const addVideo = async(video) => {
+        try {
+            await addVideoController(video)
+            toast.success("Video is being added to the queue please wait");
+        } catch (e) {
+            toast.error("Unable to add video: invalid video url");
+        }
+    }
+
+    const updateQueue = async(queue) =>{
+        try{
+            await updateQueueController(queue)
+            toast.success("Queue updated")
+        }catch(e){
+            console.info(e)
+            toast.error("Sorry there was an issue updating the queue")
+        }
+        
+    }
+
     return (
         <div className="flex flex-col w-full h-full">
-            <Notifications />
-            <AddVideoCtrl />
+            <AddVideoCtrl onAddVideo={addVideo}/>
             <div className='bg-violet-800 w-full h-full flex flex-col' style={{ "overflow": "auto" }}>
-                {state.Current.id && <Header current={state.Current} />}
+                {state.Current.id && <Header current={state.Current}/>}
                 <div className='w-full flex-grow' >
                     <div className='w-full h-full shadow-body px-4 md:px-10 text-white'>
-                        <Card queue={state.Queue} />
+                        <Card queue={state.Queue} updateQueue={updateQueue} />
                     </div>
                 </div>
-                <Player state={state} />
+            </div>
+            <Player state={state} />
+            <div className="absolute bottom-9 right-0">
+                <PlaylistBtn playlists={playlists}/>
             </div>
         </div>
     )

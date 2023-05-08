@@ -1,17 +1,17 @@
 
-import logo from '../../assets/logo-purple.svg'
-import './index.css'
+import logo from '../../assets/logo.svg'
+// import './index.css'
 
 export default function () {
 
   return (
-    <div className={`text-white wrap-login min-h-screen w-full flex justify-center items-center`}>
+    <div className={`text-white wrap-login min-h-screen w-full flex justify-center items-center bg-gradient-to-b from-violet-900  to-black`}>
     
 
-    <div className="flex flex-col items-center border  rounded-lg shadow md:flex-row md:max-w-xl backdrop-blur-md bg-white/40">
+    <div className="flex flex-col items-center   rounded-lg shadow md:flex-row md:max-w-xl ">
     <img className="object-cover rounded-t-lg h-32 w-32  md:h-auto md:w-48 md:rounded-none md:rounded-l-lg" src={logo} alt=""/>
     <div className="flex flex-col justify-between px-10 py-10 leading-normal">
-        <h5 className="mb-8 text-5xl font-bold tracking-tight text-purple-900 text-center">Watch2Gether</h5>
+        <h5 className="mb-8 text-5xl font-bold tracking-tight text-white text-center">Watch2Gether</h5>
         
         <a href='/auth/login' type="button" className=" display inline-flex items-center justify-center text-white bg-gradient-to-r from-purple-500 via-purple-600 to-purple-700 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-purple-300 dark:focus:ring-purple-800 shadow-lg shadow-purple-500/50 dark:shadow-lg dark:shadow-purple-800/80 font-medium rounded-lg text-lg px-5 py-2.5 text-center mr-2 mb-2">
           

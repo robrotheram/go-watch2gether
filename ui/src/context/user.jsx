@@ -20,7 +20,6 @@ const UserContextProvider = ({ children }) => {
   const loc = useLocation();
   const [user, setUser] = useState(defaultUser);
   const [loading, setLoading] = useState(false);
-  console.log("path", loc.pathname)
   const redirect = loc.pathname.startsWith("/")? loc.pathname : "/app";
   
   useEffect(() => {

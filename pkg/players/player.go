@@ -48,3 +48,16 @@ type Player struct {
 func (p *Player) MediaRefresh() {
 	media.RefreshAudioURL(&p.Current)
 }
+
+func insert(array []media.Media, value media.Media, index int) []media.Media {
+	return append(array[:index], append([]media.Media{value}, array[index:]...)...)
+}
+
+func (p *Player) Remove(index int) []media.Media {
+	return append(p.Queue[:index], p.Queue[index+1:]...)
+}
+
+func (p *Player) Move(srcIndex int, dstIndex int) []media.Media {
+	value := p.Queue[srcIndex]
+	return insert(p.Remove(srcIndex), value, dstIndex)
+}

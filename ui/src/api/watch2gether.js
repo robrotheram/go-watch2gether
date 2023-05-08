@@ -1,6 +1,11 @@
 export const getRoomId = () => {
-    const room = window.location.pathname.replace("/app/","")
-    return room
+    const regex = /\/app\/(\d+)/;
+    const match = window.location.pathname.match(regex);
+    if (match ==undefined) {
+        return ""
+    }
+    const id = match[1];
+    return id
 }
 
 export async function getController() {
@@ -78,6 +83,10 @@ export async function pauseVideoController(video) {
     return jsonData
 }
 
+
+
+
+
 export async function skipVideoController(video) {
     const response = await fetch(`/api/channel/${getRoomId()}/skip`, {
         method: "POST", // or 'PUT'
@@ -135,6 +144,78 @@ export async function getGuilds() {
 
 export async function getUser() {
     const response = await fetch(`/auth/user`);
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
+    return jsonData
+}
+
+
+export async function getChannelPlaylists() {
+    
+    const response = await fetch(`/api/channel/${getRoomId()}/playlist`);
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.messages
+    }
+    return jsonData.sort((a, b) => { return a.name.localeCompare(b.name)});
+}
+
+export async function updatePlaylist(playlist) {
+    const response = await fetch(`/api/playist/${playlist.id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body:  JSON.stringify(playlist),
+    });
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
+    return jsonData
+}
+
+export async function deletePlaylist(playlist) {
+    const response = await fetch(`/api/playist/${playlist.id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+    });
+    if (!response.ok){
+        const jsonData = await response.json();
+        throw jsonData.message
+    }
+}
+
+export async function createPlaylist() {
+    const playist = {
+        "name":"new-playlists",
+        "channel": getRoomId()
+    }
+    const response = await fetch(`/api/playist`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body:  JSON.stringify(playist),
+    });
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
+    return jsonData
+}
+
+export async function loadFromPlaylist(playlistID) {
+    const response = await fetch(`/api/channel/${getRoomId()}/add/playlist/${playlistID}`, {
+        method: "PUT", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+        },
+    });
     const jsonData = await response.json();
     if (!response.ok){
         throw jsonData.message

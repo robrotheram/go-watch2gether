@@ -166,7 +166,7 @@ func (yt *Youtube) GetType() string {
 }
 
 func (yt *Youtube) IsValidUrl(url string, ct *ContentType) bool {
-	YT_REGEX := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$`)
+	YT_REGEX := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m|music)\.)?((?:youtube\.com|youtu.be))(\/(?:[\w\-]+\?v=|embed\/|v\/)?)([\w\-]+)(\S+)?$`)
 	match := YT_REGEX.Match([]byte(url))
 	return match
 }

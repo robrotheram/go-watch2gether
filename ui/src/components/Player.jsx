@@ -35,7 +35,7 @@ const Player = ({ state }) => {
 
 
     return (
-        <div className="fixed bottom-0 left-0 z-50 grid w-full h-24 grid-cols-1 px-8  md:grid-cols-3 bg-zinc-900">
+        <div className="flex-shrink grid w-full h-24 grid-cols-1 px-8  md:grid-cols-3 bg-zinc-900">
             <div></div>
             {state.Active ?
                 <div className="flex items-center w-full">

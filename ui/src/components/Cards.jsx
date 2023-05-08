@@ -26,7 +26,7 @@ const QueueItem = ({ pos, video, children }) => {
                     {pos}
                 </div>
                 <div className="flex-shrink-0">
-                    <img className=" h-20 w-20 md:h-32 md:w-48 object-cover rounded-lg" src={video.thumbnail} alt={video.title} />
+                    <img loading="lazy" className=" h-20 w-20 md:h-32 md:w-48 object-cover rounded-lg" src={video.thumbnail} alt={video.title} />
                 </div>
                 <div className="flex-1 min-w-0 md:flex md:justify-aroud">
                     <p className="text-md font-medium text-gray-900 truncate dark:text-white w-full md:w-1/3 text-left md:text-center">
@@ -50,17 +50,7 @@ const QueueItem = ({ pos, video, children }) => {
 
 
 
-const Card = ({ queue }) => {
-    const updateQueue = async(queue) =>{
-        try{
-            await updateQueueController(queue)
-            toast.success("Queue updated")
-        }catch(e){
-            console.error(e)
-            toast.error("Sorry there was an issue updating the queue")
-        }
-        
-    } 
+const Card = ({ queue, updateQueue }) => {
     
     const deleteVideo = (item) => {
         const videoList = [...queue];

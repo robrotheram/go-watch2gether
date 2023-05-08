@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"watch2gether/pkg/players"
+	"watch2gether/pkg/playlists"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/labstack/gommon/log"
@@ -49,7 +50,7 @@ func RegisterCommands(session *discordgo.Session) error {
 	return nil
 }
 
-func RegisterCommandHandler(store *players.Store) func(session *discordgo.Session, i *discordgo.InteractionCreate) {
+func RegisterCommandHandler(store *players.Store, playlistStore *playlists.PlaylistStore) func(session *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	return func(session *discordgo.Session, i *discordgo.InteractionCreate) {
 		guild, err := session.Guild(i.GuildID)
@@ -72,16 +73,25 @@ func RegisterCommandHandler(store *players.Store) func(session *discordgo.Sessio
 				args = append(args, strconv.FormatInt(arg.IntValue(), 10))
 			case discordgo.ApplicationCommandOptionSubCommand:
 				args = append(args, arg.Name)
+				for _, a := range arg.Options {
+					switch a.Type {
+					case discordgo.ApplicationCommandOptionString:
+						args = append(args, a.StringValue())
+					case discordgo.ApplicationCommandOptionInteger:
+						args = append(args, strconv.FormatInt(a.IntValue(), 10))
+					}
+				}
 			}
 		}
 
 		ctx := CommandCtx{
-			Session: session,
-			Guild:   guild,
-			Channel: channel,
-			User:    user,
-			Args:    args,
-			Store:   store,
+			Session:   session,
+			Guild:     guild,
+			Channel:   channel,
+			User:      user,
+			Args:      args,
+			Store:     store,
+			Playlists: playlistStore,
 		}
 		cmd, err := Commands.GetCommand(i.ApplicationCommandData().Name)
 		if err != nil {
