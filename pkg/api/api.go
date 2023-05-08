@@ -219,7 +219,7 @@ func (api *API) HandleLogout(c echo.Context) error {
 
 func NewApi(store *players.Store, pStore *playlists.PlaylistStore) error {
 	auth := auth.NewDiscordAuth(&utils.Configuration)
-	cache := ttlcache.New[string, any](
+	cache := ttlcache.New(
 		ttlcache.WithTTL[string, any](30 * time.Minute),
 	)
 

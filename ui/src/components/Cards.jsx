@@ -1,7 +1,6 @@
 import { useState } from "react"
 import { useSwipeable } from "react-swipeable";
-import { updateQueueController } from "../api/watch2gether";
-import { toast } from "react-hot-toast";
+import { v4 as uuidv4 } from 'uuid';
 
 const QueueItem = ({ pos, video, children }) => {
     const [showMenu, setShowMenu] = useState(false)
@@ -51,7 +50,7 @@ const QueueItem = ({ pos, video, children }) => {
 
 
 const Card = ({ queue, updateQueue }) => {
-    
+    queue.map(q => q.qid = uuidv4())
     const deleteVideo = (item) => {
         const videoList = [...queue];
         const i = videoList.indexOf(item);
@@ -89,7 +88,7 @@ const Card = ({ queue, updateQueue }) => {
     if (queue.length > 0) {
         return (
             <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-200 mt-8">
-                {queue.map((video, i) => <QueueItem key={video.id} pos={i + 1} video={video}>
+                {queue.map((video, i) => <QueueItem key={video.qid} pos={i + 1} video={video}>
                     <div className="inline-flex rounded-md shadow-sm" role="group">
                         <button type="button" onClick={()=> moveToTop(video)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 bg-zinc-100 ">
                             <svg aria-hidden="true" className=" h-6 fill-current" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

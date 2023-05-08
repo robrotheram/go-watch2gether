@@ -123,7 +123,7 @@ export const PlaylistBtn = ({playlists}) => {
   }
 
   return <div className="w-full md:w-60 px-4 relative flex justify-end" ref={ref}>
-  <button onClick={()=>setShow(!show)} className="rounded-full w-16 h-16 justify-center mb-2 text-white bg-violet-800 hover:bg-violet-800 focus:ring-4 focus:outline-none focus:ring-violet-300 font-medium text-sm text-center inline-flex items-center dark:bg-violet-600 dark:hover:bg-violet-700 dark:focus:ring-violet-800" type="button">
+  <button onClick={()=>setShow(!show)} className="rounded-full w-16 h-16 justify-center mb-2 text-white bg-violet-800 hover:bg-violet-800 focus:ring-4 focus:outline-none focus:ring-violet-300 font-medium text-sm text-center inline-flex items-center dark:bg-purple-600 dark:hover:bg-violet-700 dark:focus:ring-violet-800" type="button">
     
   <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>

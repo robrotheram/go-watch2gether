@@ -14,7 +14,8 @@
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
     "react-router-dom": "^6.11.0",
-    "react-swipeable": "^7.0.0"
+    "react-swipeable": "^7.0.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.28",
