@@ -3,7 +3,7 @@ package discordbot
 import (
 	"fmt"
 	"strconv"
-	"watch2gether/pkg/players"
+	"watch2gether/pkg/channels"
 	"watch2gether/pkg/playlists"
 
 	"github.com/bwmarrin/discordgo"
@@ -48,9 +48,10 @@ func RegisterCommands(session *discordgo.Session) error {
 	}
 	log.Info("Updating Commands complete")
 	return nil
+
 }
 
-func RegisterCommandHandler(store *players.Store, playlistStore *playlists.PlaylistStore) func(session *discordgo.Session, i *discordgo.InteractionCreate) {
+func RegisterCommandHandler(store *channels.Store, playlistStore *playlists.PlaylistStore) func(session *discordgo.Session, i *discordgo.InteractionCreate) {
 
 	return func(session *discordgo.Session, i *discordgo.InteractionCreate) {
 		guild, err := session.Guild(i.GuildID)
@@ -61,8 +62,12 @@ func RegisterCommandHandler(store *players.Store, playlistStore *playlists.Playl
 			return
 		}
 		channel, err := session.Channel(i.ChannelID)
-		user := i.Interaction.Member
+		if err != nil {
+			session.ChannelMessageSend(i.ChannelID, "Guild not found")
+			return
+		}
 
+		user := i.Interaction.Member
 		args := []string{}
 		for _, arg := range i.ApplicationCommandData().Options {
 

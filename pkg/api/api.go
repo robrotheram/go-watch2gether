@@ -3,12 +3,13 @@ package api
 import (
 	//...
 
+	"log"
 	"net/http"
 	"net/url"
 	"time"
 	"watch2gether/pkg/api/auth"
+	"watch2gether/pkg/channels"
 	"watch2gether/pkg/media"
-	"watch2gether/pkg/players"
 	"watch2gether/pkg/playlists"
 	"watch2gether/pkg/utils"
 
@@ -22,7 +23,7 @@ import (
 type API struct {
 	auth     *auth.DiscordAuth
 	playlist *playlists.PlaylistStore
-	*players.Store
+	*channels.Store
 	Cache *ttlcache.Cache[string, any]
 }
 
@@ -147,7 +148,7 @@ func (api *API) handleGetGuilds(c echo.Context) error {
 			active = append(active, g)
 		}
 	}
-	return c.JSON(200, active)
+	return c.JSON(200, guilds)
 }
 
 func (api *API) handleGetUser(c echo.Context) error {
@@ -217,7 +218,7 @@ func (api *API) HandleLogout(c echo.Context) error {
 	return api.auth.HandleLogout(c)
 }
 
-func NewApi(store *players.Store, pStore *playlists.PlaylistStore) error {
+func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 	auth := auth.NewDiscordAuth(&utils.Configuration)
 	cache := ttlcache.New(
 		ttlcache.WithTTL[string, any](30 * time.Minute),
@@ -275,5 +276,6 @@ func NewApi(store *players.Store, pStore *playlists.PlaylistStore) error {
 			Filesystem: http.Dir("ui/dist"),
 		}))
 	}
+	log.Println("http://localhost:8080")
 	return e.Start(":8080")
 }

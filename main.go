@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"watch2gether/pkg/api"
 	discordbot "watch2gether/pkg/bots/discord"
-	"watch2gether/pkg/players"
+	"watch2gether/pkg/channels"
 	"watch2gether/pkg/playlists"
 	"watch2gether/pkg/utils"
 
@@ -23,7 +23,7 @@ func main() {
 	os.MkdirAll(utils.Configuration.DatabasePath, os.ModePerm)
 	path := filepath.Join(utils.Configuration.DatabasePath, "watch2gether.db")
 
-	store, err := players.NewStore(path)
+	store, err := channels.NewStore(path)
 	if err != nil {
 		log.Fatalf("Invalid datastore parameters: %v", err)
 	}

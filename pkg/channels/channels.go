@@ -1,4 +1,4 @@
-package players
+package channels
 
 import (
 	"encoding/json"
@@ -28,9 +28,9 @@ func (store *Store) FindChannelById(id string) (*Player, error) {
 		// fmt.Println(err)
 		return nil, err
 	}
-	if ch, ok := store.Channels[id]; ok {
+	if _, ok := store.Channels[id]; ok {
 		player.Active = true
-		player.Proccessing = ch.GetState().Proccessing
+		//player.Proccessing = ch.GetState().Proccessing
 		return &player, nil
 	}
 	player.Active = false
@@ -45,7 +45,7 @@ func (store *Store) FindControllerById(id string) (Controller, error) {
 		return nil, err
 	}
 	if player, ok := store.Channels[id]; ok {
-		player.UpdaetState(&channel)
+		//UpdaetState(&channel)
 		return player, nil
 	}
 	return nil, fmt.Errorf("no controller is active")
@@ -60,9 +60,9 @@ func (store *Store) FindAllChannels() []*Player {
 	store.All(&players)
 	for _, p := range players {
 		p.Active = false
-		if ch, ok := store.Channels[p.Id]; ok {
+		if _, ok := store.Channels[p.Id]; ok {
 			p.Active = true
-			p.Proccessing = ch.GetState().Proccessing
+			// p.Proccessing = ch.GetState().Proccessing
 		}
 	}
 	return players

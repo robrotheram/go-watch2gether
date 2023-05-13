@@ -1,10 +1,8 @@
-package players
+package channels
 
 import (
 	"time"
 	"watch2gether/pkg/media"
-
-	"github.com/asdine/storm"
 )
 
 var (
@@ -12,26 +10,6 @@ var (
 	PAUSED  = PlayerState("PAUSED")
 	STOPPED = PlayerState("STOPPED")
 )
-
-type Controller interface {
-	Play()
-	Pause()
-	Stop()
-	Skip()
-	Shuffle()
-	Done()
-	Load()
-	Clear()
-	SetLoop(bool)
-	Duration() time.Duration
-	Add(meida []media.Media)
-	GetQueue() []media.Media
-	UpdateQueue([]media.Media)
-	GetState() *Player
-	UpdaetState(*Player)
-	GetCurrentVideo() media.Media
-	SetStore(*storm.DB)
-}
 
 type PlayerState string
 

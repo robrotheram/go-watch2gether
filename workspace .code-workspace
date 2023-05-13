@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {},
+	"extensions": {
+		"recommendations": [
+			"golang.go",
+			"stivo.tailwind-fold",
+			"rangav.vscode-thunder-client",
+			"bradlc.vscode-tailwindcss"
+		]
+	}
+}

@@ -2,14 +2,14 @@ package discordbot
 
 import (
 	"fmt"
-	"watch2gether/pkg/players"
+	"watch2gether/pkg/channels"
 	"watch2gether/pkg/playlists"
 
 	"github.com/bwmarrin/discordgo"
 )
 
 type CommandCtx struct {
-	*players.Store
+	*channels.Store
 	Playlists *playlists.PlaylistStore
 	Session   *discordgo.Session
 	Guild     *discordgo.Guild

@@ -134,8 +134,7 @@ func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Reply(":cry: number not in range of the queue try again")
 	}
 
-	r.GetState().Move(pos1, pos2)
-	r.UpdaetState(r.GetState())
+	r.Move(pos1, pos2)
 
 	return ctx.Reply(":white_check_mark: Queue Updated :thumbsup:")
 }
@@ -162,8 +161,7 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		if pos < 0 || pos > len(r.GetQueue())-1 {
 			continue
 		}
-		r.GetState().Remove(pos)
-		r.UpdaetState(r.GetState())
+		r.Remove(pos)
 	}
 	return ctx.Reply(":white_check_mark: Queue Updated :thumbsup:")
 }
@@ -187,9 +185,8 @@ func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Reply(":cry: number not in range of the queue try again")
 	}
 	for i := 0; i < pos; i++ {
-		r.GetState().Remove(pos)
+		r.Remove(pos)
 	}
-	r.UpdaetState(r.GetState())
 	r.Skip()
 	return ctx.Reply(":white_check_mark: Skiped :thumbsup:")
 }
