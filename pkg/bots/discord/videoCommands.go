@@ -66,6 +66,7 @@ func AddVideo(ctx CommandCtx, uri string) error {
 		return fmt.Errorf("no media found")
 	}
 	video := videos[0]
+	queue, _ := r.GetQueue()
 	message := EmbedBuilder(fmt.Sprintf("Added %d tracks to the Queue", len(videos)))
 	message.Thumbnail = &discordgo.MessageEmbedThumbnail{
 		URL: video.Thumbnail,
@@ -84,7 +85,7 @@ func AddVideo(ctx CommandCtx, uri string) error {
 	})
 	message.AddField(discordgo.MessageEmbedField{
 		Name:   "Position in the Queue",
-		Value:  fmt.Sprintf("%d", len(r.GetQueue())+1),
+		Value:  fmt.Sprintf("%d", len(queue)+1),
 		Inline: false,
 	})
 

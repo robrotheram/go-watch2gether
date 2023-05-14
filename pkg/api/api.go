@@ -93,34 +93,34 @@ func (api *API) handleAddFromPlaylist(c echo.Context) error {
 func (api *API) handleNextVideo(c echo.Context) error {
 	id := c.Param("id")
 	controller, _ := api.FindControllerById(id)
-	controller.Skip()
-	return c.JSON(http.StatusOK, controller.GetState())
+	return controller.Skip()
 }
 
 func (api *API) handleLoopVideo(c echo.Context) error {
 	id := c.Param("id")
 	controller, _ := api.FindControllerById(id)
-	controller.SetLoop(!controller.GetState().Loop)
-	return c.JSON(http.StatusOK, controller.GetState())
+	state, err := controller.GetState()
+	if err != nil {
+		return err
+	}
+	return controller.SetLoop(!state.Loop)
 }
+
 func (api *API) handlePlayVideo(c echo.Context) error {
 	id := c.Param("id")
 	controller, _ := api.FindControllerById(id)
-	controller.Play()
-	return c.JSON(http.StatusOK, controller.GetState())
+	return controller.Play()
 }
 func (api *API) handlePauseVideo(c echo.Context) error {
 	id := c.Param("id")
 	controller, _ := api.FindControllerById(id)
-	controller.Pause()
-	return c.JSON(http.StatusOK, controller.GetState())
+	return controller.Pause()
 }
 
 func (api *API) handleShuffleVideo(c echo.Context) error {
 	id := c.Param("id")
 	controller, _ := api.FindControllerById(id)
-	controller.Shuffle()
-	return c.JSON(http.StatusOK, controller.GetState())
+	return controller.Shuffle()
 }
 
 func (api *API) handleGetAllChannel(c echo.Context) error {
@@ -148,7 +148,7 @@ func (api *API) handleGetGuilds(c echo.Context) error {
 			active = append(active, g)
 		}
 	}
-	return c.JSON(200, guilds)
+	return c.JSON(200, active)
 }
 
 func (api *API) handleGetUser(c echo.Context) error {

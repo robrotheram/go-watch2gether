@@ -3,33 +3,26 @@ package channels
 import (
 	"context"
 	"log"
-	"math/rand"
-	"sync"
 	"time"
-	"watch2gether/pkg/media"
 
-	"github.com/asdine/storm"
 	"github.com/bwmarrin/discordgo"
 	"github.com/robrotheram/dca"
 )
 
 type DiscordPlayer struct {
-	id              string
 	voiceConnection *discordgo.VoiceConnection
 	discord         *discordgo.Session
 	stream          *dca.StreamingSession
 	encodingSession *dca.EncodeSession
-	*storm.DB
-	*sync.Mutex
+	*Base
 }
 
 func NewDiscordPlayer(id string, vc *discordgo.VoiceConnection, s *discordgo.Session) *DiscordPlayer {
 	player := DiscordPlayer{
-		id:              id,
 		voiceConnection: vc,
-		Mutex:           &sync.Mutex{},
+		discord:         s,
+		Base:            NewBase(id),
 	}
-	go player.process()
 	return &player
 }
 
@@ -37,35 +30,19 @@ func (dp *DiscordPlayer) check() {
 	for _, g := range dp.discord.State.Guilds {
 		if g.ID == dp.id {
 			if len(g.VoiceStates) <= 1 {
-				dp.disconnect()
+				dp.Done()
 			}
 		}
 	}
 }
 
-func (dp *DiscordPlayer) disconnect() {
-	dp.Stop()
-	dp.voiceConnection.Disconnect()
-}
-
-func (dp *DiscordPlayer) update(state *Player) {
-	dp.Save(state)
-}
-
-func (dp *DiscordPlayer) SetStore(db *storm.DB) {
-	dp.DB = db
-}
-
-func (dp *DiscordPlayer) GetState() *Player {
-	var state *Player
-	dp.One("Id", dp.id, state)
-	return state
-}
-
 func (dp *DiscordPlayer) process() {
 	for {
 		dp.Lock()
-		state := dp.GetState()
+		state, err := dp.GetState()
+		if err != nil {
+			return
+		}
 		dp.Unlock()
 		if len(state.Current.Url) > 0 && state.State == PLAYING {
 			log.Println(dp.Stream())
@@ -80,32 +57,23 @@ func (dp *DiscordPlayer) process() {
 		dp.check()
 	}
 }
+func (dp *DiscordPlayer) Run() error {
+	go dp.process()
+	return nil
+}
 
-func (dp *DiscordPlayer) Skip() {
+func (dp *DiscordPlayer) Skip() error {
 	if dp.encodingSession != nil {
 		dp.encodingSession.Cleanup()
 	}
+	return nil
 }
 
-func (dp *DiscordPlayer) UpdateQueue(videos []media.Media) {
-	dp.Lock()
-	defer dp.Unlock()
-
-	state := dp.GetState()
-	state.Queue = videos
-	dp.update(state)
-}
-
-func (dp *DiscordPlayer) SetLoop(loop bool) {
-	dp.Lock()
-	defer dp.Unlock()
-	state := dp.GetState()
-	state.Loop = loop
-	dp.update(state)
-}
-
-func (dp *DiscordPlayer) Play() {
-	state := dp.GetState()
+func (dp *DiscordPlayer) Play() error {
+	state, err := dp.GetState()
+	if err != nil {
+		return err
+	}
 	if state.State == PAUSED {
 		if dp.stream != nil {
 			dp.stream.SetPaused(false)
@@ -115,99 +83,42 @@ func (dp *DiscordPlayer) Play() {
 	}
 
 	state.State = PLAYING
-	dp.update(state)
+	return dp.update(state)
 }
 
-func (dp *DiscordPlayer) Add(meida []media.Media) {
-	dp.Lock()
-	defer dp.Unlock()
-	state := dp.GetState()
-	state.Queue = append(state.Queue, meida...)
-	dp.update(state)
-}
-
-func (dp *DiscordPlayer) Next() {
-	dp.Lock()
-	defer dp.Unlock()
-
-	state := dp.GetState()
-	state.Current = media.Media{}
-	if len(state.Queue) > 0 {
-		state.Current, state.Queue = state.Queue[0], state.Queue[1:]
-	}
-	dp.update(state)
-}
-
-func (dp *DiscordPlayer) Shuffle() {
-	dp.Lock()
-	defer dp.Unlock()
-
-	state := dp.GetState()
-	rand.Shuffle(len(state.Queue), func(i, j int) {
-		state.Queue[i], state.Queue[j] = state.Queue[j], state.Queue[i]
-	})
-	dp.update(state)
-
-}
-
-func (dp *DiscordPlayer) GetQueue() []media.Media {
-	dp.Lock()
-	defer dp.Unlock()
-	return dp.GetState().Queue
-}
-
-func (dp *DiscordPlayer) GetCurrentVideo() media.Media {
-	return dp.GetState().Current
-}
-
-func (dp *DiscordPlayer) Clear() {
-	dp.Lock()
-	defer dp.Unlock()
-
-	state := dp.GetState()
-	state.Queue = []media.Media{}
-	dp.update(state)
-}
-
-func (dp *DiscordPlayer) Pause() {
+func (dp *DiscordPlayer) Pause() error {
 	dp.Lock()
 	defer dp.Unlock()
 	dp.stream.SetPaused(true)
-	state := dp.GetState()
+	state, err := dp.GetState()
+	if err != nil {
+		return err
+	}
 	state.State = PAUSED
-	dp.update(state)
+	return dp.update(state)
 }
 
-func (dp *DiscordPlayer) Stop() {
+func (dp *DiscordPlayer) Stop() error {
 	dp.Lock()
 	defer dp.Unlock()
 	if dp.encodingSession != nil {
 		dp.encodingSession.Cleanup()
 	}
-	state := dp.GetState()
+	state, err := dp.GetState()
+	if err != nil {
+		return err
+	}
 	state.State = STOPPED
-	dp.update(state)
+	return dp.update(state)
 }
 
-func (dp *DiscordPlayer) Done() {
+func (dp *DiscordPlayer) Done() error {
 	dp.Stop()
-	dp.voiceConnection.Disconnect()
+	return dp.voiceConnection.Disconnect()
 }
 
 func (dp *DiscordPlayer) Duration() time.Duration {
 	return dp.stream.PlaybackPosition()
-}
-
-func (dp *DiscordPlayer) Move(srcIndex int, dstIndex int) {
-	state := dp.GetState()
-	state.Move(srcIndex, dstIndex)
-	dp.update(state)
-}
-
-func (dp *DiscordPlayer) Remove(srcIndex int) {
-	state := dp.GetState()
-	state.Remove(srcIndex)
-	dp.update(state)
 }
 
 func (dp *DiscordPlayer) updateDuration(ctx context.Context) {
@@ -216,7 +127,10 @@ func (dp *DiscordPlayer) updateDuration(ctx context.Context) {
 		select {
 		case <-ticker.C:
 			dp.Lock()
-			state := dp.GetState()
+			state, err := dp.GetState()
+			if err != nil {
+				break
+			}
 			state.Proccessing = dp.Duration()
 			dp.update(state)
 			dp.Unlock()
@@ -235,9 +149,12 @@ func (dp *DiscordPlayer) Stream() error {
 	options.Application = "lowdelay"
 
 	var err error
-	state := dp.GetState()
+	state, err := dp.GetState()
+	if err != nil {
+		return err
+	}
 	state.MediaRefresh()
-	dp.encodingSession, err = dca.EncodeFile(dp.GetCurrentVideo().AudioUrl, options)
+	dp.encodingSession, err = dca.EncodeFile(state.Current.AudioUrl, options)
 	if err != nil {
 		return err
 	}

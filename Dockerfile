@@ -11,6 +11,7 @@ ADD . .
 RUN CGO_ENABLED=0 GOOS=linux go build
 
 FROM alpine
+LABEL org.opencontainers.image.source="https://github.com/robrotheram/go-watch2gether"
 WORKDIR /app
 RUN apk upgrade -U \
  && apk add ca-certificates ffmpeg \

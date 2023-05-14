@@ -3,6 +3,7 @@ package channels
 import (
 	"encoding/json"
 	"fmt"
+	"watch2gether/pkg/media"
 
 	"github.com/asdine/storm"
 )
@@ -52,10 +53,6 @@ func (store *Store) FindControllerById(id string) (Controller, error) {
 }
 
 func (store *Store) FindAllChannels() []*Player {
-	// players := []*Player{}
-	// for _, c := range store.Channels {
-	// 	players = append(players, c.GetState())
-	// }
 	players := []*Player{}
 	store.All(&players)
 	for _, p := range players {
@@ -69,7 +66,15 @@ func (store *Store) FindAllChannels() []*Player {
 }
 
 func (store *Store) RegisterNewChannel(id string, player Controller) error {
+
+	store.Save(&Player{
+		Id:    id,
+		State: STOPPED,
+		Queue: []media.Media{},
+	})
+
 	player.SetStore(store.DB)
+	player.Run()
 	if _, found := store.Channels[id]; !found {
 		store.Channels[id] = player
 	}

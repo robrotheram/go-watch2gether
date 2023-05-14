@@ -41,11 +41,11 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.User.ID)
 	if err != nil {
-		ctx.Reply("User not connected to voice channel")
+		return ctx.Reply("User not connected to voice channel")
 	}
 	voice, err := ctx.Session.ChannelVoiceJoin(ctx.Guild.ID, vc, false, true)
 	if err != nil {
-		ctx.Reply("User not connected to voice channel")
+		return ctx.Reply("User not connected to voice channel")
 	}
 	conroller := channels.NewDiscordPlayer(ctx.Guild.ID, voice, ctx.Session)
 	ctx.RegisterNewChannel(ctx.Guild.ID, conroller)
@@ -55,7 +55,7 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 func LeaveCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	err := ctx.LeaveChannel(ctx.Guild.ID)
 	if err != nil {
-		ctx.Reply("Error Bot not connected")
+		return ctx.Reply("Error Bot not connected")
 	}
 	return ctx.Reply("Good bye :wave:")
 }

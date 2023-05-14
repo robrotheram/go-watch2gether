@@ -103,8 +103,9 @@ func loopCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
-	r.SetLoop(!r.GetState().Loop)
-	if r.GetState().Loop {
+	state, _ := r.GetState()
+	r.SetLoop(state.Loop)
+	if state.Loop {
 		return ctx.Reply(":arrows_counterclockwise:  Looping enabled")
 	}
 	return ctx.Reply(":arrows_counterclockwise:  Looping disabled")
@@ -129,8 +130,8 @@ func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
-
-	if pos1 < 0 || pos1 > len(r.GetQueue())-1 || pos2 < 0 || pos2 > len(r.GetQueue())-1 {
+	queue, _ := r.GetQueue()
+	if pos1 < 0 || pos1 > len(queue)-1 || pos2 < 0 || pos2 > len(queue)-1 {
 		return ctx.Reply(":cry: number not in range of the queue try again")
 	}
 
@@ -148,7 +149,7 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
-
+	queue, _ := r.GetQueue()
 	for i, arg := range ctx.Args {
 		pos, err := strconv.Atoi(arg)
 		if err != nil {
@@ -158,7 +159,7 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		if i != 0 {
 			pos = pos - i
 		}
-		if pos < 0 || pos > len(r.GetQueue())-1 {
+		if pos < 0 || pos > len(queue)-1 {
 			continue
 		}
 		r.Remove(pos)
@@ -180,8 +181,8 @@ func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-
-	if pos < 0 || pos > len(r.GetQueue())-1 {
+	queue, _ := r.GetQueue()
+	if pos < 0 || pos > len(queue)-1 {
 		return ctx.Reply(":cry: number not in range of the queue try again")
 	}
 	for i := 0; i < pos; i++ {

@@ -55,7 +55,7 @@ func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
-	var video = r.GetCurrentVideo()
+	var video, _ = r.GetCurrentVideo()
 
 	message := EmbedBuilder("Currently Playing")
 	message.Thumbnail = &discordgo.MessageEmbedThumbnail{
@@ -90,8 +90,8 @@ func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	msg := EmbedBuilder("Watch2Gether Queue")
 	msg.Thumbnail = nil
 
-	video := r.GetCurrentVideo()
-	queue := r.GetQueue()
+	video, _ := r.GetCurrentVideo()
+	queue, _ := r.GetQueue()
 
 	if video.Url != "" {
 		msg.AddField(discordgo.MessageEmbedField{
