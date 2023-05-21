@@ -36,7 +36,10 @@ func main() {
 
 	s.AddHandler(discordbot.RegisterCommandHandler(store, playlistStore))
 	s.Identify.Intents = discordgo.IntentsGuildMessages | discordgo.IntentsGuilds | discordgo.IntentsGuildMessages | discordgo.IntentsGuildVoiceStates
-	s.Open()
+	err = s.Open()
+	if err != nil {
+		log.Fatalf("Invalid opening session: %v", err)
+	}
 	go discordbot.RegisterCommands(s)
 	log.Println(api.NewApi(store, playlistStore))
 	log.Println("Graceful shutdown")
