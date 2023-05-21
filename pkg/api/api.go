@@ -70,6 +70,8 @@ func (api *API) handleAddVideo(c echo.Context) error {
 		return err
 	}
 	controller.Queue = append(controller.Queue, videos...)
+	controller.RemoveDuplicates()
+
 	api.Save(controller)
 	return c.JSON(http.StatusOK, controller)
 }
@@ -85,7 +87,10 @@ func (api *API) handleAddFromPlaylist(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
 	}
+
 	controller.Queue = append(controller.Queue, p.Videos...)
+	controller.RemoveDuplicates()
+
 	api.Save(controller)
 	return c.JSON(http.StatusOK, controller)
 }
@@ -218,6 +223,31 @@ func (api *API) HandleLogout(c echo.Context) error {
 	return api.auth.HandleLogout(c)
 }
 
+type Backup struct {
+	Players   []*channels.Player   `json:"players"`
+	Playlists []playlists.Playlist `json:"playlists"`
+}
+
+func (api *API) handleExport(c echo.Context) error {
+	players := api.FindAllChannels()
+	playlists, _ := api.playlist.GetAll()
+	return c.JSON(200, Backup{Players: players, Playlists: playlists})
+}
+
+func (api *API) handleImport(c echo.Context) error {
+	var backup Backup
+	if err := c.Bind(&backup); err != nil {
+		return err
+	}
+	for _, player := range backup.Players {
+		api.Save(player)
+	}
+	for _, playlists := range backup.Playlists {
+		api.playlist.Save(&playlists)
+	}
+	return nil
+}
+
 func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 	auth := auth.NewDiscordAuth(&utils.Configuration)
 	cache := ttlcache.New(
@@ -242,6 +272,9 @@ func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 	e.GET("/auth/logout", api.HandleLogout)
 	e.GET("/auth/callback", auth.HandleCallback)
 	e.GET("/auth/user", api.handleGetUser)
+
+	e.GET("/backup", api.handleExport)
+	e.POST("/backup", api.handleImport)
 
 	a := e.Group("/api")
 	a.GET("/guilds", api.handleGetGuilds)

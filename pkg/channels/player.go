@@ -39,3 +39,16 @@ func (p *Player) Move(srcIndex int, dstIndex int) []media.Media {
 	value := p.Queue[srcIndex]
 	return insert(p.Remove(srcIndex), value, dstIndex)
 }
+
+func (p *Player) RemoveDuplicates() {
+	// map to store unique keys
+	keys := make(map[string]bool)
+	returnSlice := []media.Media{}
+	for _, item := range p.Queue {
+		if _, value := keys[item.ID]; !value {
+			keys[item.ID] = true
+			returnSlice = append(returnSlice, item)
+		}
+	}
+	p.Queue = returnSlice
+}

@@ -42,6 +42,12 @@ func NewPlaylistStore(store *storm.DB) *PlaylistStore {
 	}
 }
 
+func (store *PlaylistStore) GetAll() ([]Playlist, error) {
+	var playlist []Playlist
+	err := store.All(&playlist)
+	return playlist, err
+}
+
 func (store *PlaylistStore) GetByUser(user string) ([]Playlist, error) {
 	var playlist []Playlist
 	err := store.Find("User", user, &playlist)

@@ -50,7 +50,6 @@ const QueueItem = ({ pos, video, children }) => {
 
 
 const Card = ({ queue, updateQueue }) => {
-    queue.map(q => q.qid = uuidv4())
     const deleteVideo = (item) => {
         const videoList = [...queue];
         const i = videoList.indexOf(item);
