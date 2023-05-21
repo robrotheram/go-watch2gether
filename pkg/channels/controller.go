@@ -49,6 +49,13 @@ func (base *Base) update(state *Player) error {
 
 func (base *Base) SetStore(db *storm.DB) {
 	base.DB = db
+	if _, err := base.GetState(); err != nil {
+		db.Save(&Player{
+			Id:    base.id,
+			State: STOPPED,
+			Queue: []media.Media{},
+		})
+	}
 }
 
 func (base *Base) GetState() (*Player, error) {
