@@ -38,23 +38,28 @@ func (dp *DiscordPlayer) check() {
 
 func (dp *DiscordPlayer) process() {
 	for {
-		dp.Lock()
-		state, err := dp.GetState()
-		if err != nil {
+		select {
+		case <-dp.quit:
 			return
-		}
-		dp.Unlock()
-		if len(state.Current.Url) > 0 && state.State == PLAYING {
-			log.Println(dp.Stream())
-			if !state.Loop {
-				dp.Next()
+		default:
+			dp.Lock()
+			state, err := dp.GetState()
+			if err != nil {
+				return
 			}
-		} else if len(state.Queue) > 0 && state.State == PLAYING {
-			dp.Next()
-		} else {
-			time.Sleep(1 * time.Second)
+			dp.Unlock()
+			if len(state.Current.Url) > 0 && state.State == PLAYING {
+				log.Println(dp.Stream())
+				if !state.Loop {
+					dp.Next()
+				}
+			} else if len(state.Queue) > 0 && state.State == PLAYING {
+				dp.Next()
+			} else {
+				time.Sleep(1 * time.Second)
+			}
+			dp.check()
 		}
-		dp.check()
 	}
 }
 func (dp *DiscordPlayer) Run() error {
@@ -114,6 +119,7 @@ func (dp *DiscordPlayer) Stop() error {
 
 func (dp *DiscordPlayer) Done() error {
 	dp.Stop()
+	go func() { dp.quit <- true }()
 	return dp.voiceConnection.Disconnect()
 }
 

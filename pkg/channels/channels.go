@@ -66,18 +66,17 @@ func (store *Store) FindAllChannels() []*Player {
 }
 
 func (store *Store) RegisterNewChannel(id string, player Controller) error {
-
+	if player, found := store.Channels[id]; found {
+		player.Done()
+	}
 	store.Save(&Player{
 		Id:    id,
 		State: STOPPED,
 		Queue: []media.Media{},
 	})
-
 	player.SetStore(store.DB)
 	player.Run()
-	if _, found := store.Channels[id]; !found {
-		store.Channels[id] = player
-	}
+	store.Channels[id] = player
 	return nil
 }
 

@@ -31,7 +31,8 @@ type Controller interface {
 }
 
 type Base struct {
-	id string
+	id   string
+	quit chan bool
 	*storm.DB
 	*sync.Mutex
 }
@@ -40,6 +41,7 @@ func NewBase(id string) *Base {
 	return &Base{
 		id:    id,
 		Mutex: &sync.Mutex{},
+		quit:  make(chan bool),
 	}
 }
 
