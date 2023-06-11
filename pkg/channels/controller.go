@@ -26,8 +26,10 @@ type Controller interface {
 	UpdateQueue([]media.Media) error
 	GetQueue() ([]media.Media, error)
 	GetCurrentVideo() (media.Media, error)
-	SetStore(*storm.DB)
+	Create(*storm.DB, chan EventType)
 	GetState() (*Player, error)
+	Notify(EventType)
+	GetType() RoomType
 }
 
 type Base struct {
@@ -35,6 +37,7 @@ type Base struct {
 	quit chan bool
 	*storm.DB
 	*sync.Mutex
+	broadcast chan EventType
 }
 
 func NewBase(id string) *Base {
@@ -49,8 +52,14 @@ func (base *Base) update(state *Player) error {
 	return base.Save(state)
 }
 
-func (base *Base) SetStore(db *storm.DB) {
+func (base *Base) Broadcast(msg EventType) error {
+	base.broadcast <- msg
+	return nil
+}
+
+func (base *Base) Create(db *storm.DB, broadcast chan EventType) {
 	base.DB = db
+	base.broadcast = broadcast
 	if _, err := base.GetState(); err != nil {
 		db.Save(&Player{
 			Id:    base.id,

@@ -13,6 +13,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-hot-toast": "^2.4.1",
+    "react-player": "^2.12.0",
     "react-router-dom": "^6.11.0",
     "react-swipeable": "^7.0.0",
     "uuid": "^9.0.0"

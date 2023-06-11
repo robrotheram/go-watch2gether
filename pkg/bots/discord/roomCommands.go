@@ -53,7 +53,7 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func LeaveCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	err := ctx.LeaveChannel(ctx.Guild.ID)
+	err := ctx.LeaveChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Reply("Error Bot not connected")
 	}

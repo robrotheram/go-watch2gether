@@ -3,6 +3,7 @@ package discordbot
 import (
 	"fmt"
 	"net/url"
+	"watch2gether/pkg/channels"
 	"watch2gether/pkg/media"
 
 	"github.com/bwmarrin/discordgo"
@@ -52,7 +53,7 @@ func init() {
 }
 
 func AddVideo(ctx CommandCtx, uri string) error {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return fmt.Errorf("room %s not active", ctx.Guild.ID)
 	}
@@ -103,7 +104,7 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Errorf("%s Is not a valid URL", ctx.Args[0])
 	}
 
-	_, err = ctx.GetChannel(ctx.Guild.ID)
+	_, err = ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
@@ -114,7 +115,7 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
@@ -123,7 +124,7 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func pauseCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
@@ -132,7 +133,7 @@ func pauseCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func skipCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}

@@ -181,3 +181,19 @@ func (dp *DiscordPlayer) Stream() error {
 	log.Println("Music Ended")
 	return nil
 }
+func (dp *DiscordPlayer) GetType() RoomType {
+	return DISCORD
+}
+
+func (dp *DiscordPlayer) Notify(evt EventType) {
+	switch evt {
+	case PLAY:
+		dp.Play()
+	case PAUSE:
+		dp.Pause()
+	case SKIP:
+		dp.Skip()
+	case STOP:
+		dp.Stop()
+	}
+}

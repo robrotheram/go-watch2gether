@@ -5,13 +5,17 @@ import (
 	"watch2gether/pkg/media"
 )
 
+type PlayerState string
+type PlayerType string
+
 var (
 	PLAYING = PlayerState("PLAYING")
 	PAUSED  = PlayerState("PAUSED")
 	STOPPED = PlayerState("STOPPED")
-)
 
-type PlayerState string
+	MUSIC = PlayerState("MUSIC")
+	VIDEO = PlayerState("VIDEO")
+)
 
 type Player struct {
 	Id          string `storm:"id" json:"id"`
@@ -21,10 +25,21 @@ type Player struct {
 	Queue       []media.Media
 	Proccessing time.Duration
 	Current     media.Media
+	PlayerType  PlayerType `json:"player_type"`
 }
 
 func (p *Player) MediaRefresh() {
 	media.RefreshAudioURL(&p.Current)
+}
+
+func (p *Player) Update(updated Player) {
+	p.State = updated.State
+	p.Loop = updated.Loop
+	p.Active = updated.Active
+	p.Queue = updated.Queue
+	p.Proccessing = updated.Proccessing
+	p.Current = updated.Current
+	p.PlayerType = updated.PlayerType
 }
 
 func insert(array []media.Media, value media.Media, index int) []media.Media {

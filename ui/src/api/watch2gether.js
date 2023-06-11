@@ -151,6 +151,21 @@ export async function getUser() {
     return jsonData
 }
 
+export async function updatePlayer(player) {
+    const response = await fetch(`/api/channel/${getRoomId()}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body:  JSON.stringify(player),
+    });
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
+    return jsonData
+}
+
 
 export async function getChannelPlaylists() {
     

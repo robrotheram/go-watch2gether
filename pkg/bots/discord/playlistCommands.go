@@ -3,6 +3,7 @@ package discordbot
 import (
 	"fmt"
 	"strings"
+	"watch2gether/pkg/channels"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -51,7 +52,7 @@ func init() {
 }
 
 func PlaylistLoadCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}

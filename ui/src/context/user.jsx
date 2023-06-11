@@ -13,6 +13,7 @@ const defaultUser =  {
   video_id: '',
   isHost: false,
   playing: false,
+  player_type: "MUSIC"
 }
 
 const UserContextProvider = ({ children }) => {
@@ -21,12 +22,12 @@ const UserContextProvider = ({ children }) => {
   const [user, setUser] = useState(defaultUser);
   const [loading, setLoading] = useState(false);
   const redirect = loc.pathname.startsWith("/")? loc.pathname : "/app";
-  
   useEffect(() => {
     const fetchUser = async() => {
         setLoading(true);
         try{
           let user = await getUser()
+          user.player_type = user.player_type === ""  ? user.player_type : "MUSIC"
           setUser(user)
           nav(""+loc.pathname )
         }catch(e){
@@ -36,10 +37,9 @@ const UserContextProvider = ({ children }) => {
     };
     fetchUser();
   }, []);
-
   return (
     // the Provider gives access to the context to its children
-    <UserContext.Provider value={[user, loading]}>
+    <UserContext.Provider value={[user]}>
       {children}
     </UserContext.Provider>
   );

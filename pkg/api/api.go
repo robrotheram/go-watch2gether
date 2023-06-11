@@ -14,6 +14,7 @@ import (
 	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/sessions"
+	"github.com/gorilla/websocket"
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -33,6 +34,23 @@ func (api *API) handleGetChannel(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
 
+	}
+	return c.JSON(http.StatusOK, player)
+}
+
+func (api *API) handleUpdateChannel(c echo.Context) error {
+	id := c.Param("id")
+	var updatePlayer channels.Player
+	if err := c.Bind(&updatePlayer); err != nil {
+		return err
+	}
+	player, err := api.FindChannelById(id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
+	}
+	player.Update(updatePlayer)
+	if err := api.Save(player); err != nil {
+		return err
 	}
 	return c.JSON(http.StatusOK, player)
 }
@@ -97,13 +115,13 @@ func (api *API) handleAddFromPlaylist(c echo.Context) error {
 
 func (api *API) handleNextVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetChannel(id, channels.WEBSOCKET)
 	return controller.Skip()
 }
 
 func (api *API) handleLoopVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetChannel(id, channels.WEBSOCKET)
 	state, err := controller.GetState()
 	if err != nil {
 		return err
@@ -113,18 +131,18 @@ func (api *API) handleLoopVideo(c echo.Context) error {
 
 func (api *API) handlePlayVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
-	return controller.Play()
+	controller, _ := api.GetChannel(id, channels.WEBSOCKET)
+	return controller.Broadcast(channels.EventType.PLAY)
 }
 func (api *API) handlePauseVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetChannel(id, channels.WEBSOCKET)
 	return controller.Pause()
 }
 
 func (api *API) handleShuffleVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetChannel(id, channels.WEBSOCKET)
 	return controller.Shuffle()
 }
 
@@ -248,6 +266,18 @@ func (api *API) handleImport(c echo.Context) error {
 	return nil
 }
 
+func (api *API) hello(c echo.Context) error {
+	id := c.Param("id")
+	upgrader := websocket.Upgrader{}
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		return err
+	}
+	player := channels.NewWebPlayer(id, ws)
+	api.Store.RegisterNewChannel(id, player)
+	return nil
+}
+
 func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 	auth := auth.NewDiscordAuth(&utils.Configuration)
 	cache := ttlcache.New(
@@ -264,7 +294,8 @@ func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 
 	e := echo.New()
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(utils.Configuration.SessionSecret))))
-	// e.Use(middleware.Logger())
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 	e.Use(auth.Middleware())
 
@@ -275,11 +306,13 @@ func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 
 	e.GET("/backup", api.handleExport)
 	e.POST("/backup", api.handleImport)
+	e.GET("/ws/:id", api.hello)
 
 	a := e.Group("/api")
 	a.GET("/guilds", api.handleGetGuilds)
 	a.GET("/channel", api.handleGetAllChannel)
 	a.GET("/channel/:id", api.handleGetChannel)
+	a.POST("/channel/:id", api.handleUpdateChannel)
 	a.GET("/channel/:id/playlist", api.handleGetPlaylistsByChannel)
 	a.PUT("/channel/:id/add", api.handleAddVideo)
 	a.PUT("/channel/:id/add/playlist/:playlist_id", api.handleAddFromPlaylist)

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Card from "./Cards"
 import Header from "./Header"
 import Player from "./Player"
@@ -7,7 +7,7 @@ import { addVideoController, getChannelPlaylists, getController, updateQueueCont
 import { useNavigate } from "react-router-dom";
 import { PlaylistBtn } from "../pages/app/playlists/playtlist";
 
-export const AddVideoCtrl = ({onAddVideo}) => {
+export const AddVideoCtrl = ({ onAddVideo }) => {
     const [video, setVideo] = useState("");
     const addVideo = async () => {
         if (video.length == 0) {
@@ -39,6 +39,7 @@ export const AddVideoCtrl = ({onAddVideo}) => {
 
 
 const Controller = () => {
+    const myRef = useRef(null)
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState("")
@@ -48,7 +49,7 @@ const Controller = () => {
         }, Queue: []
     })
     const [playlists, setPlaylists] = useState([])
-    const updatePlaylists = async() => {setPlaylists(await getChannelPlaylists())}
+    const updatePlaylists = async () => { setPlaylists(await getChannelPlaylists()) }
     useEffect(() => {
         const interval = setInterval(async () => {
             try {
@@ -75,7 +76,7 @@ const Controller = () => {
         )
     }
 
-    const addVideo = async(video) => {
+    const addVideo = async (video) => {
         try {
             await addVideoController(video)
             toast.success("Video is being added to the queue please wait");
@@ -84,22 +85,30 @@ const Controller = () => {
         }
     }
 
-    const updateQueue = async(queue) =>{
-        try{
+    const updateQueue = async (queue) => {
+        try {
             await updateQueueController(queue)
             toast.success("Queue updated")
-        }catch(e){
+        } catch (e) {
             console.info(e)
             toast.error("Sorry there was an issue updating the queue")
         }
         
     }
 
+    
+   const executeScroll = () => {
+    myRef.current.scroll({
+        top: -100,
+        behavior: 'smooth'
+      });
+   }
+
     return (
         <div className="flex flex-col w-full h-full">
             <AddVideoCtrl onAddVideo={addVideo}/>
             <div className='bg-violet-800 w-full h-full flex flex-col' style={{ "overflow": "auto" }}>
-                {state.Current.id && <Header current={state.Current}/>}
+                {state.Current.id && <Header state={state}/>}
                 <div className='w-full flex-grow' >
                     <div className='w-full h-full shadow-body px-4 md:px-10 text-white'>
                         <Card queue={state.Queue} updateQueue={updateQueue} />

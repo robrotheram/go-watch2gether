@@ -2,6 +2,7 @@ package discordbot
 
 import (
 	"fmt"
+	"watch2gether/pkg/channels"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -51,7 +52,7 @@ func LinkCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 
 func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
@@ -83,7 +84,7 @@ func nowPlayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func queueCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetChannel(ctx.Guild.ID, channels.DISCORD)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
