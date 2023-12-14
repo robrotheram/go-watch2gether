@@ -2,7 +2,7 @@ import { useState } from "react"
 import { useSwipeable } from "react-swipeable";
 import { v4 as uuidv4 } from 'uuid';
 
-const QueueItem = ({ pos, video, children }) => {
+const QueueItem = ({ key, pos, video, children }) => {
     const [showMenu, setShowMenu] = useState(false)
     const handlers = useSwipeable({
         // onSwiped: (eventData) => alert("User Swiped!", eventData),
@@ -19,7 +19,7 @@ const QueueItem = ({ pos, video, children }) => {
     }
 
     return (
-        <li className="py-3" {...handlers} onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
+        <li key={key} className="py-3" {...handlers} onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
             <div className="flex items-center space-x-4 md:space-x-10">
                 <div className="flex text-md dark:text-white text-center" style={{ width: "20px" }}>
                     {pos}

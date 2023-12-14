@@ -1,10 +1,11 @@
-import { useEffect, useRef, useState } from "react"
+import { useContext, useEffect, useRef, useState } from "react"
 import { createPlaylist, deletePlaylist, getChannelPlaylists, getGuilds, getUser, loadFromPlaylist, updatePlaylist } from "../../../api/watch2gether"
 import { Nav, useOnClickOutside } from "../../../components/Nav";
 import Card from "../../../components/Cards";
 import { AddVideoCtrl } from "../../../components/Controller";
 import toast from 'react-hot-toast';
 import { Link } from "react-router-dom";
+import { VolumeContext } from "../../../components/Provider";
 
 const ManagePlaylist = ({ playlist, onUpdate }) => {
   const addVideo = async (video) => {
@@ -108,6 +109,7 @@ const PlaylistHeader = ({ playlist, active, onClick, onUpdate }) => {
 
 export const PlaylistBtn = ({ playlists }) => {
   const [show, setShow] = useState(false)
+
   const ref = useRef();
   useOnClickOutside(ref, () => setShow(false));
 

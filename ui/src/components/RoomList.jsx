@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import { getRoomId } from "../api/watch2gether";
 import { useEffect, useState } from "react";
 
-const GuildIcon = ({ guild, active }) => {
+export const GuildIcon = ({ guild, active }) => {
     let className = "ml-1.5 mr-2.5 my-2  h-12 w-12 relative inline-flex items-center justify-center  overflow-hidden rounded-full bg-gray-100  dark:bg-gray-600 border-purple-700 hover:border-2 icon-shadow"
     className += active ? " border-2 icon-active" : " border-0";
 

@@ -18,6 +18,13 @@ export async function getController() {
     return jsonData
 }
 
+export async function getSocket() {
+    let room = getRoomId()
+    let socket = ((window.location.protocol === "https:") ? "wss://" : "ws://") + window.location.host + "/ws/"+room;
+    return socket
+}
+
+
 export async function addVideoController(video) {
     let response;
     try{
@@ -62,11 +69,11 @@ export async function playVideoController(video) {
           "Content-Type": "application/json",
         },
     });
-    const jsonData = await response.json();
-    if (!response.ok){
-        throw jsonData.message
-    }
-    return jsonData
+    // const jsonData = await response.json();
+    // if (!response.ok){
+    //     throw jsonData.message
+    // }
+    // return jsonData
 }
 
 export async function pauseVideoController(video) {
@@ -76,11 +83,11 @@ export async function pauseVideoController(video) {
           "Content-Type": "application/json",
         },
     });
-    const jsonData = await response.json();
-    if (!response.ok){
-        throw jsonData.message
-    }
-    return jsonData
+    // const jsonData = await response.json();
+    // if (!response.ok){
+    //     throw jsonData.message
+    // }
+    // return jsonData
 }
 
 

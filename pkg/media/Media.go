@@ -13,6 +13,7 @@ type Media struct {
 	Title       string        `json:"title"`
 	ChannelName string        `json:"channel"`
 	Duration    time.Duration `json:"duration"`
+	Proccessing time.Duration `json:"progress"`
 	Thumbnail   string        `json:"thumbnail"`
 	Order       int           `json:"order,omitempty"`
 }
@@ -26,4 +27,8 @@ func (m *Media) GetAudioUrl() string {
 		return m.Url
 	}
 	return m.AudioUrl
+}
+
+func (m *Media) Refresh() error {
+	return RefreshAudioURL(m)
 }

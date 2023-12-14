@@ -9,11 +9,14 @@ import (
 	"time"
 	"watch2gether/pkg/api/auth"
 	"watch2gether/pkg/channels"
+	"watch2gether/pkg/channels/model"
+	"watch2gether/pkg/channels/players"
 	"watch2gether/pkg/media"
 	"watch2gether/pkg/playlists"
 	"watch2gether/pkg/utils"
 
 	"github.com/gorilla/sessions"
+	"github.com/gorilla/websocket"
 	"github.com/jellydator/ttlcache/v3"
 	"github.com/labstack/echo-contrib/session"
 	"github.com/labstack/echo/v4"
@@ -29,12 +32,16 @@ type API struct {
 
 func (api *API) handleGetChannel(c echo.Context) error {
 	id := c.Param("id")
-	player, err := api.FindChannelById(id)
+	controller, err := api.GetController(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
-
 	}
-	return c.JSON(http.StatusOK, player)
+	state, err := controller.GetState()
+	if err != nil {
+		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
+	}
+
+	return c.JSON(http.StatusOK, state)
 }
 
 func (api *API) handleUpateQueue(c echo.Context) error {
@@ -43,21 +50,18 @@ func (api *API) handleUpateQueue(c echo.Context) error {
 	if err := c.Bind(&videos); err != nil {
 		return err
 	}
-	player, err := api.FindChannelById(id)
+	controller, err := api.GetController(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
 	}
-	player.Queue = videos
-	if err := api.Save(player); err != nil {
-		return err
-	}
-	return c.JSON(http.StatusOK, player)
+	controller.UpdateQueue(videos);
+	return c.JSON(http.StatusOK, controller)
 }
 
 func (api *API) handleAddVideo(c echo.Context) error {
 	id := c.Param("id")
 	user := c.Get("user").(auth.User)
-	controller, err := api.FindChannelById(id)
+	controller, err := api.GetController(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
 	}
@@ -69,10 +73,7 @@ func (api *API) handleAddVideo(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	controller.Queue = append(controller.Queue, videos...)
-	controller.RemoveDuplicates()
-
-	api.Save(controller)
+	controller.Add(videos)
 	return c.JSON(http.StatusOK, controller)
 }
 
@@ -83,27 +84,23 @@ func (api *API) handleAddFromPlaylist(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	controller, err := api.FindChannelById(id)
+	controller, err := api.GetController(id)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusNotFound, "Channel not Registered")
 	}
-
-	controller.Queue = append(controller.Queue, p.Videos...)
-	controller.RemoveDuplicates()
-
-	api.Save(controller)
+	controller.Add(p.Videos)
 	return c.JSON(http.StatusOK, controller)
 }
 
 func (api *API) handleNextVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetController(id)
 	return controller.Skip()
 }
 
 func (api *API) handleLoopVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetController(id)
 	state, err := controller.GetState()
 	if err != nil {
 		return err
@@ -113,18 +110,18 @@ func (api *API) handleLoopVideo(c echo.Context) error {
 
 func (api *API) handlePlayVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetController(id)
 	return controller.Play()
 }
 func (api *API) handlePauseVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetController(id)
 	return controller.Pause()
 }
 
 func (api *API) handleShuffleVideo(c echo.Context) error {
 	id := c.Param("id")
-	controller, _ := api.FindControllerById(id)
+	controller, _ := api.GetController(id)
 	return controller.Shuffle()
 }
 
@@ -149,7 +146,7 @@ func (api *API) handleGetGuilds(c echo.Context) error {
 	}
 	active := []auth.DiscordGuild{}
 	for _, g := range guilds {
-		if _, err := api.FindChannelById(g.ID); err == nil {
+		if _, err := api.GetState(g.ID); err == nil {
 			active = append(active, g)
 		}
 	}
@@ -224,7 +221,7 @@ func (api *API) HandleLogout(c echo.Context) error {
 }
 
 type Backup struct {
-	Players   []*channels.Player   `json:"players"`
+	Players   []*model.PlayerState `json:"players"`
 	Playlists []playlists.Playlist `json:"playlists"`
 }
 
@@ -248,6 +245,32 @@ func (api *API) handleImport(c echo.Context) error {
 	return nil
 }
 
+func (api *API) hello(c echo.Context) error {
+	id := c.Param("id")
+	upgrader := websocket.Upgrader{}
+	ws, err := upgrader.Upgrade(c.Response(), c.Request(), nil)
+	if err != nil {
+		return err
+	}
+
+	channel, err := api.GetController(id)
+	if err == nil {
+		if p, err := channel.GetPlayer(players.WEB); err == nil {
+			player := p.(*players.WebPlayer)
+			players.NewClient(player, ws)
+		} else {
+			player := players.NewWebPlayer(id)
+			players.NewClient(player, ws)
+			channel.WithPlayer(players.WEB, player)
+		}
+	} else {
+		player := players.NewWebPlayer(id)
+		players.NewClient(player, ws)
+		api.Store.Register(id, players.WEB, player)
+	}
+	return nil
+}
+
 func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 	auth := auth.NewDiscordAuth(&utils.Configuration)
 	cache := ttlcache.New(
@@ -264,14 +287,15 @@ func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 
 	e := echo.New()
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte(utils.Configuration.SessionSecret))))
-	// e.Use(middleware.Logger())
-	e.Use(middleware.CORS())
 	e.Use(auth.Middleware())
+	e.Use(middleware.Logger())
+	e.Use(middleware.CORS())
 
 	e.GET("/auth/login", auth.HandleLogin)
 	e.GET("/auth/logout", api.HandleLogout)
 	e.GET("/auth/callback", auth.HandleCallback)
 	e.GET("/auth/user", api.handleGetUser)
+	e.GET("/ws/:id", api.hello)
 
 	e.GET("/backup", api.handleExport)
 	e.POST("/backup", api.handleImport)
@@ -281,8 +305,12 @@ func NewApi(store *channels.Store, pStore *playlists.PlaylistStore) error {
 	a.GET("/channel", api.handleGetAllChannel)
 	a.GET("/channel/:id", api.handleGetChannel)
 	a.GET("/channel/:id/playlist", api.handleGetPlaylistsByChannel)
+
 	a.PUT("/channel/:id/add", api.handleAddVideo)
 	a.PUT("/channel/:id/add/playlist/:playlist_id", api.handleAddFromPlaylist)
+
+	a.GET("/channel/:id/stream", api.handleStream)
+	a.GET("/channel/:id/stream/:segment", api.handleSegment)
 
 	a.POST("/channel/:id/skip", api.handleNextVideo)
 	a.POST("/channel/:id/shuffle", api.handleShuffleVideo)

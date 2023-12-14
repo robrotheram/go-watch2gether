@@ -82,9 +82,12 @@ func NewVideo(url string, username string) ([]Media, error) {
 	return media, err
 }
 
-func RefreshAudioURL(media *Media) {
+func RefreshAudioURL(media *Media) error {
 	factory := MediaFactory.GetFactory(media.Url)
-	factory.Refresh(media)
+	if factory == nil {
+		return fmt.Errorf("no factory found")
+	}
+	return factory.Refresh(media)
 }
 
 func (f *Factory) GetTypes() []string {

@@ -90,7 +90,7 @@ func init() {
 }
 
 func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
@@ -99,7 +99,7 @@ func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func loopCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
@@ -126,7 +126,7 @@ func moveCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Reply(":cry: sorry not enough argunments in the command try `!move 1 2`")
 	}
 
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
@@ -145,7 +145,7 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if len(ctx.Args) > 1 {
 		return ctx.Reply(":cry: sorry not enough argunments in the command try `!remove 1 2`")
 	}
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
 	}
@@ -177,7 +177,7 @@ func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		ctx.Reply(":cry: sorry not enough argunments in the command try `!sktoTo 10`")
 	}
 
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
@@ -193,7 +193,7 @@ func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func clearCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}

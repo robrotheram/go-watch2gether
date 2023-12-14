@@ -2,7 +2,7 @@ package discordbot
 
 import (
 	"fmt"
-	"watch2gether/pkg/channels"
+	"watch2gether/pkg/channels/players"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -47,13 +47,13 @@ func JoinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Reply("User not connected to voice channel")
 	}
-	conroller := channels.NewDiscordPlayer(ctx.Guild.ID, voice, ctx.Session)
-	ctx.RegisterNewChannel(ctx.Guild.ID, conroller)
+	player := players.NewDiscordPlayer(voice, ctx.Session)
+	ctx.Register(ctx.Guild.ID, players.DISCORD, player)
 	return ctx.Reply("Bot added to the room")
 }
 
 func LeaveCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	err := ctx.LeaveChannel(ctx.Guild.ID)
+	err := ctx.RemovePlayer(ctx.Guild.ID, players.DISCORD)
 	if err != nil {
 		return ctx.Reply("Error Bot not connected")
 	}

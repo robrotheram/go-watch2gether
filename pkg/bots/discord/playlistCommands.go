@@ -51,7 +51,7 @@ func init() {
 }
 
 func PlaylistLoadCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	r, err := ctx.GetChannel(ctx.Guild.ID)
+	r, err := ctx.GetController(ctx.Guild.ID)
 	if err != nil {
 		return ctx.Errorf("Room %s not active", ctx.Guild.ID)
 	}
@@ -89,40 +89,3 @@ func PlaylistListCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	})
 	return ctx.CmdReplyEmbed(msg)
 }
-
-// func SummonCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-// 	r, ok := ctx.GetHubRoom()
-// 	meta, err := ctx.GetMeta()
-// 	if !ok && err != nil {
-// 		return ctx.Errorf("room %s not active", ctx.Guild.ID)
-// 	}
-
-// 	playlists, err := ctx.Playlist.FindByRoomID(ctx.Guild.ID)
-// 	if err != nil {
-// 		return ctx.Errorf("Unable to find playlists for the room")
-// 	}
-
-// 	//Get Username from discord message
-// 	usrID := ctx.Args[0]
-// 	usrID = strings.Trim(usrID, ">")
-// 	usrID = strings.Trim(usrID, "<@!")
-// 	usr, err := ctx.Session.User(usrID)
-// 	if err != nil {
-// 		return ctx.Errorf("unable to find user: %v", err)
-// 	}
-// 	playlistName := "@" + usr.Username
-// 	for _, playlist := range playlists {
-// 		if strings.EqualFold(strings.TrimSuffix(playlist.Name, " "), playlistName) {
-// 			video := playlist.Videos[rand.Intn(len(playlist.Videos))]
-// 			queue := meta.Queue
-// 			queue = append(queue, video)
-// 			r.HandleEvent(events.Event{
-// 				Action:  events.EVENT_UPDATE_QUEUE,
-// 				Watcher: user.DISCORD_BOT,
-// 				Queue:   queue,
-// 			})
-// 			return ctx.Reply(fmt.Sprintf("Playing playlist for: %s", ctx.Args[0]))
-// 		}
-// 	}
-// 	return ctx.Reply(fmt.Sprintf("Could not find playlist to use to summon '%s'", playlistName))
-// }

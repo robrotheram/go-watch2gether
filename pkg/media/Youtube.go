@@ -68,6 +68,11 @@ func (yt *Youtube) GetVideoWithFormat(id string) (*youtube.Video, *youtube.Forma
 	var format *youtube.Format
 	// select the first format
 	formats.Sort()
+	for _, f := range formats {
+		if f.AudioChannels > 0 {
+			return video, &f, nil
+		}
+	}
 	format = &formats[len(formats)-1]
 	return video, format, nil
 }

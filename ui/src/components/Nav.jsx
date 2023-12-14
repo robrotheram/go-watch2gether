@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import RoomList from "./RoomList"
 import logo from '../assets/logo.svg'
+import { Link } from "react-router-dom";
 
 // Hook
 export function useOnClickOutside(ref, handler) {
@@ -39,7 +40,7 @@ export const Nav = ({user, guilds}) => {
   
     return (
         <header className='flex shadow-lg fixed z-20 w-full top-0 justify-between bg-zinc-900'>
-        <img src={logo} className='h-16 w-16 bg-purple-700' alt="logo" onClick={() => setShowMenu(!showMenu)} />
+         <Link to={`/app/`} ><img src={logo} className='h-16 w-16 bg-purple-700' alt="logo" /></Link>
         <h1 className='text-3xl font-dosis font-bold'>Watch2Gether</h1>
         <div ref={ref} className="flex items-center md:order-2 mr-4">
           <button onClick={() => setModalOpen(!isModalOpen)} type="button" className="float-right flex mr-4 text-sm rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
@@ -55,9 +56,6 @@ export const Nav = ({user, guilds}) => {
             </ul>
           </div>}
         </div>
-        {showMenu && <section className="w-16 bottom-24 top-16 fixed md:hidden bg-black z-30 text-white overflow-y-auto hide-scrollbar shadow-xl shadow-left" >
-        <RoomList guilds={guilds} />
-      </section>}
       </header>
     )
 }
