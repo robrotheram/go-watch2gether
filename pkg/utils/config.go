@@ -1,9 +1,6 @@
 package utils
 
 import (
-	"math/rand"
-	"time"
-
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
@@ -61,11 +58,6 @@ func (c *Config) GetLoglevel() log.Level {
 }
 
 func SetDefaults() {
-	if Configuration.Dev {
-		rand.Seed(0)
-	}
-	rand.Seed(time.Now().UnixNano())
-
 	if Configuration.ListenPort == "" {
 		Configuration.ListenPort = "8080"
 	}

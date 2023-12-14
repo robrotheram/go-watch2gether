@@ -24,7 +24,7 @@ func (v *Media) GetType() MediaType {
 
 func (m *Media) GetAudioUrl() string {
 	if m.AudioUrl == "" {
-		return m.Url
+		m.Refresh()
 	}
 	return m.AudioUrl
 }
