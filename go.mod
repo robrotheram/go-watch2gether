@@ -8,6 +8,7 @@ require (
 	github.com/gorilla/handlers v1.5.2
 	github.com/jonas747/dca v0.0.0-20210930103944-155f5e5f0cc7
 	github.com/kkdai/youtube/v2 v2.9.0
+	github.com/robrotheram/dca v0.0.0-20230525200713-5b42efd6be2c
 	github.com/segmentio/ksuid v1.0.4
 	github.com/sirupsen/logrus v1.9.3
 	golang.org/x/net v0.19.0
@@ -43,7 +44,7 @@ require (
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/pprof v0.0.0-20230907193218-d3ddc7976beb // indirect
 	github.com/gorilla/mux v1.8.1
-	github.com/gorilla/websocket v1.4.2 // indirect
+	github.com/gorilla/websocket v1.5.0 // indirect
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/spf13/viper v1.18.1
 	golang.org/x/crypto v0.16.0 // indirect
