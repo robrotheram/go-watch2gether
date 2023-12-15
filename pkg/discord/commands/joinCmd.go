@@ -10,31 +10,28 @@ import (
 func init() {
 	register(
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name: "join",
-				Type: discordgo.UserApplicationCommand,
+			Name: "join",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Type: discordgo.UserApplicationCommand,
+				},
+				{
+					Description: "Join the voice channle you are in",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: joinCmd,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "join",
-				Description: "Join the voice channle you are in",
-				Type:        discordgo.ChatApplicationCommand,
-			},
-			Function: joinCmd,
-		}, Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name: "leave",
-				Type: discordgo.UserApplicationCommand,
-			},
-			Function: leave,
-		},
-		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "leave",
-				Description: "Leave the voice channle you are in",
-				Type:        discordgo.ChatApplicationCommand,
+			Name: "leave",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Type: discordgo.UserApplicationCommand,
+				},
+				{
+					Description: "Leave the voice channle you are in",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: leave,
 		})

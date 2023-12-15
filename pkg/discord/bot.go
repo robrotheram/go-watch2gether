@@ -22,12 +22,12 @@ type DiscordBot struct {
 	users    map[string]*session.UserSession
 }
 
-func NewDiscordBot(config utils.Config) (*DiscordBot, error) {
+func NewDiscordBot(config utils.Config, hub *controllers.Hub) (*DiscordBot, error) {
 	bot := DiscordBot{
 		token:    config.DiscordToken,
 		status:   "INIT",
 		clientID: config.DiscordClientID,
-		channels: controllers.NewHub(),
+		channels: hub,
 		users:    make(map[string]*session.UserSession),
 	}
 	dg, err := discordgo.New("Bot " + bot.token)
@@ -60,12 +60,15 @@ func (db *DiscordBot) RegisterCommands() error {
 		log.Infof("removing command: %s", v.Name)
 	}
 
-	for name, cmd := range commands.GetCommands() {
-		acc, err := db.session.ApplicationCommandCreate(db.clientID, "", &cmd.ApplicationCommand)
-		if err != nil {
-			log.Warnf("error updating command %s: %v", name, err)
+	for name, cmds := range commands.GetCommands() {
+		for _, cmd := range cmds.ApplicationCommand {
+			cmd.Name = name
+			acc, err := db.session.ApplicationCommandCreate(db.clientID, "", &cmd)
+			if err != nil {
+				log.Warnf("error updating command %s: %v", name, err)
+			}
+			log.Infof("creating command: %s", acc.Name)
 		}
-		log.Infof("creating command: %s", acc.Name)
 	}
 	log.Info("Updating Commands complete")
 	return nil
@@ -80,7 +83,7 @@ func (db *DiscordBot) Start() error {
 		return fmt.Errorf("error opening connection: %v", err)
 	}
 
-	db.RegisterCommands()
+	go db.RegisterCommands()
 	return nil
 }
 
@@ -88,11 +91,18 @@ func (db *DiscordBot) Close() {
 	db.session.Close()
 }
 
+func (db *DiscordBot) getChannel(id string) *controllers.Controller {
+	controller, err := db.channels.Get(id)
+	if err != nil {
+		return db.channels.New(id)
+	}
+	return controller
+}
 func (db *DiscordBot) handleApplicationCommand(s *discordgo.Session, i *discordgo.InteractionCreate) {
 	guild, _ := db.session.Guild(i.GuildID)
 	channel, _ := db.session.Channel(i.ChannelID)
 	user := i.Interaction.Member
-	controller := db.channels.Get(i.GuildID)
+	controller := db.getChannel(i.GuildID)
 
 	args := []string{}
 	for _, arg := range i.ApplicationCommandData().Options {
@@ -137,7 +147,7 @@ func (db *DiscordBot) handleMessageCommand(s *discordgo.Session, i *discordgo.In
 	guild, _ := db.session.Guild(i.GuildID)
 	channel, _ := db.session.Channel(i.ChannelID)
 	user := i.Interaction.Member
-	controller := db.channels.Get(i.GuildID)
+	controller := db.getChannel(i.GuildID)
 	ctx := components.HandlerCtx{
 		Session:     s,
 		Guild:       guild,

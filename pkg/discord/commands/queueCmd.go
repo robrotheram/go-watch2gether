@@ -11,37 +11,42 @@ var integerOptionMinValue = 0.0
 func init() {
 	register(
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "move",
-				Description: "Moves a certain song to a chosen position in the queue",
-				Options: []*discordgo.ApplicationCommandOption{
-					{
-						Type:        discordgo.ApplicationCommandOptionInteger,
-						Name:        "old-position",
-						Description: "Current position in the queue",
-						Required:    true,
-					},
-					{
-						Type:        discordgo.ApplicationCommandOptionInteger,
-						Name:        "new-position",
-						Description: "New position in the queue",
-						Required:    true,
+			Name: "move",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+
+					Description: "Moves a certain song to a chosen position in the queue",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "old-position",
+							Description: "Current position in the queue",
+							Required:    true,
+						},
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "new-position",
+							Description: "New position in the queue",
+							Required:    true,
+						},
 					},
 				},
 			},
 			Function: moveCMD,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "remove",
-				Description: "Removes a certain entry from the queue.",
-				Options: []*discordgo.ApplicationCommandOption{
-					{
-						Type:        discordgo.ApplicationCommandOptionInteger,
-						Name:        "remove-position",
-						Description: "Remove current position in the queue",
-						MinValue:    &integerOptionMinValue,
-						Required:    true,
+			Name: "remove",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Removes a certain entry from the queue.",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "remove-position",
+							Description: "Remove current position in the queue",
+							MinValue:    &integerOptionMinValue,
+							Required:    true,
+						},
 					},
 				},
 			},
@@ -49,16 +54,18 @@ func init() {
 			Function: removeCMD,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "skip",
-				Description: "Skips to a certain position in the queue",
-				Options: []*discordgo.ApplicationCommandOption{
-					{
-						Type:        discordgo.ApplicationCommandOptionInteger,
-						Name:        "skip-position",
-						Description: "Skip to this poisition in the queue",
-						MinValue:    &integerOptionMinValue,
-						Required:    true,
+			Name: "skip",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Skips to a certain position in the queue",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionInteger,
+							Name:        "skip-position",
+							Description: "Skip to this poisition in the queue",
+							MinValue:    &integerOptionMinValue,
+							Required:    true,
+						},
 					},
 				},
 			},
@@ -66,16 +73,20 @@ func init() {
 			Function: skipToCMD,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "shuffle",
-				Description: "Shuffles the entire queue",
+			Name: "shuffle",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Shuffles the entire queue",
+				},
 			},
 			Function: shuffleCMD,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "clear",
-				Description: "clears the entire queue",
+			Name: "clear",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "clears the entire queue",
+				},
 			},
 			Function: clearCMD,
 		},

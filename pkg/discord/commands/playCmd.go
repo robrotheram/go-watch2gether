@@ -9,50 +9,60 @@ import (
 func init() {
 	register(
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "play",
-				Description: "plays what is currently in the queue",
-				Type:        discordgo.ChatApplicationCommand,
+			Name: "play",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "plays what is currently in the queue",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: playCmd,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "skip",
-				Description: "Skip the current track",
-				Type:        discordgo.ChatApplicationCommand,
+			Name: "skip",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Skip the current track",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: skipCmd,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "stop",
-				Description: "Stop playing",
-				Type:        discordgo.ChatApplicationCommand,
+			Name: "stop",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Stop playing",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: stopCmd,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "pause",
-				Description: "Pause the current track",
-				Type:        discordgo.ChatApplicationCommand,
+			Name: "pause",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Pause the current track",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: pauseCmd,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "add",
-				Description: "Add new track to the queue",
-				Options: []*discordgo.ApplicationCommandOption{
-					{
-						Type:        discordgo.ApplicationCommandOptionString,
-						Name:        "media",
-						Description: "Video/Audio URL e.g (https://www.youtube.com/watch?v=noneMROp_E8)",
-						Required:    true,
+			Name: "add",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Add new track to the queue",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "media",
+							Description: "Video/Audio URL e.g (https://www.youtube.com/watch?v=noneMROp_E8)",
+							Required:    true,
+						},
 					},
+					Type: discordgo.ChatApplicationCommand,
 				},
-				Type: discordgo.ChatApplicationCommand,
 			},
 			Function: addCmd,
 		})

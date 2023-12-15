@@ -9,25 +9,26 @@ import (
 func init() {
 	register(
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name: "nowplaying",
-				Type: discordgo.UserApplicationCommand,
+			Name: "nowplaying",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+
+					Type: discordgo.UserApplicationCommand,
+				},
+				{
+					Description: "show what is currently playing",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: nowplayingCmd,
 		},
 		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "nowplaying",
-				Description: "show what is currently playing",
-				Type:        discordgo.ChatApplicationCommand,
-			},
-			Function: nowplayingCmd,
-		},
-		Command{
-			ApplicationCommand: discordgo.ApplicationCommand{
-				Name:        "list",
-				Description: "list what tracks are currently in the queue",
-				Type:        discordgo.ChatApplicationCommand,
+			Name: "list",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "list what tracks are currently in the queue",
+					Type:        discordgo.ChatApplicationCommand,
+				},
 			},
 			Function: listcmd,
 		})

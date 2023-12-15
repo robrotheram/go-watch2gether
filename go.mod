@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/bwmarrin/discordgo v0.27.1
+	github.com/gorilla/handlers v1.5.2
 	github.com/jonas747/dca v0.0.0-20210930103944-155f5e5f0cc7
 	github.com/kkdai/youtube/v2 v2.9.0
 	github.com/segmentio/ksuid v1.0.4
@@ -13,6 +14,7 @@ require (
 )
 
 require (
+	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/magiconair/properties v1.8.7 // indirect
@@ -39,6 +41,7 @@ require (
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/pprof v0.0.0-20230907193218-d3ddc7976beb // indirect
+	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.4.2 // indirect
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/spf13/viper v1.18.1

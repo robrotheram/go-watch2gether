@@ -67,7 +67,8 @@ func (ctx *CommandCtx) CmdReplyData(data *discordgo.InteractionResponseData) *di
 }
 
 type Command struct {
-	ApplicationCommand discordgo.ApplicationCommand
+	Name               string
+	ApplicationCommand []discordgo.ApplicationCommand
 	Aliases            []string
 	Usage              string
 	Function           func(ctx CommandCtx) *discordgo.InteractionResponse
@@ -77,7 +78,7 @@ var commands = make(map[string]Command)
 
 func register(c ...Command) {
 	for _, cmd := range c {
-		commands[cmd.ApplicationCommand.Name] = cmd
+		commands[cmd.Name] = cmd
 	}
 }
 
