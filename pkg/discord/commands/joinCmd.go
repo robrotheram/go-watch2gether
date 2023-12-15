@@ -18,8 +18,9 @@ func init() {
 		},
 		Command{
 			ApplicationCommand: discordgo.ApplicationCommand{
-				Name: "join",
-				Type: discordgo.ChatApplicationCommand,
+				Name:        "join",
+				Description: "Join the voice channle you are in",
+				Type:        discordgo.ChatApplicationCommand,
 			},
 			Function: joinCmd,
 		}, Command{
@@ -31,8 +32,9 @@ func init() {
 		},
 		Command{
 			ApplicationCommand: discordgo.ApplicationCommand{
-				Name: "leave",
-				Type: discordgo.ChatApplicationCommand,
+				Name:        "leave",
+				Description: "Leave the voice channle you are in",
+				Type:        discordgo.ChatApplicationCommand,
 			},
 			Function: leave,
 		})
