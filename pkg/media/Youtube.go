@@ -179,5 +179,6 @@ func (yt *Youtube) IsValidUrl(url string, ct *ContentType) bool {
 func (yt *Youtube) Refresh(media *Media) error {
 	audio, err := yt.GetAudioUrl(media.Url)
 	media.AudioUrl = audio
+	fmt.Printf("Audio get URl ERR: %v", err)
 	return err
 }

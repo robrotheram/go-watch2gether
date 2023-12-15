@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/bwmarrin/discordgo"
-	"github.com/jonas747/dca"
+	"github.com/expiteRz/dca"
 )
 
 type DiscordPlayer struct {

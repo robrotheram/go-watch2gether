@@ -4,6 +4,7 @@ go 1.21.4
 
 require (
 	github.com/bwmarrin/discordgo v0.27.1
+	github.com/expiteRz/dca v0.0.0-20230616165837-fd66e940ef93
 	github.com/gorilla/handlers v1.5.2
 	github.com/jonas747/dca v0.0.0-20210930103944-155f5e5f0cc7
 	github.com/kkdai/youtube/v2 v2.9.0

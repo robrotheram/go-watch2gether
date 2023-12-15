@@ -17,6 +17,8 @@ github.com/dop251/goja v0.0.0-20230828202809-3dbe69dd2b8e h1:UvQD6hTSfeM6hhTQ24D
 github.com/dop251/goja v0.0.0-20230828202809-3dbe69dd2b8e/go.mod h1:QMWlm50DNe14hD7t24KEqZuUdC9sOTy8W6XbCU1mlw4=
 github.com/dop251/goja_nodejs v0.0.0-20210225215109-d91c329300e7/go.mod h1:hn7BA7c8pLvoGndExHudxTDKZ84Pyvv+90pbBjbTz0Y=
 github.com/dop251/goja_nodejs v0.0.0-20211022123610-8dd9abb0616d/go.mod h1:DngW8aVqWbuLRMHItjPUyqdj+HWPvnQe8V8y1nDpIbM=
+github.com/expiteRz/dca v0.0.0-20230616165837-fd66e940ef93 h1:xLqy5Ae8SlN/m/C9gPQKEPLeVt2WSMkAzUDqzYx6KRI=
+github.com/expiteRz/dca v0.0.0-20230616165837-fd66e940ef93/go.mod h1:wDAKCeJyzYTLDH+nP/67Pm0/7lkGRnHDBbvG+NBlBUQ=
 github.com/felixge/httpsnoop v1.0.3 h1:s/nj+GCswXYzN5v2DpNMuMQYe+0DDwt5WVCU6CWBdXk=
 github.com/felixge/httpsnoop v1.0.3/go.mod h1:m8KPJKqk1gH5J9DgRY2ASl2lWCfGKXixSwevea8zH2U=
 github.com/fsnotify/fsnotify v1.7.0 h1:8JEhPFa5W2WU7YfeZzPNqzMP6Lwt7L2715Ggo0nosvA=
