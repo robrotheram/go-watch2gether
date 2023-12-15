@@ -82,8 +82,8 @@ func (c *Controller) progress() {
 			c.Stop()
 			return
 		}
-		fmt.Println("playing: " + c.state.Current.Url)
 		audio := c.state.Current.GetAudioUrl()
+		fmt.Println("playing: " + audio)
 		err := c.player.Play(audio, 0)
 		if err != nil {
 			fmt.Println(err)

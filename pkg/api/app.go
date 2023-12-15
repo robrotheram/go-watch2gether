@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"w2g/pkg/controllers"
 	"w2g/pkg/utils"
+
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
@@ -19,8 +20,6 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 	router := mux.NewRouter()
 
 	router.Use(loggingMiddleware)
-	router.Use(recoveryMiddleware)
-	router.Use(errorMiddleware)
 
 	handlers := NewHandler(hub)
 

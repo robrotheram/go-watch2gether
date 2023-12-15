@@ -23,7 +23,6 @@ func NewDiscordPlayer(voice *discordgo.VoiceConnection) *DiscordPlayer {
 		done:  make(chan error),
 		voice: voice,
 	}
-	// audio.start()
 	return audio
 }
 
