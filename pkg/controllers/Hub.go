@@ -17,7 +17,7 @@ func (hub *Hub) Add(id string, controller *Controller) {
 }
 
 func (hub *Hub) New(id string) *Controller {
-	hub.channels[id] = NewController()
+	hub.channels[id] = NewController(id)
 	return hub.channels[id]
 }
 

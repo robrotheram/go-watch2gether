@@ -14,6 +14,10 @@ type ErrorResponse struct {
 		Message string `json:"message"`
 	} `json:"error"`
 }
+type SuccessResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
 
 func loggingMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -36,27 +40,8 @@ func recoveryMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-func errorMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		next.ServeHTTP(w, r)
-		status := w.(interface {
-			Status() int
-		}).Status()
-
-		if status >= http.StatusBadRequest {
-			switch status {
-			case http.StatusNotFound:
-				handleNotFoundError(w, r)
-			}
-		}
-	})
-}
-
-func handleNotFoundError(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNotFound)
-
-	errorResponse := ErrorResponse{
+func errorMessage(code int, message string) ErrorResponse {
+	return ErrorResponse{
 		Error: struct {
 			Code    int    `json:"code"`
 			Message string `json:"message"`
@@ -65,6 +50,16 @@ func handleNotFoundError(w http.ResponseWriter, r *http.Request) {
 			Message: "Not Found",
 		},
 	}
+}
 
-	json.NewEncoder(w).Encode(errorResponse)
+func WriteError(w http.ResponseWriter, response ErrorResponse) {
+	w.WriteHeader(http.StatusNotFound)
+	json.NewEncoder(w).Encode(response)
+}
+
+func successMessage(message string) SuccessResponse {
+	return SuccessResponse{
+		Code:    http.StatusOK,
+		Message: message,
+	}
 }

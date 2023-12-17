@@ -3,7 +3,8 @@ watch2gether
 docker-compose.dev.yml
 **/app.env
 docs
-__debug_bin
+__debug_bin*
 *.db
 notes
 .kube
+

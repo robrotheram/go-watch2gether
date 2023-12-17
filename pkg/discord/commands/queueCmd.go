@@ -54,25 +54,6 @@ func init() {
 			Function: removeCMD,
 		},
 		Command{
-			Name: "skip",
-			ApplicationCommand: []discordgo.ApplicationCommand{
-				{
-					Description: "Skips to a certain position in the queue",
-					Options: []*discordgo.ApplicationCommandOption{
-						{
-							Type:        discordgo.ApplicationCommandOptionInteger,
-							Name:        "skip-position",
-							Description: "Skip to this poisition in the queue",
-							MinValue:    &integerOptionMinValue,
-							Required:    true,
-						},
-					},
-				},
-			},
-			Usage:    "!skip <position>",
-			Function: skipToCMD,
-		},
-		Command{
 			Name: "shuffle",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
@@ -144,26 +125,6 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 	ctx.Controller.Update(state)
 	return ctx.Reply(":white_check_mark: Queue Updated :thumbsup:")
-}
-
-func skipToCMD(ctx CommandCtx) *discordgo.InteractionResponse {
-	state := ctx.Controller.State()
-	if len(ctx.Args) == 1 {
-		ctx.Reply(":cry: sorry not enough argunments in the command try `!skipto 10`")
-	}
-	pos, err := strconv.Atoi(ctx.Args[0])
-	if err != nil {
-		ctx.Reply(":cry: sorry not enough argunments in the command try `!sktoTo 10`")
-	}
-
-	if pos < 0 || pos > len(state.Queue)-1 {
-		return ctx.Reply(":cry: number not in range of the queue try again")
-	}
-	for i := 0; i < pos; i++ {
-		state.Remove(0)
-	}
-	ctx.Controller.Update(state)
-	return ctx.Reply(":white_check_mark: Skiped :thumbsup:")
 }
 
 func clearCMD(ctx CommandCtx) *discordgo.InteractionResponse {
