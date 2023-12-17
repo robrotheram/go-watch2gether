@@ -20,7 +20,6 @@ RUN mkdir -p /app/ui
 ADD app.sample.env /app/app.env
 COPY --from=GO_BUILDER /server/w2g /app/w2g
 COPY --from=UI_BUILDER /ui/dist /app/ui/dist
-COPY --from=UI_BUILDER /ui/dist /app/ui/dist
 EXPOSE 8080
 ENV GOMAXPROCS=100
 ENTRYPOINT ["./w2g"]
