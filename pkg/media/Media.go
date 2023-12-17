@@ -12,10 +12,14 @@ type Media struct {
 	Type        MediaType     `json:"type"`
 	Title       string        `json:"title"`
 	ChannelName string        `json:"channel"`
-	Duration    time.Duration `json:"duration"`
-	Proccessing time.Duration `json:"progress"`
+	Progress    MediaDuration `json:"time"`
 	Thumbnail   string        `json:"thumbnail"`
 	Order       int           `json:"order,omitempty"`
+}
+
+type MediaDuration struct {
+	Duration time.Duration `json:"duration"`
+	Progress time.Duration `json:"progress"`
 }
 
 func (v *Media) GetType() MediaType {

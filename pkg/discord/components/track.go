@@ -20,7 +20,7 @@ func MediaEmbed(media media.Media, title string) *EmbededMessage {
 	})
 	embed.AddField(discordgo.MessageEmbedField{
 		Name:   "Song Duration",
-		Value:  media.Duration.String(),
+		Value:  media.Progress.Duration.String(),
 		Inline: true,
 	})
 	return embed

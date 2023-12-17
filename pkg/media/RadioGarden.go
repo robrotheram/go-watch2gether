@@ -74,12 +74,14 @@ func (radio *RadioGarden) GetMedia(url string, username string) ([]Media, error)
 	audioUrl := radio.getAudioURL(radioID)
 
 	m := Media{
-		ID:        ksuid.New().String(),
-		Url:       url,
-		User:      username,
-		Type:      VIDEO_TYPE_RG,
-		Title:     info.Data.Title,
-		Duration:  time.Duration(0),
+		ID:    ksuid.New().String(),
+		Url:   url,
+		User:  username,
+		Type:  VIDEO_TYPE_RG,
+		Title: info.Data.Title,
+		Progress: MediaDuration{
+			Duration: 0,
+		},
 		Thumbnail: "https://play-lh.googleusercontent.com/07lewhVI4GklVBi_ehhOXxmB_bPaWWTiyqHAlQP6VsYD7h9R4d8hskNAy4SCOx0leNx-=s180",
 		AudioUrl:  audioUrl,
 	}

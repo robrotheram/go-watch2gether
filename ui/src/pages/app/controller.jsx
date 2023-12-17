@@ -5,7 +5,13 @@ import Player from "./components/player";
 import { addVideoController, getChannelPlaylists, getSocket, updateQueueController, getController, createController } from "./watch2gether";
 import { Header } from "./components/header";
 import { useLocation, useNavigate } from "react-router-dom";
+import { NotificationMessages } from "./components/notifications";
 // import { PlaylistBtn } from "../pages/app/playlists/playtlist";
+const debug = false
+
+
+
+
 
 export const AddVideoCtrl = ({ onAddVideo }) => {
     const [video, setVideo] = useState("");
@@ -91,7 +97,10 @@ export const AppController = () => {
         let evt = JSON.parse(event.data)
         console.log("Message from server ",evt)
         setState(evt.State)
-        toast.success("Queue updated")
+        if (evt.Action.type !== "UPDATE_DURATION" && evt.Action.user !== "system"){
+            toast.success(`${evt.Action.user} ${NotificationMessages[evt.Action.type]}`)
+        }
+        
     })
     connection.current = socket
     return () => socket.close()
@@ -145,6 +154,15 @@ export const AppController = () => {
                 <div className="absolute bottom-9 right-0">
                     {/* <PlaylistBtn playlists={playlists} /> */}
                 </div>
+
+                {debug&&<div style={{position:"fixed", top:"150px", width:"50%", background:"white", height:"600px", zIndex:"100"}}>
+                    <pre style={{overflow:"auto", height: "100%"}}>
+                        <code>
+                            `{JSON.stringify(state, null, 2)}`
+                        </code>
+                    </pre>
+                </div>}
+
             </div>
 
     )

@@ -119,7 +119,7 @@ func (db *DiscordBot) handleApplicationCommand(s *discordgo.Session, i *discordg
 		Session:     s,
 		Guild:       guild,
 		Channel:     channel,
-		User:        user,
+		Member:      user,
 		Args:        args,
 		Controller:  controller,
 		UserSession: db.getUserSession(user),

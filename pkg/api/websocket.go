@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"w2g/pkg/controllers"
 
@@ -55,7 +54,6 @@ func (c *Client) Write() {
 }
 
 func (c *Client) Send(event controllers.Event) {
-	fmt.Println("Sending Websocket: " + event.Action)
 	data, err := json.Marshal(event)
 	if err == nil {
 		c.send <- data

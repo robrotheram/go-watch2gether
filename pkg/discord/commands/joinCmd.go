@@ -50,7 +50,7 @@ func GetUserVoiceChannel(session *discordgo.Session, user string) (string, error
 }
 
 func join(ctx CommandCtx) error {
-	vc, err := GetUserVoiceChannel(ctx.Session, ctx.User.User.ID)
+	vc, err := GetUserVoiceChannel(ctx.Session, ctx.Member.User.ID)
 	if err != nil {
 		return fmt.Errorf("you are not connected to voice channel")
 	}
@@ -58,7 +58,7 @@ func join(ctx CommandCtx) error {
 	if err != nil || voice == nil {
 		return fmt.Errorf("you are not connected to voice channel")
 	}
-	ctx.Controller.Join(players.NewDiscordPlayer(voice))
+	ctx.Controller.Join(players.NewDiscordPlayer(voice), ctx.Member.User.Username)
 	return nil
 }
 
@@ -70,6 +70,6 @@ func joinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func leave(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Leave()
+	ctx.Controller.Leave(ctx.Member.User.Username)
 	return ctx.Reply("👋 cheerio have a good day 🎩")
 }

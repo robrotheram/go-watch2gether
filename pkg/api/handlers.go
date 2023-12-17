@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"w2g/pkg/controllers"
 	"w2g/pkg/media"
@@ -14,11 +15,20 @@ type handler struct {
 }
 
 var channelNotFound = errorMessage(http.StatusNotFound, "Unable to find not found")
+var userNotFound = errorMessage(http.StatusNotFound, "Unable to find user")
 
 func NewHandler(hub *controllers.Hub) handler {
 	return handler{
 		Hub: hub,
 	}
+}
+
+func (h *handler) getUser(r *http.Request) (User, error) {
+	ctx := r.Context().Value("user")
+	if userData, ok := ctx.(User); ok {
+		return userData, nil
+	}
+	return User{}, fmt.Errorf("unable to get user from context")
 }
 
 func (h *handler) handleCreateChannel(w http.ResponseWriter, r *http.Request) {
@@ -55,7 +65,12 @@ func (h *handler) handleNextVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.Skip()
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Skip(user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -67,7 +82,12 @@ func (h *handler) handleShuffleVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.Shuffle()
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Shuffle(user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -79,7 +99,12 @@ func (h *handler) handleLoopVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.Loop()
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Loop(user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -91,7 +116,12 @@ func (h *handler) handlePlayVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.Start()
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Start(user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -103,7 +133,12 @@ func (h *handler) handlePauseVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.Pause()
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Pause(user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -120,7 +155,12 @@ func (h *handler) handleAddVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.Add(url, "")
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Add(url, user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -138,7 +178,12 @@ func (h *handler) handleUpateQueue(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, channelNotFound)
 		return
 	}
-	controller.UpdateQueue(videos)
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.UpdateQueue(videos, user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }

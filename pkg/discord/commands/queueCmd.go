@@ -77,7 +77,7 @@ func init() {
 func shuffleCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	state := ctx.Controller.State()
 	state.Shuffle()
-	ctx.Controller.Update(state)
+	ctx.Controller.Update(state, ctx.Member.User.Username)
 	return ctx.Reply(":twisted_rightwards_arrows:  Queue Shuffled :thumbsup:")
 }
 
@@ -123,13 +123,13 @@ func removeCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		}
 		state.Remove(pos)
 	}
-	ctx.Controller.Update(state)
+	ctx.Controller.Update(state, ctx.Member.User.Username)
 	return ctx.Reply(":white_check_mark: Queue Updated :thumbsup:")
 }
 
 func clearCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	state := ctx.Controller.State()
 	state.Clear()
-	ctx.Controller.Update(state)
+	ctx.Controller.Update(state, ctx.Member.User.Username)
 	return ctx.Reply(":white_check_mark: Cleared Queue :thumbsup:")
 }

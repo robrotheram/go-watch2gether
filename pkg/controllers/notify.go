@@ -1,16 +1,25 @@
 package controllers
 
-type Action string
+type ActionType string
+
+type Action struct {
+	ActionType ActionType `json:"type"`
+	User       string     `json:"user"`
+}
 
 var (
-	PLAY_ACTION        = Action("PLAY")
-	PAUSE_ACTION       = Action("PAUSE")
-	UPDATEQUEUE_ACTION = Action("UPDATE_QUEUE")
-	STOP_ACTION        = Action("STOP")
-	LOOP_ACTION        = Action("LOOP")
-	SHUFFLE_ACTION     = Action("SHUFFLE")
-	SKIP_ACTION        = Action("SKIP")
-	PLAYER_ACTION      = Action("PlAYER CHANGE")
+	PLAY_ACTION     = ActionType("PLAY")
+	PAUSE_ACTION    = ActionType("PAUSE")
+	ADD_QUEUE       = ActionType("ADD_QUEUE")
+	UPDATE_QUEUE    = ActionType("UPDATE_QUEUE")
+	UPDATE          = ActionType("UPDATE")
+	REMOVE_QUEUE    = ActionType("REMOVE_QUEUE")
+	UPDATE_DURATION = ActionType("UPDATE_DURATION")
+	STOP_ACTION     = ActionType("STOP")
+	LOOP_ACTION     = ActionType("LOOP")
+	SHUFFLE_ACTION  = ActionType("SHUFFLE")
+	SKIP_ACTION     = ActionType("SKIP")
+	PLAYER_ACTION   = ActionType("PlAYER CHANGE")
 )
 
 type Event struct {

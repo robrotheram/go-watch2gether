@@ -1,8 +1,11 @@
 package players
 
 import (
+	"encoding/json"
 	"fmt"
+	"os/exec"
 	"time"
+	"w2g/pkg/media"
 
 	"github.com/bwmarrin/discordgo"
 	"github.com/robrotheram/dca"
@@ -13,7 +16,7 @@ type DiscordPlayer struct {
 	stream    *dca.StreamingSession
 	session   *dca.EncodeSession
 	voice     *discordgo.VoiceConnection
-	progress  time.Duration
+	progress  media.MediaDuration
 	running   bool
 	startTime int
 }
@@ -24,6 +27,40 @@ func NewDiscordPlayer(voice *discordgo.VoiceConnection) *DiscordPlayer {
 		voice: voice,
 	}
 	return audio
+}
+func (player *DiscordPlayer) ParseDuration(url string) error {
+	cmd := exec.Command(
+		"ffprobe",
+		"-i", url,
+		"-show_entries", "format=duration",
+		"-v", "quiet",
+		"-of", "json",
+	)
+	out, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+
+	type durationData struct {
+		Format struct {
+			Duration string `json:"duration"`
+		} `json:"format"`
+	}
+	var d = durationData{}
+	err = json.Unmarshal(out, &d)
+	if err != nil {
+		return err
+	}
+
+	duration, err := time.ParseDuration(d.Format.Duration + "s")
+	player.progress = media.MediaDuration{
+		Duration: duration,
+		Progress: 0,
+	}
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (player *DiscordPlayer) playStream() {
@@ -36,20 +73,7 @@ func (player *DiscordPlayer) playStream() {
 			player.Finish()
 			return
 		case <-ticker.C:
-			//stats := audio.session.Stats()
-			player.progress = player.stream.PlaybackPosition()
-			//fmt.Printf("Playback: %10s, Transcode Stats: Time: %5s, Size: %5dkB, Bitrate: %6.2fkB, Speed: %5.1fx\r", audio.progress, stats.Duration.String(), stats.Size, stats.Bitrate, stats.Speed)
-			// progress := float64(0)
-			// if player.Duration > 0 && player.progress > 0 {
-			// 	progress = (float64(player.startTime) + audio.progress.Seconds()) / audio.Duration.Seconds()
-			// }
-			//Only send event if we are playing. Fixes issue if ticker fires after audio.done
-			// if player.Playing {
-			// 	player.bot.SendToRoom(CreateBotUpdateEvent(media.Seek{
-			// 		ProgressPct: progress,
-			// 		ProgressSec: float64(audio.startTime) + audio.progress.Seconds(),
-			// 	}))
-			// }
+			player.progress.Progress = player.stream.PlaybackPosition()
 		}
 	}
 }
@@ -92,6 +116,10 @@ func (player *DiscordPlayer) Stop() {
 	player.Finish()
 }
 
+func (player *DiscordPlayer) Progress() media.MediaDuration {
+	return player.progress
+}
+
 func (player *DiscordPlayer) Play(url string, startTime int) error {
 	if player.running {
 		return fmt.Errorf("playing already started")
@@ -103,7 +131,9 @@ func (player *DiscordPlayer) Play(url string, startTime int) error {
 	opts.Application = "audio"
 	opts.PacketLoss = 10
 	player.startTime = startTime
-
+	if err := player.ParseDuration(url); err != nil {
+		return fmt.Errorf("failed creating an encoding session: %v", err)
+	}
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
 		return fmt.Errorf("failed creating an encoding session: %v", err)

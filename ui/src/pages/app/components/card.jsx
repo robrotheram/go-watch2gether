@@ -34,7 +34,7 @@ const QueueItem = ({ key, pos, video, children }) => {
                         Added by:  {video.user}
                     </p>
                     <p className="text-md text-gray-500 truncate dark:text-white w-full md:w-1/3 text-left md:text-center">
-                        {formatTime(video.duration)}
+                        {formatTime(video.time.duration)}
                     </p>
                 </div>
 

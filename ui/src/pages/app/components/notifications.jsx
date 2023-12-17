@@ -1,8 +1,24 @@
 import { toast, useToaster } from "react-hot-toast";
 
+
+export const NotificationMessages = {
+    PLAY: "has stated playing the track",
+    PAUSE: "has paused the track",
+    UPDATE_QUEUE: "has updated the queue",
+    UPDATE_DURATION: "",
+    STOP: "has stopped the track",
+    LOOP: "has set the track to repeat",
+    SHUFFLE: "has shuffled the queue",
+    SKIP: "has skipped the track",
+    ADD_QUEUE: "has added new tracks to the queue",
+    REMOVE_QUEUE: "has removed tracks from the queue",
+	UPDATE  : "has updated the channel",
+}
+
+
 export const Notifications = () => {
     const { toasts } = useToaster();
-    
+
 
     const SusccessIcon = (
         <div className="inline-flex items-center justify-center flex-shrink-0 w-8 h-8 text-green-500 bg-green-100 rounded-lg dark:bg-green-800 dark:text-green-200">
@@ -17,8 +33,6 @@ export const Notifications = () => {
             <span className="sr-only">Warning icon</span>
         </div>
     )
-
-
 
     return (
         <div className="absolute z-50 top-2 right-2 left-2 sm:left-auto md:left-auto">
@@ -35,8 +49,7 @@ export const Notifications = () => {
                             </button>
                         </div>
                     )
-                }
-                )
+                })
             }
         </div>
     );

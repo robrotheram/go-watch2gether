@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"net/http"
-	"time"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -19,14 +18,14 @@ type SuccessResponse struct {
 	Message string `json:"message"`
 }
 
-func loggingMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		startTime := time.Now()
-		next.ServeHTTP(w, r)
-		duration := time.Since(startTime)
-		log.Infof("%s %s %s %v", r.Method, r.RequestURI, r.RemoteAddr, duration)
-	})
-}
+// func loggingMiddleware(next http.Handler) http.Handler {
+// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+// 		startTime := time.Now()
+// 		next.ServeHTTP(w, r)
+// 		duration := time.Since(startTime)
+// 		log.Infof("%s %s %s %v", r.Method, r.RequestURI, r.RemoteAddr, duration)
+// 	})
+// }
 
 func recoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

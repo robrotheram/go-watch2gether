@@ -2,8 +2,11 @@ package controllers
 
 import (
 	"fmt"
+	"time"
 	"w2g/pkg/media"
 )
+
+const SYSTEM = "system"
 
 type Controller struct {
 	state         PlayerState
@@ -14,7 +17,7 @@ type Controller struct {
 
 func NewController(id string) *Controller {
 	tracks := []media.Media{}
-	return &Controller{
+	contoller := Controller{
 		state: PlayerState{
 			Id:    id,
 			Queue: tracks,
@@ -23,9 +26,11 @@ func NewController(id string) *Controller {
 		},
 		notifications: NewNotifications(),
 	}
+	contoller.AddListner(&Auditing{})
+	return &contoller
 }
 
-func (c *Controller) Start() {
+func (c *Controller) Start(user string) {
 	if c.player == nil {
 		return
 	}
@@ -35,27 +40,28 @@ func (c *Controller) Start() {
 		}
 		c.running = true
 		go c.progress()
+		go c.duration()
 	} else {
 		c.unpause()
 	}
 	c.state.ChangeState(PLAY)
-	c.Notify(PLAY_ACTION)
+	c.Notify(PLAY_ACTION, user)
 }
 
-func (c *Controller) Stop() {
+func (c *Controller) Stop(user string) {
 	c.running = false
 	if c.player == nil {
 		return
 	}
 	c.player.Stop()
 	c.state.ChangeState(STOP)
-	c.Notify(STOP_ACTION)
+	c.Notify(STOP_ACTION, user)
 }
 
-func (c *Controller) Pause() {
+func (c *Controller) Pause(user string) {
 	c.player.Pause()
 	c.state.ChangeState(PAUSE)
-	c.Notify(PAUSE_ACTION)
+	c.Notify(PAUSE_ACTION, user)
 }
 
 func (c *Controller) unpause() {
@@ -68,43 +74,43 @@ func (c *Controller) Add(url string, user string) error {
 		return err
 	}
 	c.state.Add(tracks)
-	c.Notify(UPDATEQUEUE_ACTION)
+	c.Notify(ADD_QUEUE, user)
 	return nil
 }
 
-func (c *Controller) Skip() {
+func (c *Controller) Skip(user string) {
 	if c.running {
 		c.player.Stop()
-		c.Notify(SKIP_ACTION)
+		c.Notify(SKIP_ACTION, user)
 	}
 }
 
-func (c *Controller) Shuffle() {
+func (c *Controller) Shuffle(user string) {
 	c.state.Shuffle()
-	c.Notify(SHUFFLE_ACTION)
+	c.Notify(SHUFFLE_ACTION, user)
 }
 
-func (c *Controller) Loop() {
+func (c *Controller) Loop(user string) {
 	c.state.Repeat()
-	c.Notify(LOOP_ACTION)
+	c.Notify(LOOP_ACTION, user)
 }
 
-func (c *Controller) Join(player Player) {
+func (c *Controller) Join(player Player, user string) {
 	c.player = player
-	c.Notify(PLAYER_ACTION)
+	c.Notify(PLAYER_ACTION, user)
 }
 
-func (c *Controller) Leave() {
+func (c *Controller) Leave(user string) {
 	c.player.Close()
 	c.player = nil
-	c.Notify(SHUFFLE_ACTION)
+	c.Notify(SHUFFLE_ACTION, user)
 }
 
 func (c *Controller) progress() {
-	defer c.Stop()
+	defer c.Stop(SYSTEM)
 	for {
 		if len(c.state.Current.Url) == 0 || !c.running {
-			c.Stop()
+			c.Stop(SYSTEM)
 			return
 		}
 		audio := c.state.Current.GetAudioUrl()
@@ -115,8 +121,20 @@ func (c *Controller) progress() {
 		}
 		if !c.state.Loop {
 			c.state.Next()
-			c.Notify(UPDATEQUEUE_ACTION)
+			c.Notify(UPDATE_QUEUE, SYSTEM)
 		}
+	}
+}
+
+func (c *Controller) duration() {
+	ticker := time.NewTicker(1 * time.Second)
+	for range ticker.C {
+		if !c.running {
+			ticker.Stop()
+			return
+		}
+		c.state.Current.Progress = c.player.Progress()
+		c.Notify(UPDATE_DURATION, SYSTEM)
 	}
 }
 
@@ -125,14 +143,14 @@ func (c *Controller) State() PlayerState {
 	return c.state
 }
 
-func (c *Controller) Update(state PlayerState) {
+func (c *Controller) Update(state PlayerState, user string) {
 	c.state = state
-	c.Notify(UPDATEQUEUE_ACTION)
+	c.Notify(UPDATE, user)
 }
 
-func (c *Controller) UpdateQueue(videos []media.Media) {
+func (c *Controller) UpdateQueue(videos []media.Media, user string) {
 	c.state.Queue = videos
-	c.Notify(UPDATEQUEUE_ACTION)
+	c.Notify(UPDATE_QUEUE, user)
 }
 
 func (c *Controller) IsActive() bool {
@@ -154,11 +172,14 @@ func (c *Controller) RemoveListner(listener Listener) {
 	c.notifications.listners = c.notifications.listners[:index]
 }
 
-func (c *Controller) Notify(action Action) {
+func (c *Controller) Notify(action ActionType, user string) {
 	state := c.State()
 	c.notifications.events <- Event{
-		ID:     state.Id,
-		Action: action,
-		State:  state,
+		ID: state.Id,
+		Action: Action{
+			ActionType: action,
+			User:       user,
+		},
+		State: state,
 	}
 }

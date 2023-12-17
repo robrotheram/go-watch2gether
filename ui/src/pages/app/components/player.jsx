@@ -134,9 +134,9 @@ const Player = ({ state }) => {
                 <div className="flex items-center w-full">
                     <div className="w-full">
                         <div className="flex items-center justify-center mx-auto mb-1">
-                            <div className="md:flex hidden w-48">
+                            {/* <div className="md:flex hidden w-48">
                                 <Switch />
-                            </div>
+                            </div> */}
 
                             <button onClick={() => handleShuffle()} data-tooltip-target="tooltip-shuffle" type="button" className="p-2.5 group rounded-full hover:bg-gray-100 mr-1 focus:outline-none focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-600 dark:hover:bg-gray-600">
                                 <svg className="w-5 h-5 text-gray-500 dark:text-gray-300 group-hover:text-gray-900 dark:group-hover:text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><path d="M403.8 34.4c12-5 25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6V160H352c-10.1 0-19.6 4.7-25.6 12.8L284 229.3 244 176l31.2-41.6C293.3 110.2 321.8 96 352 96h32V64c0-12.9 7.8-24.6 19.8-29.6zM164 282.7L204 336l-31.2 41.6C154.7 401.8 126.2 416 96 416H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H96c10.1 0 19.6-4.7 25.6-12.8L164 282.7zm274.6 188c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6V416H352c-30.2 0-58.7-14.2-76.8-38.4L121.6 172.8c-6-8.1-15.5-12.8-25.6-12.8H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H96c30.2 0 58.7 14.2 76.8 38.4L326.4 339.2c6 8.1 15.5 12.8 25.6 12.8h32V320c0-12.9 7.8-24.6 19.8-29.6s25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64z" fill="currentColor" /></svg>
@@ -147,7 +147,7 @@ const Player = ({ state }) => {
                                 <div className="tooltip-arrow" data-popper-arrow></div>
                             </div>
 
-                            {state.IsPlaying ?
+                            {state.State === "PLAY"  ?
                                 <button onClick={() => handlePause()} data-tooltip-target="tooltip-pause" type="button" className="inline-flex items-center justify-center p-2.5 mx-2 font-medium bg-purple-600 rounded-full hover:bg-purple-700 group focus:ring-4 focus:ring-purple-300 focus:outline-none dark:focus:ring-purple-800">
                                     <svg className="w-4 h-4 text-white" viewBox="0 0 10 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
                                         <path fillRule="evenodd" clipRule="evenodd" d="M0.625 1.375C0.625 1.02982 0.904823 0.75 1.25 0.75H2.5C2.84518 0.75 3.125 1.02982 3.125 1.375V12.625C3.125 12.9702 2.84518 13.25 2.5 13.25H1.25C1.08424 13.25 0.925268 13.1842 0.808058 13.0669C0.690848 12.9497 0.625 12.7908 0.625 12.625L0.625 1.375ZM6.875 1.375C6.875 1.02982 7.15482 0.75 7.5 0.75H8.75C8.91576 0.75 9.07473 0.815848 9.19194 0.933058C9.30915 1.05027 9.375 1.20924 9.375 1.375L9.375 12.625C9.375 12.9702 9.09518 13.25 8.75 13.25H7.5C7.15482 13.25 6.875 12.9702 6.875 12.625V1.375Z" fill="currentColor" />
@@ -176,14 +176,14 @@ const Player = ({ state }) => {
                                 <span className="sr-only">Loop video</span>
                                 {state.Loop && <div className="absolute bottom-1 right-1 w-3 h-3 text-xs font-bold text-white bg-red-500 border-2 border-white rounded-full  dark:border-gray-900" />}
                             </button>
-                            <VolumeControl />
+                            {/* <VolumeControl /> */}
                         </div>
                         <div className="flex items-center justify-between space-x-2">
-                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{formatTime(state.Proccessing)}</span>
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{formatTime(state.Current.time.progress)}</span>
                             <div className="w-full bg-gray-200 rounded-full h-1.5 dark:bg-gray-800">
-                                <div className="bg-purple-600 h-1.5 rounded-full" style={{ "width": `${playerProgress(state.Proccessing, state.Current.duration)}%` }}></div>
+                                <div className="bg-purple-600 h-1.5 rounded-full" style={{ "width": `${playerProgress(state.Current.time.progress, state.Current.time.duration)}%` }}></div>
                             </div>
-                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{formatTime(state.Current.duration)}</span>
+                            <span className="text-sm font-medium text-gray-500 dark:text-gray-400">{formatTime(state.Current.time.duration)}</span>
                         </div>
                     </div>
                 </div>

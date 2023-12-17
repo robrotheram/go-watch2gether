@@ -13,7 +13,7 @@ type CommandCtx struct {
 	Session     *discordgo.Session
 	Guild       *discordgo.Guild
 	Channel     *discordgo.Channel
-	User        *discordgo.Member
+	Member      *discordgo.Member
 	Args        []string
 	Controller  *controllers.Controller
 	UserSession *session.UserSession

@@ -227,12 +227,14 @@ func (pt *Peertube) GetMedia(url string, username string) ([]Media, error) {
 	}
 
 	m := Media{
-		ID:        ksuid.New().String(),
-		Url:       info.URL,
-		User:      username,
-		Type:      VIDEO_TYPE_PEERTUBE,
-		Title:     info.Name,
-		Duration:  time.Duration(0),
+		ID:    ksuid.New().String(),
+		Url:   info.URL,
+		User:  username,
+		Type:  VIDEO_TYPE_PEERTUBE,
+		Title: info.Name,
+		Progress: MediaDuration{
+			Duration: 0,
+		},
 		Thumbnail: fmt.Sprintf("%s%s", host[1], info.ThumbnailPath),
 		AudioUrl:  audioUrl,
 	}

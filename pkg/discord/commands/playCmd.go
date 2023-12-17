@@ -86,21 +86,21 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 			return ctx.Reply("User not connected to voice channel")
 		}
 	}
-	ctx.Controller.Start()
+	ctx.Controller.Start(ctx.Member.User.Username)
 	return ctx.Reply(":play_pause: Now Playing :thumbsup:")
 }
 
 func skipCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Skip()
+	ctx.Controller.Skip(ctx.Member.User.Username)
 	return ctx.Reply(":fast_forward: Now Skipping :thumbsup:")
 }
 
 func stopCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Stop()
+	ctx.Controller.Stop(ctx.Member.User.Username)
 	return ctx.Reply(":stop_button: Stopping track")
 }
 
 func pauseCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Pause()
+	ctx.Controller.Pause(ctx.Member.User.Username)
 	return ctx.Reply("Pause")
 }

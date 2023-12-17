@@ -126,12 +126,14 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 		for _, ytVideo := range ytPlaylist.Videos {
 			ytURL := fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID)
 			v := Media{
-				ID:          ksuid.New().String(),
-				Url:         ytURL,
-				User:        username,
-				Title:       ytVideo.Title,
-				Type:        VIDEO_TYPE_YT,
-				Duration:    ytVideo.Duration,
+				ID:    ksuid.New().String(),
+				Url:   ytURL,
+				User:  username,
+				Title: ytVideo.Title,
+				Type:  VIDEO_TYPE_YT,
+				Progress: MediaDuration{
+					Duration: ytVideo.Duration,
+				},
 				ChannelName: ytVideo.Author,
 				Thumbnail:   ytVideo.Thumbnails[0].URL,
 			}
@@ -147,12 +149,14 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 	ytVideo, err := yt.downloader.GetVideo(url)
 	if err == nil {
 		video := Media{
-			ID:          ksuid.New().String(),
-			Url:         url,
-			User:        username,
-			Type:        VIDEO_TYPE_YT,
-			Title:       ytVideo.Title,
-			Duration:    ytVideo.Duration,
+			ID:    ksuid.New().String(),
+			Url:   url,
+			User:  username,
+			Type:  VIDEO_TYPE_YT,
+			Title: ytVideo.Title,
+			Progress: MediaDuration{
+				Duration: ytVideo.Duration,
+			},
 			Thumbnail:   ytVideo.Thumbnails[0].URL,
 			ChannelName: ytVideo.Author,
 		}

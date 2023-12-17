@@ -190,12 +190,14 @@ func (sc *SoundCloudApi) GetMedia(url string, username string) []Media {
 	json.Unmarshal(data, &scm)
 
 	m := Media{
-		ID:          ksuid.New().String(),
-		Url:         url,
-		User:        username,
-		Type:        VIDEO_TYPE_SC,
-		Title:       tackData.Title,
-		Duration:    time.Duration(tackData.Duration / 1000),
+		ID:    ksuid.New().String(),
+		Url:   url,
+		User:  username,
+		Type:  VIDEO_TYPE_SC,
+		Title: tackData.Title,
+		Progress: MediaDuration{
+			Duration: time.Duration(tackData.Duration / 1000),
+		},
 		Thumbnail:   tackData.ArtworkURL,
 		ChannelName: tackData.User.Username,
 		AudioUrl:    scm.Url,

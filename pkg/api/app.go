@@ -22,7 +22,6 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 		"/api",
 	})
 	router := mux.NewRouter()
-	router.Use(loggingMiddleware)
 	router.Use(recoveryMiddleware)
 	router.Use(auth.Middleware)
 	handlers := NewHandler(hub)
