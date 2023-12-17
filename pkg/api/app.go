@@ -47,7 +47,7 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 		router.PathPrefix("/").Handler(newProxy())
 
 	} else {
-		spa := spaHandler{staticPath: "ui/build", indexPath: "index.html"}
+		spa := spaHandler{staticPath: "ui/dist", indexPath: "index.html"}
 		router.PathPrefix("/").Handler(spa)
 	}
 

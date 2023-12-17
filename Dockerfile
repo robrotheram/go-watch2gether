@@ -1,8 +1,8 @@
-# FROM node:lts-alpine as UI_BUILDER
-# ARG VER
-# WORKDIR /ui
-# ADD /ui .
-# RUN npm i; npm run build; 
+FROM node:lts-alpine as UI_BUILDER
+ARG VER
+WORKDIR /ui
+ADD /ui .
+RUN npm i; npm run build; 
 
 FROM golang:1.21.4 as GO_BUILDER
 ARG VER
@@ -19,9 +19,8 @@ RUN apk upgrade -U \
 RUN mkdir -p /app/ui
 ADD app.sample.env /app/app.env
 COPY --from=GO_BUILDER /server/w2g /app/w2g
-# COPY --from=UI_BUILDER /ui/dist /app/ui/distgolang:1.21.5golang:1.21.5golang:1.21.5
-# COPY --from=UI_BUILDER /ui/dist /app/ui/distgolang:1.21.5golang:1.21.5golang:1.21.5g
-
+COPY --from=UI_BUILDER /ui/dist /app/ui/dist
+COPY --from=UI_BUILDER /ui/dist /app/ui/dist
 EXPOSE 8080
 ENV GOMAXPROCS=100
 ENTRYPOINT ["./w2g"]
