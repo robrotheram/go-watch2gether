@@ -83,7 +83,7 @@ func (db *DiscordBot) Start() error {
 		return fmt.Errorf("error opening connection: %v", err)
 	}
 
-	// go db.RegisterCommands()
+	go db.RegisterCommands()
 	return nil
 }
 
