@@ -17,6 +17,7 @@ import './main.css'
 import { BrowserRouter, Route, Routes} from 'react-router-dom';
 import { AppController } from './pages/app/controller';
 import { ErrroPage } from './pages/app/error'
+import PlaylistPage from './pages/app/playlist'
 
 
 
@@ -26,6 +27,7 @@ const Router = () => {
         <Routes>
           <Route path="app" element={<App />}>
             <Route path=":id" element={<AppController />}/>
+            <Route path=":id/playlists" element={<PlaylistPage />}/>
             <Route index element={<ErrroPage/>}/>
           </Route>
           <Route path="/" element={<Index />} />

@@ -18,15 +18,6 @@ type SuccessResponse struct {
 	Message string `json:"message"`
 }
 
-// func loggingMiddleware(next http.Handler) http.Handler {
-// 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-// 		startTime := time.Now()
-// 		next.ServeHTTP(w, r)
-// 		duration := time.Since(startTime)
-// 		log.Infof("%s %s %s %v", r.Method, r.RequestURI, r.RemoteAddr, duration)
-// 	})
-// }
-
 func recoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer func() {
@@ -54,11 +45,4 @@ func errorMessage(code int, message string) ErrorResponse {
 func WriteError(w http.ResponseWriter, response ErrorResponse) {
 	w.WriteHeader(http.StatusNotFound)
 	json.NewEncoder(w).Encode(response)
-}
-
-func successMessage(message string) SuccessResponse {
-	return SuccessResponse{
-		Code:    http.StatusOK,
-		Message: message,
-	}
 }

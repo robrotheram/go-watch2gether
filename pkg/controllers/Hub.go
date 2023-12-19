@@ -1,14 +1,21 @@
 package controllers
 
-import "fmt"
+import (
+	"fmt"
+	"w2g/pkg/playlists"
+
+	"github.com/asdine/storm"
+)
 
 type Hub struct {
-	channels map[string]*Controller
+	channels  map[string]*Controller
+	playlists *playlists.PlaylistStore
 }
 
-func NewHub() *Hub {
+func NewHub(db *storm.DB) *Hub {
 	return &Hub{
-		channels: make(map[string]*Controller),
+		channels:  make(map[string]*Controller),
+		playlists: playlists.NewPlaylistStore(db),
 	}
 }
 
@@ -26,4 +33,8 @@ func (hub *Hub) Get(id string) (*Controller, error) {
 		return nil, fmt.Errorf("channel not found")
 	}
 	return hub.channels[id], nil
+}
+
+func (hub *Hub) Playlists() *playlists.PlaylistStore {
+	return hub.playlists
 }

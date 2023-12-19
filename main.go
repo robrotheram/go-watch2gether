@@ -2,13 +2,23 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"path/filepath"
 	"w2g/pkg/api"
 	"w2g/pkg/controllers"
 	"w2g/pkg/discord"
 	"w2g/pkg/utils"
 
+	"github.com/asdine/storm"
 	log "github.com/sirupsen/logrus"
 )
+
+func createStore() (*storm.DB, error) {
+	log.Println("Using Database Path:" + utils.Configuration.DatabasePath)
+	os.MkdirAll(utils.Configuration.DatabasePath, os.ModePerm)
+	path := filepath.Join(utils.Configuration.DatabasePath, "watch2gether.db")
+	return storm.Open(path)
+}
 
 func main() {
 	log.SetFormatter(&log.TextFormatter{
@@ -19,7 +29,13 @@ func main() {
 		log.Fatalf("Config Error: %v", err)
 	}
 	log.SetLevel(utils.Configuration.GetLoglevel())
-	hub := controllers.NewHub()
+
+	db, err := createStore()
+	if err != nil {
+		log.Fatalf("Database Error: %v", err)
+	}
+
+	hub := controllers.NewHub(db)
 
 	bot, _ := discord.NewDiscordBot(utils.Configuration, hub)
 	bot.Start()
@@ -27,9 +43,4 @@ func main() {
 
 	app := api.NewApp(utils.Configuration, hub)
 	fmt.Println(app.Start())
-
-	// stop := make(chan os.Signal, 1)
-	// signal.Notify(stop, os.Interrupt)
-	// log.Println("Press Ctrl+C to exit")
-	// <-stop
 }

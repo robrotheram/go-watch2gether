@@ -20,25 +20,25 @@ const QueueItem = ({ key, pos, video, children }) => {
     return (
         <li key={key} className="py-3" {...handlers} onMouseEnter={() => setShowMenu(true)} onMouseLeave={() => setShowMenu(false)}>
             <div className="flex items-center space-x-4 md:space-x-10">
-                <div className="flex text-md dark:text-white text-center" style={{ width: "20px" }}>
+                <div className="flex text-md text-white text-center" style={{ width: "20px" }}>
                     {pos}
                 </div>
                 <div className="flex-shrink-0">
                     <img loading="lazy" className=" h-20 w-20 md:h-32 md:w-48 object-cover rounded-lg" src={video.thumbnail} alt={video.title} />
                 </div>
                 <div className="flex-1 min-w-0 md:flex md:justify-aroud">
-                    <p className="text-md font-medium text-gray-900 truncate dark:text-white w-full md:w-1/3 text-left md:text-center">
+                    <p className="text-md font-medium truncate text-white w-full md:w-1/3 text-left md:text-center">
                         {video.title}
                     </p>
-                    <p className="text-md text-gray-500 truncate dark:text-white w-full md:w-1/3 text-left md:text-center">
+                    <p className="text-md truncate text-white w-full md:w-1/3 text-left md:text-center">
                         Added by:  {video.user}
                     </p>
-                    <p className="text-md text-gray-500 truncate dark:text-white w-full md:w-1/3 text-left md:text-center">
+                    <p className="text-md truncate text-white w-full md:w-1/3 text-left md:text-center">
                         {formatTime(video.time.duration)}
                     </p>
                 </div>
 
-                <div className="inline-flex items-center text-base font-semibold text-gray-900 dark:text-white">
+                <div className="inline-flex items-center text-base font-semibold text-white">
                     {showMenu && children}
                 </div>
             </div>
@@ -83,7 +83,7 @@ const Card = ({ queue, updateQueue }) => {
 
     if (queue.length > 0) {
         return (
-            <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-200 mt-8">
+            <ul role="list" className="divide-y divide-gray-200 mt-8">
                 {queue.map((video, i) => <QueueItem key={video.qid} pos={i + 1} video={video}>
                     <div className="inline-flex rounded-md shadow-sm" role="group">
                         <button type="button" onClick={()=> moveToTop(video)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 bg-zinc-100 ">
@@ -114,9 +114,9 @@ const Card = ({ queue, updateQueue }) => {
 
 
     return (
-        <ul role="list" className="divide-y divide-gray-200 dark:divide-gray-200 pt-12">
+        <ul role="list" className="divide-y divide-gray-200 pt-12">
             <li className="py-8 flex items-center space-x-4 md:space-x-10  md:space-y-0 md:items-center text-white">
-                <div className="flex text-md dark:text-white" style={{ width: "20px" }}>
+                <div className="flex text-md text-white" style={{ width: "20px" }}>
                     
                 </div>
                 <div className="h-20 w-28 md:h-32 md:w-60 object-cover rounded-lg border">

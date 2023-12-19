@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"time"
 	"w2g/pkg/media"
+
+	"github.com/google/uuid"
 )
 
 const SYSTEM = "system"
@@ -26,7 +28,7 @@ func NewController(id string) *Controller {
 		},
 		notifications: NewNotifications(),
 	}
-	contoller.AddListner(&Auditing{})
+	contoller.AddListner(uuid.NewString(), &Auditing{})
 	return &contoller
 }
 
@@ -133,7 +135,7 @@ func (c *Controller) duration() {
 			ticker.Stop()
 			return
 		}
-		c.state.Current.Progress = c.player.Progress()
+		c.state.Current.Progress.Progress = c.player.Progress().Progress
 		c.Notify(UPDATE_DURATION, SYSTEM)
 	}
 }
@@ -157,19 +159,12 @@ func (c *Controller) IsActive() bool {
 	return c.player != nil
 }
 
-func (c *Controller) AddListner(listener Listener) {
-	c.notifications.listners = append(c.notifications.listners, listener)
+func (c *Controller) AddListner(id string, listener Listener) {
+	c.notifications.listners[id] = listener
 }
 
-func (c *Controller) RemoveListner(listener Listener) {
-	index := 0
-	for _, i := range c.notifications.listners {
-		if i != listener {
-			c.notifications.listners[index] = i
-			index++
-		}
-	}
-	c.notifications.listners = c.notifications.listners[:index]
+func (c *Controller) RemoveListner(id string) {
+	delete(c.notifications.listners, id)
 }
 
 func (c *Controller) Notify(action ActionType, user string) {

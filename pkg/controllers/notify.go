@@ -23,9 +23,9 @@ var (
 )
 
 type Event struct {
-	ID     string
-	Action Action
-	State  PlayerState
+	ID     string      `json:"id"`
+	Action Action      `json:"action"`
+	State  PlayerState `json:"state"`
 }
 
 type Listener interface {
@@ -35,14 +35,14 @@ type Listener interface {
 type Notify struct {
 	events   chan Event
 	done     chan any
-	listners []Listener
+	listners map[string]Listener
 }
 
 func NewNotifications() *Notify {
 	notify := Notify{
 		events:   make(chan Event),
 		done:     make(chan any),
-		listners: []Listener{},
+		listners: make(map[string]Listener),
 	}
 	go notify.start()
 	return &notify

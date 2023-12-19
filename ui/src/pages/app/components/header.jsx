@@ -1,3 +1,5 @@
+import { VideoPlayer } from "./videoPlayer"
+
 export const Header = ({ state }) => {
   return (
     <div className="flex md:items-end w-full shadow-head p-0 md:pt-8 md:pb-8 md:px-24 flex-col md:flex-row relative">
@@ -6,6 +8,17 @@ export const Header = ({ state }) => {
         <h4 className="mt-0 mb-2 uppercase text-white tracking-widest text-xs">Now Playing</h4>
         <h1 className="mt-0 text-white text-3xl md:text-5xl">{state.Current.title}</h1>
       </div>
+    </div>
+  )
+}
+
+export const VideoHeader = ({ state, connection }) => {
+  return (
+    <div className=" flex flex-col shadow-head relative shadow-xl" style={{ height: "calc(100vh - 15em )" }}>
+      <div className='bg-black w-full flex-grow flex flex-col justify-center'>
+        <VideoPlayer state={state} connection={connection}/>
+      </div>
+      <div className="text-white text-3xl md:text-3xl text-center w-full p-6">{state.Current.title}</div>
     </div>
   )
 }

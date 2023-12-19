@@ -1,17 +1,14 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Card from "./components/card";
 import toast from 'react-hot-toast';
 import Player from "./components/player";
 import { addVideoController, getChannelPlaylists, getSocket, updateQueueController, getController, createController } from "./watch2gether";
-import { Header } from "./components/header";
-import { useLocation, useNavigate } from "react-router-dom";
+import { Header, VideoHeader } from "./components/header";
+import { useNavigate } from "react-router-dom";
 import { NotificationMessages } from "./components/notifications";
-// import { PlaylistBtn } from "../pages/app/playlists/playtlist";
+import { PlaylistBtn } from "./playlist";
+import { PlayerContext } from "./components/providers";
 const debug = false
-
-
-
-
 
 export const AddVideoCtrl = ({ onAddVideo }) => {
     const [video, setVideo] = useState("");
@@ -46,9 +43,15 @@ export const AppController = () => {
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true)
     const [playlists, setPlaylists] = useState([])
-    const [showVideo, setShowVideo] = useState(true)
     const [notificationURL, setNotificationURL] = useState(null)
-    const updatePlaylists = async () => { setPlaylists(await getChannelPlaylists()) }
+    const { showVideo } = useContext(PlayerContext)
+
+    const updatePlaylists = async () => { 
+        try {
+            setPlaylists(await getChannelPlaylists())     
+        } catch (error) {}
+    }
+
     const getState = async () => { 
         setLoading(true)
         try {
@@ -95,11 +98,10 @@ export const AppController = () => {
     })
     socket.addEventListener("message", (event) => {
         let evt = JSON.parse(event.data)
-        console.log("Message from server ",evt)
-        setState(evt.State)
-        if (evt.Action.type !== "UPDATE_DURATION" && evt.Action.user !== "system"){
-            toast.success(`${evt.Action.user} ${NotificationMessages[evt.Action.type]}`)
-        }
+        setState(evt.state)
+        // if (evt.action.type !== "UPDATE_DURATION" && evt.action.user !== "system"){
+        //     toast.success(`${evt.action.user} ${NotificationMessages[evt.action.type]}`)
+        // }
         
     })
     connection.current = socket
@@ -108,7 +110,7 @@ export const AppController = () => {
 
 
     useEffect(() => {
-        // updatePlaylists()
+        updatePlaylists()
         getState()
     }, []);
 
@@ -125,7 +127,7 @@ export const AppController = () => {
     const addVideo = async (video) => {
         try {
             await addVideoController(video)
-            toast.success("Video is being added to the queue please wait");
+            // toast.success("Video is being added to the queue please wait");
         } catch (e) {
             console.log("ADD VIDOE ERROR",e)
             toast.error("Unable to add video: invalid video url");
@@ -141,18 +143,19 @@ export const AppController = () => {
             toast.error("Sorry there was an issue updating the queue")
         }
     }
+    
     return (
             <div className="flex flex-col w-full h-full">
                 <AddVideoCtrl onAddVideo={addVideo} />
                 <div className='bg-violet-800 w-full' style={{ "overflow": "auto" }}>
-                    {state.Current.id && <Header state={state} />}
+                    {state.Current.id && (showVideo ? <VideoHeader state={state} connection={connection.current}/>:<Header state={state} />)}
                     <div className='w-full shadow-body px-4 md:px-10 text-white min-h-screen'>
                             <Card queue={state.Queue} updateQueue={updateQueue} />
                     </div>
                 </div>
                 <Player state={state} />
-                <div className="absolute bottom-9 right-0">
-                    {/* <PlaylistBtn playlists={playlists} /> */}
+                <div className="absolute md:bottom-9 bottom-12 md:right-0 -right-2">
+                    <PlaylistBtn playlists={playlists} /> 
                 </div>
 
                 {debug&&<div style={{position:"fixed", top:"150px", width:"50%", background:"white", height:"600px", zIndex:"100"}}>

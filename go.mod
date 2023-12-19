@@ -18,6 +18,7 @@ require (
 )
 
 require (
+	github.com/boltdb/bolt v1.3.1 // indirect
 	github.com/felixge/httpsnoop v1.0.3 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
@@ -40,12 +41,14 @@ require (
 )
 
 require (
+	github.com/asdine/storm v1.1.0
 	github.com/bitly/go-simplejson v0.5.1 // indirect
 	github.com/dlclark/regexp2 v1.10.0 // indirect
 	github.com/dop251/goja v0.0.0-20230828202809-3dbe69dd2b8e // indirect
 	github.com/go-sourcemap/sourcemap v2.1.3+incompatible // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
 	github.com/google/pprof v0.0.0-20230907193218-d3ddc7976beb // indirect
+	github.com/google/uuid v1.5.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.0
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect

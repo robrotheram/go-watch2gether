@@ -13,7 +13,6 @@ import (
 
 type App struct {
 	routes *mux.Router
-	auth   *DiscordAuth
 	config utils.Config
 }
 
@@ -43,6 +42,16 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 	router.HandleFunc("/api/channel/{id}/pause", handlers.handlePauseVideo).Methods("POST")
 	router.HandleFunc("/api/channel/{id}/queue", handlers.handleUpateQueue).Methods("POST")
 	router.HandleFunc("/api/channel/{id}/add", handlers.handleAddVideo).Methods("PUT")
+
+	router.HandleFunc("/api/channel/{id}/playlist", handlers.handleGetPlaylistsByChannel).Methods("GET")
+	router.HandleFunc("/api/channel/{id}/add/playlist/{playlist_id}", handlers.handleAddFromPlaylist).Methods("PUT")
+
+	router.HandleFunc("/api/playist", handlers.handleGetPlaylistsByUser).Methods("GET")
+	router.HandleFunc("/api/playist", handlers.handleCreateNewPlaylists).Methods("PUT")
+	router.HandleFunc("/api/playist/{id}", handlers.handleGetPlaylistsById).Methods("GET")
+	router.HandleFunc("/api/playist/{id}", handlers.handleUpdatePlaylist).Methods("POST")
+	router.HandleFunc("/api/playist/{id}", handlers.handleDeletePlaylist).Methods("DELETE")
+
 	if config.Dev {
 		router.PathPrefix("/").Handler(newProxy())
 

@@ -50,15 +50,15 @@ func NewDiscordBot(config utils.Config, hub *controllers.Hub) (*DiscordBot, erro
 }
 
 func (db *DiscordBot) RegisterCommands() error {
-	cmds, _ := db.session.ApplicationCommands(db.clientID, "")
+	// cmds, _ := db.session.ApplicationCommands(db.clientID, "")
 
-	for _, v := range cmds {
-		err := db.session.ApplicationCommandDelete(db.clientID, "", v.ID)
-		if err != nil {
-			log.Warnf("error removing command: %v", err)
-		}
-		log.Infof("removing command: %s", v.Name)
-	}
+	// for _, v := range cmds {
+	// 	err := db.session.ApplicationCommandDelete(db.clientID, "", v.ID)
+	// 	if err != nil {
+	// 		log.Warnf("error removing command: %v", err)
+	// 	}
+	// 	log.Infof("removing command: %s", v.Name)
+	// }
 
 	for name, cmds := range commands.GetCommands() {
 		for _, cmd := range cmds.ApplicationCommand {

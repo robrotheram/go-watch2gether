@@ -14,6 +14,10 @@ import (
 	"golang.org/x/oauth2"
 )
 
+type ctxKey string
+
+const UserKey = ctxKey("user")
+
 type DiscordAuth struct {
 	oauthConfig      *oauth2.Config
 	oauthStateString string
@@ -118,7 +122,7 @@ func (da *DiscordAuth) Middleware(next http.Handler) http.Handler {
 
 		user, _ := da.getUser(token.AccessToken)
 		ctx := r.Context()
-		ctx = context.WithValue(ctx, "user", user)
+		ctx = context.WithValue(ctx, UserKey, user)
 		r = r.WithContext(ctx)
 		next.ServeHTTP(w, r)
 	})
@@ -272,6 +276,9 @@ func (da *DiscordAuth) HandlerGuilds(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	guilds, err := da.getGuilds(token.AccessToken)
+	if err != nil {
+		return
+	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(guilds)
 }
@@ -290,11 +297,6 @@ func tokenFromJSON(jsonStr string) (*oauth2.Token, error) {
 		return nil, err
 	}
 	return &token, nil
-}
-
-func getUser(r *http.Request) User {
-	usr := r.Context().Value("user")
-	return usr.(User)
 }
 
 func contains(s []string, e string) bool {

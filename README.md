@@ -1,7 +1,5 @@
 # Watch2gether
-'Ever is Discord listening to youtube video via RythumBot and wanted to watch youtube videos in-sync with your friends, or play custom playlists/
-
-Yest Its Yet another video sync website it currently support Youtube, DailyMotion Vimeo Soundcloud and Videos hosted on your own fileserver that you totally legally own😉
+Yet another video sync website it currently support Youtube, DailyMotion Vimeo Soundcloud and Videos hosted on your own fileserver that you totally legally own😉
 
 ## Why? 
 This project spun out of my quest to find something that would allow my group of friends watch vidoes together from the random collection of YouTube clips to long movies. All other services did not support playing mp4 files or had features that were not required for example chat. This is little webapp does not need API keys to be set up and users do not need to create any accouts. Just create a room share a link and people can join. 
@@ -9,24 +7,22 @@ This project spun out of my quest to find something that would allow my group of
 ## Features
 ### Listen In discord
 ![Screenshot 1](docs/discord.png)
-Listen in dissord. Using commands that do not iterfeer with Rythm Bot commands. (Currently supports only YT through the bot)
+Bot only supports slash commands
 Full list of commands 
 ```
-- !help : This is a Help Command 
-- !history : List videos alreay played 
-- !join : Join Bot to a voice channel 
-- !leave : Disconnect Bot from channel 
+- /join : Join Bot to a voice channel 
+- /leave : Disconnect Bot from channel 
 
-- !pause : Pause Video 
-- !skip : Skip to next video in the Queue 
-- !play : Play Video 
-- !stop : Stop Video 
-- !queue : List videos in the Queue 
-- !add <video> : Add Video to Queue 
+- /pause : Pause Video 
+- /skip : Skip to next video in the Queue 
+- /play : Play Video 
+- /stop : Stop Video 
+- /list : List videos in the Queue 
+- /add <video> : Add Video to Queue 
 
-- !playlist load <name>
-- !status : Current Status of what is playing 
-- !watch : Get Link to room
+- /playlist load <name>
+- /now : Current Status of what is playing 
+
 ```
 
 ### Supported Media files
