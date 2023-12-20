@@ -143,6 +143,13 @@ func (c *Controller) Leave(pType PlayerType, user string) {
 	c.Notify(LEAVE_ACTION, user)
 }
 
+func (c *Controller) ContainsPlayer(pType PlayerType) bool {
+	if _, ok := c.players.players[pType]; ok {
+		return true
+	}
+	return false
+}
+
 func (c *Controller) progress() {
 	defer c.Stop(SYSTEM)
 	for {

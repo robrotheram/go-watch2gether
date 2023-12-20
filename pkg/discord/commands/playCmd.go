@@ -2,6 +2,7 @@ package commands
 
 import (
 	"net/url"
+	"w2g/pkg/discord/players"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -81,11 +82,11 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	// if !ctx.Controller.IsActive() {
-	// 	if join(ctx) != nil {
-	// 		return ctx.Reply("User not connected to voice channel")
-	// 	}
-	// }
+	if !ctx.Controller.ContainsPlayer(players.DISCORD) {
+		if join(ctx) != nil {
+			return ctx.Reply("User not connected to voice channel")
+		}
+	}
 	ctx.Controller.Start(ctx.Member.User.Username)
 	return ctx.Reply(":play_pause: Now Playing :thumbsup:")
 }
