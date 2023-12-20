@@ -1,19 +1,21 @@
 package controllers
 
 import (
+	"fmt"
 	"sync"
 	"w2g/pkg/media"
 )
 
 type PlayerType string
 type Player interface {
-	Play(*sync.WaitGroup, string, int) error
+	Play(string, int) error
 	Progress() media.MediaDuration
 	Type() PlayerType
 	Pause()
 	Unpause()
 	Stop()
 	Close()
+	Status() bool
 }
 
 type Players struct {
@@ -54,7 +56,11 @@ func (p *Players) Play(url string, start int) {
 	wg := sync.WaitGroup{}
 	for _, player := range p.players {
 		wg.Add(1)
-		go player.Play(&wg, url, start)
+		go func(player Player) {
+			err := player.Play(url, start)
+			wg.Done()
+			fmt.Printf("%s player error: %v", player.Type(), err)
+		}(player)
 	}
 	wg.Wait()
 }
@@ -81,4 +87,13 @@ func (p *Players) Close() {
 	for _, player := range p.players {
 		player.Close()
 	}
+}
+
+func (p *Players) Running() bool {
+	for _, player := range p.players {
+		if player.Status() {
+			return true
+		}
+	}
+	return false
 }

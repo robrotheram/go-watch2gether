@@ -60,7 +60,7 @@ func (c *Controller) Start(user string) {
 		c.running = true
 		go c.progress()
 		go c.duration()
-	} else {
+	} else if c.state.State == PAUSE {
 		c.players.Unpause()
 	}
 	c.state.ChangeState(PLAY)

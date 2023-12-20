@@ -187,7 +187,6 @@ const PlaylistPage = () => {
 
   return (
     <>
-      {/* <Nav user={user} guilds={[]} /> */}
       <main className='w-full flex flex-col md:flex-row  top-16 bottom-0'>
         <div className="w-full lg:w-1/4 md:w-1/2 h-64 md:h-full overflow-auto shadow-left text-white bg-zinc-900 hide-scrollbar">
           <div className="flex justify-between px-4 py-2.5  mb-2 sticky top-0 bg-zinc-800 z-10">

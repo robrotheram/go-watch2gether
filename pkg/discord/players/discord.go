@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"os/exec"
-	"sync"
 	"time"
 	"w2g/pkg/controllers"
 	"w2g/pkg/media"
@@ -23,7 +22,6 @@ type DiscordPlayer struct {
 	progress  media.MediaDuration
 	running   bool
 	startTime int
-	wg        *sync.WaitGroup
 }
 
 func NewDiscordPlayer(voice *discordgo.VoiceConnection) *DiscordPlayer {
@@ -87,6 +85,10 @@ func (player *DiscordPlayer) Type() controllers.PlayerType {
 	return DISCORD
 }
 
+func (player *DiscordPlayer) Status() bool {
+	return player.running
+}
+
 func (player *DiscordPlayer) Close() {
 	player.Stop()
 	player.voice.Disconnect()
@@ -95,9 +97,6 @@ func (player *DiscordPlayer) Close() {
 func (player *DiscordPlayer) Finish() {
 	player.session.Cleanup()
 	player.session.Truncate()
-	if player.running && player.wg != nil {
-		player.wg.Done()
-	}
 	player.running = false
 }
 
@@ -132,11 +131,10 @@ func (player *DiscordPlayer) Progress() media.MediaDuration {
 	return player.progress
 }
 
-func (player *DiscordPlayer) Play(wg *sync.WaitGroup, url string, startTime int) error {
+func (player *DiscordPlayer) Play(url string, startTime int) error {
 	if player.running {
 		return fmt.Errorf("playing already started")
 	}
-	player.wg = wg
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
 	opts.Bitrate = 96

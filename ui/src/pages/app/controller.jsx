@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { NotificationMessages } from "./components/notifications";
 import { PlaylistBtn } from "./playlist";
 import { PlayerContext } from "./components/providers";
+import { Loading } from "./components/loading";
 const debug = false
 
 export const AddVideoCtrl = ({ onAddVideo }) => {
@@ -46,21 +47,21 @@ export const AppController = () => {
     const [notificationURL, setNotificationURL] = useState(null)
     const { showVideo } = useContext(PlayerContext)
 
-    const updatePlaylists = async () => { 
+    const updatePlaylists = async () => {
         try {
-            setPlaylists(await getChannelPlaylists())     
-        } catch (error) {}
+            setPlaylists(await getChannelPlaylists())
+        } catch (error) { }
     }
 
-    const getState = async () => { 
+    const getState = async () => {
         setLoading(true)
         try {
             setState(await getController())
-            setNotificationURL(getSocket())     
+            setNotificationURL(getSocket())
         } catch (error) {
             try {
-                setState(await createController())     
-                setNotificationURL(getSocket())     
+                setState(await createController())
+                setNotificationURL(getSocket())
             } catch (error) {
                 console.log("ERROR", error)
                 navigate("/app")
@@ -68,7 +69,7 @@ export const AppController = () => {
         }
         setLoading(false)
     }
-    
+
     const [state, setState] = useState({
         id: "",
         status: "STOPPED",
@@ -87,26 +88,26 @@ export const AppController = () => {
         }
     })
     const connection = useRef(null)
-    
-  useEffect(() => {
-    if (notificationURL === null){
-        return
-    }
-    const socket = new WebSocket(notificationURL)
-    socket.addEventListener("open", (event) => {
-      socket.send("Connection established")
-    })
-    socket.addEventListener("message", (event) => {
-        let evt = JSON.parse(event.data)
-        setState(evt.state)
-        // if (evt.action.type !== "UPDATE_DURATION" && evt.action.user !== "system"){
-        //     toast.success(`${evt.action.user} ${NotificationMessages[evt.action.type]}`)
-        // }
-        
-    })
-    connection.current = socket
-    return () => socket.close()
-  }, [notificationURL])
+
+    useEffect(() => {
+        if (notificationURL === null) {
+            return
+        }
+        const socket = new WebSocket(notificationURL)
+        socket.addEventListener("open", (event) => {
+            socket.send("Connection established")
+        })
+        socket.addEventListener("message", (event) => {
+            let evt = JSON.parse(event.data)
+            setState(evt.state)
+            // if (evt.action.type !== "UPDATE_DURATION" && evt.action.user !== "system"){
+            //     toast.success(`${evt.action.user} ${NotificationMessages[evt.action.type]}`)
+            // }
+
+        })
+        connection.current = socket
+        return () => socket.close()
+    }, [notificationURL])
 
 
     useEffect(() => {
@@ -114,22 +115,12 @@ export const AppController = () => {
         getState()
     }, []);
 
-    if (loading) {
-        return (
-            <div className="min-h-screen w-full flex justify-center items-center bg-black">
-                <div className="bg-violet-800 w-48 h-48  absolute animate-ping rounded-full delay-10s shadow-2xl"></div>
-                <div className="bg-violet-700 w-32 h-32  absolute animate-ping rounded-full delay-5s shadow-xl"></div>
-                <div className="bg-violet-600 w-16 h-16  absolute animate-ping rounded-full shadow-xl"></div>
-            </div>
-        )
-    }
-
     const addVideo = async (video) => {
         try {
             await addVideoController(video)
             // toast.success("Video is being added to the queue please wait");
         } catch (e) {
-            console.log("ADD VIDOE ERROR",e)
+            console.log("ADD VIDOE ERROR", e)
             toast.error("Unable to add video: invalid video url");
         }
     }
@@ -143,28 +134,29 @@ export const AppController = () => {
             toast.error("Sorry there was an issue updating the queue")
         }
     }
-    
-    return (
-            <div className="flex flex-col w-full h-full">
-                <AddVideoCtrl onAddVideo={addVideo} />
-                <div className='bg-violet-800 w-full' style={{ "overflow": "auto" }}>
-                    {state.current.id && (showVideo ? <VideoHeader state={state} connection={connection.current}/>:<Header state={state} />)}
-                    <div className='w-full shadow-body px-4 md:px-10 text-white min-h-screen'>
-                            <Card queue={state.queue} updateQueue={updateQueue} />
-                    </div>
-                </div>
-                <Player state={state} />
-                <div className="absolute md:bottom-9 bottom-12 md:right-0 -right-2">
-                    <PlaylistBtn playlists={playlists} /> 
-                </div>
 
-                {debug&&<div style={{position:"fixed", top:"150px", width:"50%", background:"white", height:"600px", zIndex:"100"}}>
-                    <pre style={{overflow:"auto", height: "100%"}}>
-                        <code>
-                            `{JSON.stringify(state, null, 2)}`
-                        </code>
-                    </pre>
-                </div>}
+    return loading ?
+        <Loading />
+        :
+        <div className="flex flex-col w-full h-full">
+            <AddVideoCtrl onAddVideo={addVideo} />
+            <div className='bg-violet-800 w-full' style={{ "overflow": "auto" }}>
+                {state.current.id && (showVideo ? <VideoHeader state={state} connection={connection.current} /> : <Header state={state} />)}
+                <div className='w-full shadow-body px-4 md:px-10 text-white min-h-screen'>
+                    <Card queue={state.queue} updateQueue={updateQueue} />
+                </div>
             </div>
-    )
+            <Player state={state} />
+            <div className="absolute md:bottom-9 bottom-12 md:right-0 -right-2">
+                <PlaylistBtn playlists={playlists} />
+            </div>
+
+            {debug && <div style={{ position: "fixed", top: "150px", width: "50%", background: "white", height: "600px", zIndex: "100" }}>
+                <pre style={{ overflow: "auto", height: "100%" }}>
+                    <code>
+                        `{JSON.stringify(state, null, 2)}`
+                    </code>
+                </pre>
+            </div>}
+        </div>
 }

@@ -15,7 +15,7 @@ export default function () {
     <>
       <Provider>
         <Nav user={user}/>
-        <main className='w-full mt-8  fixed top-8 bottom-0 flex'>
+        <main className='w-full mt-8  fixed top-8 bottom-0 flex bg-gradient-to-b from-violet-900  to-black'>
           <Notifications/>
           <Outlet />
         </main>
