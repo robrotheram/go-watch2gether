@@ -7,6 +7,7 @@ import (
 )
 
 type PlayerType string
+
 type Player interface {
 	Play(string, int) error
 	Progress() media.MediaDuration
@@ -37,8 +38,10 @@ func (p *Players) Add(player Player) {
 }
 
 func (p *Players) Remvoe(id PlayerType) {
-	p.players[id].Close()
-	delete(p.players, id)
+	if player, ok := p.players[id]; ok {
+		player.Close()
+		delete(p.players, id)
+	}
 }
 
 func (p *Players) Progress() media.MediaDuration {
@@ -58,8 +61,12 @@ func (p *Players) Play(url string, start int) {
 		wg.Add(1)
 		go func(player Player) {
 			err := player.Play(url, start)
+			if err != nil {
+				fmt.Printf("%s player error: %v", player.Type(), err)
+			}
 			wg.Done()
-			fmt.Printf("%s player error: %v", player.Type(), err)
+			//Currently Set it the the first "player to finish will override all other players"
+			p.Stop()
 		}(player)
 	}
 	wg.Wait()
