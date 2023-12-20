@@ -59,7 +59,6 @@ func (c *Client) Write() {
 			return
 		}
 	}
-
 }
 
 func (c *Client) Send(event controllers.Event) {

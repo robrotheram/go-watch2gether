@@ -36,7 +36,7 @@ func (p *Players) Add(player Player) {
 
 func (p *Players) Remvoe(id PlayerType) {
 	p.players[id].Close()
-	// delete(p.players, id)
+	delete(p.players, id)
 }
 
 func (p *Players) Progress() media.MediaDuration {

@@ -158,15 +158,10 @@ export const PlaylistBtn = ({ playlists }) => {
 const PlaylistPage = () => {
   const [playlists, setPlaylists] = useState([])
   const [playlist, setPlaylist] = useState({})
-  const [guilds, setGuilds] = useState([]);
-  const [user, setUser] = useState({});
-
 
   useEffect(() => {
     const get = async () => {
       setPlaylists(await getChannelPlaylists())
-      setUser(await getUser())
-      //setGuilds(await getGuilds());
     }
     get()
   }, [])
