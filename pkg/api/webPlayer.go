@@ -1,10 +1,17 @@
 package api
 
-import "w2g/pkg/media"
+import (
+	"sync"
+	"w2g/pkg/controllers"
+	"w2g/pkg/media"
+)
+
+const WEBPLAYER = controllers.PlayerType("WEB_PLAYER")
 
 type WebPlayer struct {
 	done     chan any
 	progress media.MediaDuration
+	running  bool
 }
 
 func NewWebPlayer() *WebPlayer {
@@ -16,8 +23,15 @@ func NewWebPlayer() *WebPlayer {
 	}
 }
 
-func (wb *WebPlayer) Play(string, int) error {
+func (wb *WebPlayer) Type() controllers.PlayerType {
+	return WEBPLAYER
+}
+
+func (wb *WebPlayer) Play(wg *sync.WaitGroup, url string, start int) error {
+	defer wg.Done()
+	wb.running = true
 	<-wb.done
+	wb.running = false
 	return nil
 }
 func (wb *WebPlayer) Progress() media.MediaDuration {
@@ -26,9 +40,13 @@ func (wb *WebPlayer) Progress() media.MediaDuration {
 func (wb *WebPlayer) Pause()   {}
 func (wb *WebPlayer) Unpause() {}
 func (wb *WebPlayer) Stop() {
-	wb.done <- "STOP"
+	if wb.running {
+		wb.done <- "STOP"
+	}
 }
-func (wb *WebPlayer) Close() {}
+func (wb *WebPlayer) Close() {
+	wb.Stop()
+}
 
 func (wb *WebPlayer) UpdateDuration(duration media.MediaDuration) {
 	wb.progress = duration

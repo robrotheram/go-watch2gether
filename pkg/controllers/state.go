@@ -14,12 +14,12 @@ var (
 )
 
 type PlayerState struct {
-	Id      string
-	State   PlayState
-	Queue   []media.Media
-	Current media.Media
-	Loop    bool
-	Active  bool
+	ID      string        `json:"id"`
+	State   PlayState     `json:"status"`
+	Queue   []media.Media `json:"queue"`
+	Current media.Media   `json:"current"`
+	Loop    bool          `json:"loop"`
+	Active  bool          `json:"active"`
 }
 
 func (state *PlayerState) Next() {

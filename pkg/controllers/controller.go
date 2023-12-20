@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"fmt"
 	"time"
 	"w2g/pkg/media"
 
+	"github.com/asdine/storm"
 	"github.com/google/uuid"
 )
 
@@ -12,28 +12,45 @@ const SYSTEM = "system"
 
 type Controller struct {
 	state         PlayerState
-	player        Player
+	players       *Players
 	notifications *Notify
 	running       bool
+	db            *storm.DB
 }
 
-func NewController(id string) *Controller {
-	tracks := []media.Media{}
+func NewController(id string, store *storm.DB) *Controller {
 	contoller := Controller{
-		state: PlayerState{
-			Id:    id,
-			Queue: tracks,
-			State: STOP,
-			Loop:  false,
-		},
+		players:       newPlayers(),
 		notifications: NewNotifications(),
+		db:            store,
 	}
+	contoller.load(id)
 	contoller.AddListner(uuid.NewString(), &Auditing{})
 	return &contoller
 }
 
+func (c *Controller) save() error {
+	return c.db.Save(&c.state)
+}
+
+func (c *Controller) load(id string) {
+	var state PlayerState
+	err := c.db.One("ID", id, &state)
+	if err != nil {
+		state = PlayerState{
+			ID:    id,
+			Queue: []media.Media{},
+			State: STOP,
+			Loop:  false,
+		}
+		c.save()
+	}
+	state.ChangeState(STOP)
+	c.state = state
+}
+
 func (c *Controller) Start(user string) {
-	if c.player == nil {
+	if c.players.Empty() {
 		return
 	}
 	if !c.running {
@@ -44,30 +61,29 @@ func (c *Controller) Start(user string) {
 		go c.progress()
 		go c.duration()
 	} else {
-		c.unpause()
+		c.players.Unpause()
 	}
 	c.state.ChangeState(PLAY)
+	c.save()
 	c.Notify(PLAY_ACTION, user)
 }
 
 func (c *Controller) Stop(user string) {
 	c.running = false
-	if c.player == nil {
+	if c.players.Empty() {
 		return
 	}
-	c.player.Stop()
+	c.players.Stop()
 	c.state.ChangeState(STOP)
+	c.save()
 	c.Notify(STOP_ACTION, user)
 }
 
 func (c *Controller) Pause(user string) {
-	c.player.Pause()
+	c.players.Pause()
 	c.state.ChangeState(PAUSE)
+	c.save()
 	c.Notify(PAUSE_ACTION, user)
-}
-
-func (c *Controller) unpause() {
-	c.player.Unpause()
 }
 
 func (c *Controller) Add(url string, user string) error {
@@ -76,36 +92,55 @@ func (c *Controller) Add(url string, user string) error {
 		return err
 	}
 	c.state.Add(tracks)
+	c.save()
 	c.Notify(ADD_QUEUE, user)
 	return nil
 }
 
 func (c *Controller) Skip(user string) {
 	if c.running {
-		c.player.Stop()
+		c.players.Stop()
 		c.Notify(SKIP_ACTION, user)
 	}
 }
 
 func (c *Controller) Shuffle(user string) {
 	c.state.Shuffle()
+	c.save()
 	c.Notify(SHUFFLE_ACTION, user)
 }
 
 func (c *Controller) Loop(user string) {
 	c.state.Repeat()
+	c.save()
 	c.Notify(LOOP_ACTION, user)
 }
 
+func (c *Controller) UpdateQueue(videos []media.Media, user string) {
+	c.state.Queue = videos
+	c.save()
+	c.Notify(UPDATE_QUEUE, user)
+}
+
+func (c *Controller) State() PlayerState {
+	c.state.Active = !c.players.Empty()
+	return c.state
+}
+
+func (c *Controller) Update(state PlayerState, user string) {
+	c.state = state
+	c.save()
+	c.Notify(UPDATE, user)
+}
+
 func (c *Controller) Join(player Player, user string) {
-	c.player = player
+	c.players.Add(player)
 	c.Notify(PLAYER_ACTION, user)
 }
 
-func (c *Controller) Leave(user string) {
-	c.player.Close()
-	c.player = nil
-	c.Notify(SHUFFLE_ACTION, user)
+func (c *Controller) Leave(pType PlayerType, user string) {
+	c.players.Remvoe(pType)
+	c.Notify(LEAVE_ACTION, user)
 }
 
 func (c *Controller) progress() {
@@ -116,11 +151,7 @@ func (c *Controller) progress() {
 			return
 		}
 		audio := c.state.Current.GetAudioUrl()
-		fmt.Println("playing: " + audio)
-		err := c.player.Play(audio, 0)
-		if err != nil {
-			fmt.Println(err)
-		}
+		c.players.Play(audio, 0)
 		if !c.state.Loop {
 			c.state.Next()
 			c.Notify(UPDATE_QUEUE, SYSTEM)
@@ -135,28 +166,9 @@ func (c *Controller) duration() {
 			ticker.Stop()
 			return
 		}
-		c.state.Current.Progress.Progress = c.player.Progress().Progress
+		c.state.Current.Progress.Progress = c.players.Progress().Progress
 		c.Notify(UPDATE_DURATION, SYSTEM)
 	}
-}
-
-func (c *Controller) State() PlayerState {
-	c.state.Active = c.IsActive()
-	return c.state
-}
-
-func (c *Controller) Update(state PlayerState, user string) {
-	c.state = state
-	c.Notify(UPDATE, user)
-}
-
-func (c *Controller) UpdateQueue(videos []media.Media, user string) {
-	c.state.Queue = videos
-	c.Notify(UPDATE_QUEUE, user)
-}
-
-func (c *Controller) IsActive() bool {
-	return c.player != nil
 }
 
 func (c *Controller) AddListner(id string, listener Listener) {
@@ -170,7 +182,7 @@ func (c *Controller) RemoveListner(id string) {
 func (c *Controller) Notify(action ActionType, user string) {
 	state := c.State()
 	c.notifications.events <- Event{
-		ID: state.Id,
+		ID: state.ID,
 		Action: Action{
 			ActionType: action,
 			User:       user,

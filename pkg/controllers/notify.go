@@ -20,6 +20,7 @@ var (
 	SHUFFLE_ACTION  = ActionType("SHUFFLE")
 	SKIP_ACTION     = ActionType("SKIP")
 	PLAYER_ACTION   = ActionType("PlAYER CHANGE")
+	LEAVE_ACTION    = ActionType("LEAVE")
 )
 
 type Event struct {

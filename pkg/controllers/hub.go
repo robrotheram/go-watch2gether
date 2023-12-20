@@ -10,12 +10,14 @@ import (
 type Hub struct {
 	channels  map[string]*Controller
 	playlists *playlists.PlaylistStore
+	db        *storm.DB
 }
 
 func NewHub(db *storm.DB) *Hub {
 	return &Hub{
 		channels:  make(map[string]*Controller),
 		playlists: playlists.NewPlaylistStore(db),
+		db:        db,
 	}
 }
 
@@ -24,7 +26,7 @@ func (hub *Hub) Add(id string, controller *Controller) {
 }
 
 func (hub *Hub) New(id string) *Controller {
-	hub.channels[id] = NewController(id)
+	hub.channels[id] = NewController(id, hub.db)
 	return hub.channels[id]
 }
 

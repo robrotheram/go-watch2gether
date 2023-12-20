@@ -7,7 +7,7 @@ export const VideoPlayer = ({state, connection}) => {
     const playerRef = React.useRef(null);
     const { volume } = useContext(VolumeContext)
     const onEnded = () => {
-        if (!state.Loop){
+        if (!state.loop){
             skipVideoController();
         }
     }
@@ -19,8 +19,8 @@ export const VideoPlayer = ({state, connection}) => {
 
     const handleProgress = (video_state) => {
         let s = Object.assign({}, state)
-        s.Current.time = {
-            duration: s.Current.time.duration,
+        s.current.time = {
+            duration: s.current.time.duration,
             progress: Math.floor(video_state.playedSeconds)*1000000000
         }
 
@@ -30,7 +30,7 @@ export const VideoPlayer = ({state, connection}) => {
                 type: "UPDATE_DURATION"
             },
             state: {
-                Current: s.Current
+                Current: s.current
             }
         }
         console.log("SENDING", JSON.stringify(evt))
@@ -42,7 +42,7 @@ export const VideoPlayer = ({state, connection}) => {
         <div className='w-full flex justify-center' style={{"maxHeight": "650px", height:"100%"}}>
             <ReactPlayer
                 ref={playerRef}
-                url={state.Current.url}
+                url={state.current.url}
                 width='100%'
                 height='100%'
                 muted={volume === 0}
@@ -50,8 +50,8 @@ export const VideoPlayer = ({state, connection}) => {
                 onStart={onStart}
                 onEnded={onEnded}
                 onProgress={handleProgress}
-                playing={state.State === "PLAY" }
-                loop={state.Loop}                
+                playing={state.status === "PLAY" }
+                loop={state.loop}                
             />
         </div>
 

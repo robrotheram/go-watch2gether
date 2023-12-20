@@ -70,10 +70,10 @@ export const AppController = () => {
     }
     
     const [state, setState] = useState({
-        Id: "",
-        State: "STOPPED",
-        Queue: [],
-        Current: {
+        id: "",
+        status: "STOPPED",
+        queue: [],
+        current: {
             id: "",
             user: "",
             url: "",
@@ -148,9 +148,9 @@ export const AppController = () => {
             <div className="flex flex-col w-full h-full">
                 <AddVideoCtrl onAddVideo={addVideo} />
                 <div className='bg-violet-800 w-full' style={{ "overflow": "auto" }}>
-                    {state.Current.id && (showVideo ? <VideoHeader state={state} connection={connection.current}/>:<Header state={state} />)}
+                    {state.current.id && (showVideo ? <VideoHeader state={state} connection={connection.current}/>:<Header state={state} />)}
                     <div className='w-full shadow-body px-4 md:px-10 text-white min-h-screen'>
-                            <Card queue={state.Queue} updateQueue={updateQueue} />
+                            <Card queue={state.queue} updateQueue={updateQueue} />
                     </div>
                 </div>
                 <Player state={state} />
@@ -165,8 +165,6 @@ export const AppController = () => {
                         </code>
                     </pre>
                 </div>}
-
             </div>
-
     )
 }
