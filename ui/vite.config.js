@@ -35,8 +35,8 @@ const manifestForPlugin = {
 			},
 		],
 		workbox: {
-			globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
-			navigateFallbackDenylist: [/^\/api/,/^\/auth/]
+			navigateFallback: "/",
+      		navigateFallbackDenylist: [/auth/],
 		},
 		theme_color: "#171717",
 		background_color: "#e8ebf2",
@@ -49,5 +49,5 @@ const manifestForPlugin = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	plugins: [react(), VitePWA(manifestForPlugin)],
+	plugins: [react()],
 })
