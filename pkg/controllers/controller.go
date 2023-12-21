@@ -153,7 +153,7 @@ func (c *Controller) ContainsPlayer(pType PlayerType) bool {
 func (c *Controller) progress() {
 	defer c.Stop(SYSTEM)
 	for {
-		if len(c.state.Current.Url) == 0 || !c.running {
+		if len(c.state.Current.Url) == 0 || !c.running || c.players.Empty() {
 			c.Stop(SYSTEM)
 			return
 		}
