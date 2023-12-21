@@ -2,9 +2,9 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from "vite-plugin-pwa";
 
-const manifestForPlugin  = {
+const manifestForPlugin = {
 	registerType: "autoUpdate",
-  injectRegister: 'auto',
+	injectRegister: 'auto',
 	includeAssets: ["favicon.ico", "apple-touch-icon.png", "logo.svg"],
 	manifest: {
 		name: "Watch2Gether",
@@ -34,6 +34,10 @@ const manifestForPlugin  = {
 				purpose: "any maskable",
 			},
 		],
+		workbox: {
+			globPatterns: ['**/*.{css,js,html,svg,png,ico,txt,woff2}'],
+			navigateFallbackDenylist: [/^\/api/,/^\/auth/]
+		},
 		theme_color: "#171717",
 		background_color: "#e8ebf2",
 		display: "standalone",
@@ -45,5 +49,5 @@ const manifestForPlugin  = {
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), VitePWA(manifestForPlugin)],
+	plugins: [react(), VitePWA(manifestForPlugin)],
 })

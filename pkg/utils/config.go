@@ -13,10 +13,8 @@ type Config struct {
 	DiscordToken        string `mapstructure:"DISCORD_TOKEN"`
 	DiscordClientID     string `mapstructure:"DISCORD_CLIENT_ID"`
 	DiscordClientSecret string `mapstructure:"DISCORD_CLIENT_SECRET"`
-	DiscordNotify       bool   `mapstructure:"DISCORD_ENABLE_NOTIFICATIONS"`
 	SessionSecret       string `mapstructure:"SESSION_SECRET"`
 	BaseURL             string `mapstructure:"BASE_URL"`
-	ServerAddress       string `mapstructure:"SERVER_ADDRESS"`
 	DatabasePath        string `mapstructure:"DATABASE_PATH"`
 	Dev                 bool   `mapstructure:"DEVELOPMENT"`
 	Loglevel            string `mapstructure:"LOG_LEVEL"`
