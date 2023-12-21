@@ -3,9 +3,11 @@ package discord
 import (
 	"fmt"
 	"strconv"
+	"time"
 	"w2g/pkg/controllers"
 	"w2g/pkg/discord/commands"
 	"w2g/pkg/discord/components"
+	"w2g/pkg/discord/players"
 	"w2g/pkg/discord/session"
 	"w2g/pkg/utils"
 
@@ -83,6 +85,7 @@ func (db *DiscordBot) Start() error {
 		return fmt.Errorf("error opening connection: %v", err)
 	}
 
+	go db.AutoDisconnect()
 	go db.RegisterCommands()
 	return nil
 }
@@ -175,5 +178,18 @@ func (db *DiscordBot) CommandHandler(s *discordgo.Session, i *discordgo.Interact
 		db.handleApplicationCommand(s, i)
 	case discordgo.InteractionMessageComponent:
 		db.handleMessageCommand(s, i)
+	}
+}
+
+func (db *DiscordBot) AutoDisconnect() {
+	ticker := time.NewTicker(30 * time.Second)
+	for range ticker.C {
+		for _, guild := range db.session.State.Guilds {
+			if controller, err := db.channels.Get(guild.ID); err == nil {
+				if len(guild.VoiceStates) <= 1 {
+					controller.Leave(players.DISCORD, controllers.SYSTEM)
+				}
+			}
+		}
 	}
 }
