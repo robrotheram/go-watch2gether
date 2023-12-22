@@ -191,8 +191,8 @@ func (c *Controller) Notify(action ActionType, user string) {
 	c.notifications.events <- Event{
 		ID: state.ID,
 		Action: Action{
-			ActionType: action,
-			User:       user,
+			Type: action,
+			User: user,
 		},
 		State: state,
 	}

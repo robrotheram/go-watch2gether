@@ -6,5 +6,8 @@ type Auditing struct {
 }
 
 func (a *Auditing) Send(event Event) {
-	log.Infof("%s %s", event.Action.User, event.Action.ActionType)
+	log.WithFields(log.Fields{
+		"user":   event.Action.User,
+		"action": event.Action.Type,
+	}).Info(event.Message)
 }

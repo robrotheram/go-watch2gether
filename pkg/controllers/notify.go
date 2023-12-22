@@ -3,8 +3,8 @@ package controllers
 type ActionType string
 
 type Action struct {
-	ActionType ActionType `json:"type"`
-	User       string     `json:"user"`
+	Type ActionType `json:"type"`
+	User string     `json:"user"`
 }
 
 var (
@@ -24,9 +24,10 @@ var (
 )
 
 type Event struct {
-	ID     string      `json:"id"`
-	Action Action      `json:"action"`
-	State  PlayerState `json:"state"`
+	ID      string      `json:"id"`
+	Action  Action      `json:"action"`
+	State   PlayerState `json:"state"`
+	Message string      `json:"message"`
 }
 
 type Listener interface {
