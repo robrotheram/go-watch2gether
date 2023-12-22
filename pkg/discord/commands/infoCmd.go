@@ -9,7 +9,7 @@ import (
 func init() {
 	register(
 		Command{
-			Name: "nowplaying",
+			Name: "player",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
 
@@ -20,7 +20,7 @@ func init() {
 					Type:        discordgo.ChatApplicationCommand,
 				},
 			},
-			Function: nowplayingCmd,
+			Function: controlscmd,
 		},
 		Command{
 			Name: "list",
@@ -41,4 +41,8 @@ func nowplayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 func listcmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	return ctx.CmdReplyData(components.QueueCompontent(ctx.Controller.State().Queue, 0))
+}
+
+func controlscmd(ctx CommandCtx) *discordgo.InteractionResponse {
+	return ctx.CmdReplyData(components.ControlCompontent(ctx.Controller.State()))
 }

@@ -22,6 +22,7 @@ type DiscordBot struct {
 	channels *controllers.Hub
 	clientID string
 	users    map[string]*session.UserSession
+	reset    bool
 }
 
 func NewDiscordBot(config utils.Config, hub *controllers.Hub) (*DiscordBot, error) {
@@ -31,6 +32,7 @@ func NewDiscordBot(config utils.Config, hub *controllers.Hub) (*DiscordBot, erro
 		clientID: config.DiscordClientID,
 		channels: hub,
 		users:    make(map[string]*session.UserSession),
+		reset:    config.Reset,
 	}
 	dg, err := discordgo.New("Bot " + bot.token)
 
@@ -52,15 +54,16 @@ func NewDiscordBot(config utils.Config, hub *controllers.Hub) (*DiscordBot, erro
 }
 
 func (db *DiscordBot) RegisterCommands() error {
-	// cmds, _ := db.session.ApplicationCommands(db.clientID, "")
-
-	// for _, v := range cmds {
-	// 	err := db.session.ApplicationCommandDelete(db.clientID, "", v.ID)
-	// 	if err != nil {
-	// 		log.Warnf("error removing command: %v", err)
-	// 	}
-	// 	log.Infof("removing command: %s", v.Name)
-	// }
+	if db.reset {
+		cmds, _ := db.session.ApplicationCommands(db.clientID, "")
+		for _, v := range cmds {
+			err := db.session.ApplicationCommandDelete(db.clientID, "", v.ID)
+			if err != nil {
+				log.Warnf("error removing command: %v", err)
+			}
+			log.Infof("removing command: %s", v.Name)
+		}
+	}
 
 	for name, cmds := range commands.GetCommands() {
 		for _, cmd := range cmds.ApplicationCommand {
@@ -155,7 +158,7 @@ func (db *DiscordBot) handleMessageCommand(s *discordgo.Session, i *discordgo.In
 		Session:     s,
 		Guild:       guild,
 		Channel:     channel,
-		User:        user,
+		User:        user.User,
 		Controller:  controller,
 		UserSession: db.getUserSession(user),
 	}

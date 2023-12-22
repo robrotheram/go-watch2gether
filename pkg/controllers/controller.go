@@ -100,8 +100,10 @@ func (c *Controller) Add(url string, user string) error {
 func (c *Controller) Skip(user string) {
 	if c.running {
 		c.players.Stop()
-		c.Notify(SKIP_ACTION, user)
+	} else {
+		c.state.Next()
 	}
+	c.Notify(SKIP_ACTION, user)
 }
 
 func (c *Controller) Shuffle(user string) {

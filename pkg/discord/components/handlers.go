@@ -12,10 +12,10 @@ type HandlerCtx struct {
 	Session     *discordgo.Session
 	Guild       *discordgo.Guild
 	Channel     *discordgo.Channel
-	User        *discordgo.Member
 	Args        []string
 	Controller  *controllers.Controller
 	UserSession *session.UserSession
+	User        *discordgo.User
 	// BaseURL string
 }
 

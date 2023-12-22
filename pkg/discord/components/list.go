@@ -98,20 +98,20 @@ func truncate(text string, maxLen int) string {
 func QueueCompontent(queue []media.Media, pageNum int) *discordgo.InteractionResponseData {
 	start, end := paginate(pageNum, pageSize, len(queue))
 	pagedSlice := queue[start:end]
+	if len(pagedSlice) == 0 {
+		pageNum = pageNum - 1
+		start, end := paginate(pageNum, pageSize, len(queue))
+		pagedSlice = queue[start:end]
+	}
 
 	embed := EmbedBuilder("Currently in the Queue")
-
 	queStr := ""
 	for i, video := range pagedSlice {
 		pos := pageNum*pageSize + i + 1
 		queStr = queStr + fmt.Sprintf("`%d.` [%s](%s) \n", pos, truncate(video.Title, 40), video.Url)
 	}
-	if len(queStr) == 0 {
-		queStr = "There is nothing the the queue"
-	}
-
 	embed.AddField(discordgo.MessageEmbedField{
-		Name:  "Up Next:",
+		Name:  fmt.Sprintf("Page %d of %d", pageNum+1, len(queue)/pageSize),
 		Value: queStr,
 	})
 	embed.Description = fmt.Sprintf("%d tracks in total in the queue", len(queue))
