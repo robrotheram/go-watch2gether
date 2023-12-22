@@ -29,6 +29,7 @@ func (state *PlayerState) Next() {
 	} else {
 		state.Current = media.Media{}
 	}
+	state.Current.Refresh()
 }
 
 func (state *PlayerState) Shuffle() {

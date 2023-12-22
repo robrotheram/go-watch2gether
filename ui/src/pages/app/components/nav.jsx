@@ -28,7 +28,7 @@ export function useOnClickOutside(ref, handler) {
     [ref, handler]
   );
 }
-export const Nav = ({user, guilds}) => {
+export const Nav = ({user, bot}) => {
     const [isModalOpen, setModalOpen] = useState(false);
     const ref = useRef();
     useOnClickOutside(ref, () => setModalOpen(false));
@@ -44,7 +44,12 @@ export const Nav = ({user, guilds}) => {
             {isModalOpen && <div className="z-50 fixed top-10 right-2 my-4 text-base list-none divide-y divide-gray-100 rounded-lg shadow bg-zinc-800" id="user-dropdown">
               <ul className="" aria-labelledby="user-menu-button">
                 <li>
-                  <a href="/auth/logout" className="block text-center px-8 py-4 text-md hover:rounded-lg  text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                  <a href={`https://discord.com/oauth2/authorize?client_id=${bot}&scope=bot`} className="block text-center px-8 py-3 text-md hover:rounded-lg  text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
+                    invite bot
+                  </a>
+                </li>
+                <li>
+                  <a href="/auth/logout" className="block text-center px-8 py-3 text-md hover:rounded-lg  text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
                     Sign out
                   </a>
                 </li>

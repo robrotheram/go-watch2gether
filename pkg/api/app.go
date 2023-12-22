@@ -3,6 +3,7 @@ package api
 import (
 	"fmt"
 	"net/http"
+	"w2g/pkg/api/ui"
 	"w2g/pkg/controllers"
 	"w2g/pkg/utils"
 
@@ -52,11 +53,13 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 	router.HandleFunc("/api/playist/{id}", handlers.handleUpdatePlaylist).Methods("POST")
 	router.HandleFunc("/api/playist/{id}", handlers.handleDeletePlaylist).Methods("DELETE")
 
+	router.HandleFunc("/api/settings", handlers.handleGetSettings).Methods("GET")
+
 	if config.Dev {
-		router.PathPrefix("/").Handler(newProxy())
+		router.PathPrefix("/").Handler(ui.NewProxy())
 
 	} else {
-		spa := spaHandler{staticPath: "ui/dist", indexPath: "index.html"}
+		spa := ui.SPAHandler{StaticPath: "ui/dist", IndexPath: "index.html"}
 		router.PathPrefix("/").Handler(spa)
 	}
 

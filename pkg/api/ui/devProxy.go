@@ -1,4 +1,4 @@
-package api
+package ui
 
 import (
 	"net/http"
@@ -12,7 +12,7 @@ type devProxy struct {
 	proxy *httputil.ReverseProxy
 }
 
-func newProxy() devProxy {
+func NewProxy() devProxy {
 	dp := devProxy{}
 	remote, _ := url.Parse("http://localhost:5173")
 	dp.proxy = httputil.NewSingleHostReverseProxy(remote)

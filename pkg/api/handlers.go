@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"w2g/pkg/api/ui"
 	"w2g/pkg/controllers"
 	"w2g/pkg/media"
 	"w2g/pkg/playlists"
+	"w2g/pkg/utils"
 
 	"github.com/gorilla/mux"
 )
@@ -31,6 +33,14 @@ func (h *handler) getUser(r *http.Request) (User, error) {
 		return userData, nil
 	}
 	return User{}, fmt.Errorf("unable to get user from context")
+}
+
+func (h *handler) handleGetSettings(w http.ResponseWriter, r *http.Request) {
+	settings := ui.Settings{
+		BotId: utils.Configuration.DiscordClientID,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(settings)
 }
 
 func (h *handler) handleCreateChannel(w http.ResponseWriter, r *http.Request) {

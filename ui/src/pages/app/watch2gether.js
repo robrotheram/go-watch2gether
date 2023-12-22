@@ -152,6 +152,15 @@ export async function shuffleVideoController(video) {
 }
 
 
+export async function getSettings() {
+    const response = await fetch(`/api/settings`);
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.message
+    }
+    return jsonData
+}
+
 export async function getGuilds() {
     
         const response = await fetch(`/api/guilds`);

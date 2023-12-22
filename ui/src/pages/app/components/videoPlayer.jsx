@@ -42,7 +42,7 @@ export const VideoPlayer = ({state, connection}) => {
         <div className='w-full flex justify-center' style={{"maxHeight": "650px", height:"100%"}}>
             <ReactPlayer
                 ref={playerRef}
-                url={state.current.url}
+                url={state.current.audio_url}
                 width='100%'
                 height='100%'
                 muted={volume === 0}
