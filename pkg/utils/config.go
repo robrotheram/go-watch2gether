@@ -17,7 +17,9 @@ type Config struct {
 	BaseURL             string `mapstructure:"BASE_URL"`
 	DatabasePath        string `mapstructure:"DATABASE_PATH"`
 	Dev                 bool   `mapstructure:"DEVELOPMENT"`
-	Reset               bool   `mapstructure:"RESET"`
+	Reset               bool   `mapstructure:"0
+	.
+	"`
 	Loglevel            string `mapstructure:"LOG_LEVEL"`
 	ListenPort          string `mapstructure:"LISTEN_PORT"`
 }
