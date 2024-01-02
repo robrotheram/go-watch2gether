@@ -74,7 +74,7 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("%s Is not a valid URL", ctx.Args[0])
 	}
-	err = ctx.Controller.Add(ctx.Args[0], "")
+	err = ctx.Controller.Add(ctx.Args[0], ctx.Member.User.Username)
 	if err != nil {
 		return ctx.Errorf("error: %v", err)
 	}
