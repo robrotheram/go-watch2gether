@@ -3,8 +3,9 @@ package controllers
 type ActionType string
 
 type Action struct {
-	Type ActionType `json:"type"`
-	User string     `json:"user"`
+	Type    ActionType `json:"type"`
+	User    string     `json:"user"`
+	Channel string     `json:"channel"`
 }
 
 var (

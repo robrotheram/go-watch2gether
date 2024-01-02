@@ -12,7 +12,8 @@ func (a *Auditing) Send(event Event) {
 		return
 	}
 	log.WithFields(log.Fields{
-		"user":   event.Action.User,
-		"action": event.Action.Type,
+		"channel": event.Action.Channel,
+		"user":    event.Action.User,
+		"action":  event.Action.Type,
 	}).Info(event.Message)
 }
