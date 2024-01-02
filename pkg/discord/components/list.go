@@ -73,6 +73,13 @@ func paginate(pageNum int, pageSize int, sliceLength int) (int, int) {
 	if end > sliceLength {
 		end = sliceLength
 	}
+
+	if start < 0 {
+		start = 0
+	}
+	if end >= sliceLength {
+		end = sliceLength - 1
+	}
 	return start, end
 }
 
@@ -95,7 +102,18 @@ func truncate(text string, maxLen int) string {
 	return text
 }
 
+func emptyQueue() *discordgo.InteractionResponseData {
+	return &discordgo.InteractionResponseData{
+		Content: "Queue is empty",
+		Flags:   discordgo.MessageFlagsEphemeral,
+	}
+}
+
 func QueueCompontent(queue []media.Media, pageNum int) *discordgo.InteractionResponseData {
+	if len(queue) == 0 {
+		return emptyQueue()
+	}
+
 	start, end := paginate(pageNum, pageSize, len(queue))
 	pagedSlice := queue[start:end]
 	if len(pagedSlice) == 0 {
