@@ -6,7 +6,6 @@ type Auditing struct {
 }
 
 func (a *Auditing) Send(event Event) {
-
 	//Filter out update_duration is spam and not needed for the log
 	if event.Action.Type == UPDATE_DURATION {
 		return

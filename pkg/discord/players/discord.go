@@ -120,10 +120,7 @@ func (player *DiscordPlayer) Stop() {
 	if player.session == nil {
 		return
 	}
-	err := player.session.Stop()
-	if err != nil {
-		fmt.Println(err)
-	}
+	player.session.Stop()
 	player.Finish()
 }
 
