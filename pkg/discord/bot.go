@@ -189,7 +189,7 @@ func (db *DiscordBot) AutoDisconnect() {
 	for range ticker.C {
 		for _, guild := range db.session.State.Guilds {
 			if controller, err := db.channels.Get(guild.ID); err == nil {
-				if len(guild.VoiceStates) <= 1 {
+				if len(guild.VoiceStates) <= 1 && controller.ContainsPlayer(players.DISCORD) {
 					controller.Leave(players.DISCORD, controllers.SYSTEM)
 				}
 			}
