@@ -248,7 +248,7 @@ func (pt *Peertube) IsValidUrl(url string, ct *ContentType) bool {
 	return match
 }
 
-func (pt *Peertube) GetType() string {
+func (pt *Peertube) GetType() MediaType {
 	return VIDEO_TYPE_PEERTUBE
 }
 

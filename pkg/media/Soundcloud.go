@@ -212,6 +212,6 @@ func (sc *SoundCloudApi) IsValidUrl(url string, ct *ContentType) bool {
 	return match
 }
 
-func (sc *SoundCloudApi) GetType() string {
+func (sc *SoundCloudApi) GetType() MediaType {
 	return VIDEO_TYPE_SC
 }

@@ -3,7 +3,6 @@ package media
 import (
 	"fmt"
 	"net/http"
-	"sort"
 	"time"
 )
 
@@ -40,18 +39,18 @@ func (ct *ContentType) getConentType(url string) (string, error) {
 }
 
 type MediaClient interface {
-	GetType() string
+	GetType() MediaType
 	IsValidUrl(string, *ContentType) bool
-	GetMedia(string, string) ([]Media, error)
+	GetMedia(url string, username string) ([]Media, error)
 	Refresh(media *Media) error
 }
 
 type Factory struct {
-	Factories map[string]*MediaClient
+	Factories map[MediaType]*MediaClient
 }
 
 var MediaFactory = Factory{
-	Factories: map[string]*MediaClient{},
+	Factories: map[MediaType]*MediaClient{},
 }
 
 func (f *Factory) Register(client MediaClient) {
@@ -90,13 +89,12 @@ func RefreshAudioURL(media *Media) error {
 	return factory.Refresh(media)
 }
 
-func (f *Factory) GetTypes() []string {
-	keys := make([]string, len(f.Factories))
+func (f *Factory) GetTypes() []MediaType {
+	keys := make([]MediaType, len(f.Factories))
 	i := 0
 	for k := range f.Factories {
 		keys[i] = k
 		i++
 	}
-	sort.Strings(keys)
 	return keys
 }

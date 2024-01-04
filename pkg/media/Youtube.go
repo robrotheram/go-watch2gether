@@ -125,6 +125,7 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 		videos := []Media{}
 		for _, ytVideo := range ytPlaylist.Videos {
 			ytURL := fmt.Sprintf("https://www.youtube.com/watch?v=%s", ytVideo.ID)
+
 			v := Media{
 				ID:    ksuid.New().String(),
 				Url:   ytURL,
@@ -137,22 +138,18 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 				ChannelName: ytVideo.Author,
 				Thumbnail:   ytVideo.Thumbnails[0].URL,
 			}
-			// if audio, err := yt.GetAudioUrl(ytURL); err == nil {
-			// 	v.AudioUrl = audio
-			// } else {
-			// 	log.Warn(err)
-			// }
 			videos = append(videos, v)
 		}
 		return videos, nil
 	}
 	ytVideo, err := yt.downloader.GetVideo(url)
+
 	if err == nil {
 		video := Media{
 			ID:    ksuid.New().String(),
 			Url:   url,
 			User:  username,
-			Type:  VIDEO_TYPE_YT,
+			Type:  isLive(ytVideo),
 			Title: ytVideo.Title,
 			Progress: MediaDuration{
 				Duration: ytVideo.Duration,
@@ -170,7 +167,7 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 	return []Media{}, fmt.Errorf("Unable find valid audio for this url, %v", err)
 }
 
-func (yt *Youtube) GetType() string {
+func (yt *Youtube) GetType() MediaType {
 	return VIDEO_TYPE_YT
 }
 
@@ -184,4 +181,11 @@ func (yt *Youtube) Refresh(media *Media) error {
 	audio, err := yt.GetAudioUrl(media.Url)
 	media.AudioUrl = audio
 	return err
+}
+
+func isLive(yt *youtube.Video) MediaType {
+	if len(yt.HLSManifestURL) > 1 {
+		return VIDEO_TYPE_YT_LIVE
+	}
+	return VIDEO_TYPE_YT
 }

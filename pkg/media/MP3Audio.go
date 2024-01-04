@@ -27,7 +27,7 @@ func (client *MP3Video) Refresh(media *Media) error {
 	return nil
 }
 
-func (client *MP3Video) GetType() string {
+func (client *MP3Video) GetType() MediaType {
 	return VIDEO_TYPE_MP3
 }
 

@@ -9,7 +9,7 @@ import { NotificationMessages } from "./components/notifications";
 import { PlaylistBtn } from "./playlist";
 import { PlayerContext } from "./components/providers";
 import { Loading } from "./components/loading";
-const debug = false
+const debug = true
 
 export const AddVideoCtrl = ({ onAddVideo }) => {
     const [video, setVideo] = useState("");

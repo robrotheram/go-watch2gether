@@ -63,19 +63,19 @@ func (db *DiscordBot) RegisterCommands() error {
 			}
 			log.Infof("removing command: %s", v.Name)
 		}
-	}
 
-	for name, cmds := range commands.GetCommands() {
-		for _, cmd := range cmds.ApplicationCommand {
-			cmd.Name = name
-			acc, err := db.session.ApplicationCommandCreate(db.clientID, "", &cmd)
-			if err != nil {
-				log.Warnf("error updating command %s: %v", name, err)
+		for name, cmds := range commands.GetCommands() {
+			for _, cmd := range cmds.ApplicationCommand {
+				cmd.Name = name
+				acc, err := db.session.ApplicationCommandCreate(db.clientID, "", &cmd)
+				if err != nil {
+					log.Warnf("error updating command %s: %v", name, err)
+				}
+				log.Infof("creating command: %s", acc.Name)
 			}
-			log.Infof("creating command: %s", acc.Name)
 		}
+		log.Info("Updating Commands complete")
 	}
-	log.Info("Updating Commands complete")
 	return nil
 }
 

@@ -45,7 +45,7 @@ func init() {
 
 func (radio *RadioGarden) getRadioInfo(id string) (RadioGardenInfo, error) {
 	var info RadioGardenInfo
-	r, err := radio.client.Get(fmt.Sprintf("https://radio.garden/api/ara/content/channel/%s", id))
+	r, err := radio.client.Get(fmt.Sprintf("https://radio.garden/api/ara/content/secure/page/%s", id))
 	if err != nil {
 		return info, err
 	}
@@ -90,12 +90,12 @@ func (radio *RadioGarden) GetMedia(url string, username string) ([]Media, error)
 }
 
 func (radio *RadioGarden) IsValidUrl(url string, ct *ContentType) bool {
-	re := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:radio\.garden))(\S+)?$`)
+	re := regexp.MustCompile(`(?m)^((?:https?:)?\/\/)?((?:www|m)\.)?((?:radio\.garden/listen))(\S+)?$`)
 	match := re.Match([]byte(url))
 	return match
 }
 
-func (client *RadioGarden) GetType() string {
+func (client *RadioGarden) GetType() MediaType {
 	return VIDEO_TYPE_RG
 }
 

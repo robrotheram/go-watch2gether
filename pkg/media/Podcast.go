@@ -137,7 +137,7 @@ func (pod *PodcastRSS) GetMedia(url string, username string) ([]Media, error) {
 	}, nil
 }
 
-func (pod *PodcastRSS) GetType() string {
+func (pod *PodcastRSS) GetType() MediaType {
 	return VIDEO_TYPE_PODCAST
 }
 

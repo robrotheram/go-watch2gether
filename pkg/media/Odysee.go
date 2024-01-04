@@ -128,7 +128,7 @@ func (sc *OdyseeAPI) IsValidUrl(url string, ct *ContentType) bool {
 	return match
 }
 
-func (sc *OdyseeAPI) GetType() string {
+func (sc *OdyseeAPI) GetType() MediaType {
 	return VIDEO_TYPE_ODYSEE
 }
 

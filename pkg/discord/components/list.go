@@ -77,7 +77,7 @@ func paginate(pageNum int, pageSize int, sliceLength int) (int, int) {
 	if start < 0 {
 		start = 0
 	}
-	if end >= sliceLength {
+	if end > sliceLength {
 		end = sliceLength - 1
 	}
 	return start, end

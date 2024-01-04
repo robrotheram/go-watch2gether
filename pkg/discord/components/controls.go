@@ -94,9 +94,9 @@ func ControlCompontent(state controllers.PlayerState) *discordgo.InteractionResp
 		},
 	}
 
-	currentlyPlayingEmbed := EmbedBuilder("Nothing in the Queue")
-	if len(state.Queue) > 0 {
-		currentlyPlayingEmbed = MediaEmbed(state.Queue[0], "Currently Playing:")
+	currentlyPlayingEmbed := EmbedBuilder("Nothing is currently playing")
+	if len(state.Current.ID) > 0 {
+		currentlyPlayingEmbed = MediaEmbed(state.Current, "Currently Playing:")
 	}
 
 	return &discordgo.InteractionResponseData{
