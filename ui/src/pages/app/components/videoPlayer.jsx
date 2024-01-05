@@ -2,6 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import ReactPlayer from 'react-player'
 import { getRoomId, playVideoController, skipVideoController } from '../watch2gether';
 import { VolumeContext } from './providers';
+import waveImge from "./wave-signal.svg"
 
 export const VideoPlayer = ({state, connection}) => {
     const playerRef = React.useRef(null);
@@ -33,7 +34,6 @@ export const VideoPlayer = ({state, connection}) => {
                 Current: s.current
             }
         }
-        console.log("SENDING", JSON.stringify(evt))
         connection.send(JSON.stringify(evt))
     };
 
@@ -42,7 +42,7 @@ export const VideoPlayer = ({state, connection}) => {
         <div className='w-full flex justify-center' style={{"maxHeight": "650px", height:"100%"}}>
             <ReactPlayer
                 ref={playerRef}
-                url={state.current.url}
+                url={state.current.type === "YOUTUBE_LIVE" ? state.current.url : state.current.audio_url}
                 width='100%'
                 height='100%'
                 muted={volume === 0}
@@ -51,6 +51,12 @@ export const VideoPlayer = ({state, connection}) => {
                 onEnded={onEnded}
                 onProgress={handleProgress}
                 playing={state.status === "PLAY" }
+                style={{
+                    backgroundImage:`url(${waveImge})`,
+                    backgroundPosition: "center",
+                    backgroundSize: "100% 50%",
+                    backgroundRepeat: "no-repeat"
+                }}
                 loop={state.loop}                
             />
         </div>

@@ -14,7 +14,7 @@ export const Header = ({ state }) => {
 
 export const VideoHeader = ({ state, connection }) => {
   return (
-    <div className=" flex flex-col shadow-head relative shadow-xl" style={{ height: "calc(100vh - 15em )" }}>
+    <div className=" flex flex-col shadow-head relative shadow-xl" style={{ height: "calc(100vh - 12em )" }}>
       <div className='bg-black w-full flex-grow flex flex-col justify-center'>
         <VideoPlayer state={state} connection={connection}/>
       </div>

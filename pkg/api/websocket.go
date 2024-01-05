@@ -40,6 +40,7 @@ func (c *Client) Read() {
 		_, msg, err := c.socket.ReadMessage()
 		if err != nil {
 			fmt.Printf("ERROR decoding %v", err)
+			c.contoller.RemoveListner(c.id)
 			return
 		}
 		var event controllers.Event

@@ -146,22 +146,15 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 
 	if err == nil {
 		video := Media{
-			ID:    ksuid.New().String(),
-			Url:   url,
-			User:  username,
-			Type:  isLive(ytVideo),
-			Title: ytVideo.Title,
-			Progress: MediaDuration{
-				Duration: ytVideo.Duration,
-			},
+			ID:          ksuid.New().String(),
+			Url:         url,
+			User:        username,
+			Type:        isLive(ytVideo),
+			Title:       ytVideo.Title,
+			Progress:    getDuration(ytVideo),
 			Thumbnail:   ytVideo.Thumbnails[0].URL,
 			ChannelName: ytVideo.Author,
 		}
-		// audio, err := yt.GetAudioUrl(url)
-		// if err != nil {
-		// 	return []Media{}, err
-		// }
-		// video.AudioUrl = audio
 		return []Media{video}, nil
 	}
 	return []Media{}, fmt.Errorf("Unable find valid audio for this url, %v", err)
@@ -188,4 +181,15 @@ func isLive(yt *youtube.Video) MediaType {
 		return VIDEO_TYPE_YT_LIVE
 	}
 	return VIDEO_TYPE_YT
+}
+
+func getDuration(ytVideo *youtube.Video) MediaDuration {
+	if len(ytVideo.HLSManifestURL) > 1 {
+		return MediaDuration{
+			Duration: -1,
+		}
+	}
+	return MediaDuration{
+		Duration: ytVideo.Duration,
+	}
 }

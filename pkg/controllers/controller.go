@@ -136,8 +136,10 @@ func (c *Controller) Update(state PlayerState, user string) {
 }
 
 func (c *Controller) Join(player Player, user string) {
-	c.players.Add(player)
-	c.Notify(PLAYER_ACTION, user)
+	if _, ok := c.players.players[player.Type()]; !ok {
+		c.players.Add(player)
+		c.Notify(PLAYER_ACTION, user)
+	}
 }
 
 func (c *Controller) Leave(pType PlayerType, user string) {

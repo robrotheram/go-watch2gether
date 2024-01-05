@@ -111,6 +111,9 @@ const Player = ({ state }) => {
         return iso.substring(11, iso.length - 5);
     }
     const playerProgress = (current, total) => {
+        if (total === -1){
+            return 100
+        }
         let pct = current / total * 100
         return Math.min(Math.max(pct, 0), 100)
     }
@@ -140,7 +143,6 @@ const Player = ({ state }) => {
                             <div className="flex md:w-48 w-28">
                                 <Switch />
                             </div>
-
                             <button onClick={() => handleShuffle()} data-tooltip-target="tooltip-shuffle" type="button" className="p-2.5 group rounded-full  mr-1 focus:outline-none focus:ring-4 focus:ring-gray-600 hover:bg-gray-600">
                                 <svg className="w-5 h-5 text-gray-300  group-hover:text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" aria-hidden="true"><path d="M403.8 34.4c12-5 25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6V160H352c-10.1 0-19.6 4.7-25.6 12.8L284 229.3 244 176l31.2-41.6C293.3 110.2 321.8 96 352 96h32V64c0-12.9 7.8-24.6 19.8-29.6zM164 282.7L204 336l-31.2 41.6C154.7 401.8 126.2 416 96 416H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H96c10.1 0 19.6-4.7 25.6-12.8L164 282.7zm274.6 188c-9.2 9.2-22.9 11.9-34.9 6.9s-19.8-16.6-19.8-29.6V416H352c-30.2 0-58.7-14.2-76.8-38.4L121.6 172.8c-6-8.1-15.5-12.8-25.6-12.8H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H96c30.2 0 58.7 14.2 76.8 38.4L326.4 339.2c6 8.1 15.5 12.8 25.6 12.8h32V320c0-12.9 7.8-24.6 19.8-29.6s25.7-2.2 34.9 6.9l64 64c6 6 9.4 14.1 9.4 22.6s-3.4 16.6-9.4 22.6l-64 64z" fill="currentColor" /></svg>
                                 <span className="sr-only">Shuffle video</span>
@@ -149,7 +151,6 @@ const Player = ({ state }) => {
                                 Shuffle video
                                 <div className="tooltip-arrow" data-popper-arrow></div>
                             </div>
-
                             {state.status === "PLAY" ?
                                 <button onClick={() => handlePause()} data-tooltip-target="tooltip-pause" type="button" className="inline-flex items-center justify-center p-2.5 mx-2 font-medium bg-purple-600 rounded-full hover:bg-purple-700 group focus:ring-4 focus:outline-none focus:ring-purple-800">
                                     <svg className="w-4 h-4 text-white" viewBox="0 0 10 14" fill="currentColor" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -165,7 +166,6 @@ const Player = ({ state }) => {
                                     <span className="sr-only">Play video</span>
                                 </button>
                             }
-
                             <button onClick={() => handleSkip()} data-tooltip-target="tooltip-next" type="button" className="p-2.5 group rounded-full mr-1 focus:outline-none focus:ring-4 focus:ring-gray-200  hover:bg-gray-600">
                                 <svg className="w-5 h-5 text-gray-300  group-hover:text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" aria-hidden="true"><path d="M52.5 440.6c-9.5 7.9-22.8 9.7-34.1 4.4S0 428.4 0 416V96C0 83.6 7.2 72.3 18.4 67s24.5-3.6 34.1 4.4l192 160L256 241V96c0-17.7 14.3-32 32-32s32 14.3 32 32V416c0 17.7-14.3 32-32 32s-32-14.3-32-32V271l-11.5 9.6-192 160z" fill="currentColor" /></svg>
                                 <span className="sr-only">Next video</span>
@@ -181,13 +181,22 @@ const Player = ({ state }) => {
                             </button>
                             <VolumeControl />
                         </div>
-                        {state.current.id && <div className="flex items-center justify-between space-x-2">
-                            <span className="text-sm font-medium  text-gray-400">{formatTime(state.current.time.progress)}</span>
-                            <div className="w-full  rounded-full h-1.5 bg-gray-800">
-                                <div className="bg-purple-600 h-1.5 rounded-full" style={{ "width": `${playerProgress(state.current.time.progress, state.current.time.duration)}%` }}></div>
+                        {state.current.id && 
+                            <div className="flex items-center justify-between space-x-2">
+                                <span className="text-sm font-medium  text-gray-400">{formatTime(state.current.time.progress)}</span>
+                                <div className="w-full  rounded-full h-1.5 bg-gray-800 ">
+                                    <div className="bg-purple-600 h-1.5 rounded-full " style={{ "width": `${playerProgress(state.current.time.progress, state.current.time.duration)}%` }}></div>
+                                </div>
+                                {
+                                    state.current.time.duration > -1 ?
+                                        <span className="text-sm font-medium text-gray-400">{formatTime(state.current.time.duration)}</span>
+                                        :
+                                        <div className="text-sm font-medium text-gray-400 inline-flex items-center gap-1">
+                                            <span className="w-2 h-2 animate-ping  bg-red-800 rounded-full block" /> live
+                                        </div>
+                                }
                             </div>
-                            <span className="text-sm font-medium text-gray-400">{formatTime(state.current.time.duration)}</span>
-                        </div>}
+                        }
                     </div>
                 </div>
                 :

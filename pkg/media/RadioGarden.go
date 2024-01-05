@@ -1,6 +1,7 @@
 package media
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -39,7 +40,10 @@ type RadioGarden struct {
 }
 
 func init() {
-	RadioGardenClient := &RadioGarden{client: &http.Client{Timeout: 10 * time.Second}}
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	RadioGardenClient := &RadioGarden{client: &http.Client{Timeout: 10 * time.Second, Transport: tr}}
 	MediaFactory.Register(RadioGardenClient)
 }
 
@@ -55,7 +59,13 @@ func (radio *RadioGarden) getRadioInfo(id string) (RadioGardenInfo, error) {
 }
 
 func (radio *RadioGarden) getAudioURL(id string) string {
-	return fmt.Sprintf("http://radio.garden/api/ara/content/listen/%s/channel.mp3", id)
+	resp, err := radio.client.Get(fmt.Sprintf("http://radio.garden/api/ara/content/listen/%s/channel.mp3", id))
+	if err != nil {
+		return fmt.Sprintf("http://radio.garden/api/ara/content/listen/%s/channel.mp3", id)
+	}
+	// Your magic function. The Request in the Response is the last URL the
+	// client tried to access.
+	return resp.Request.URL.String()
 }
 
 func (radio *RadioGarden) getIDFromURL(targetUrl string) string {
@@ -80,7 +90,7 @@ func (radio *RadioGarden) GetMedia(url string, username string) ([]Media, error)
 		Type:  VIDEO_TYPE_RG,
 		Title: info.Data.Title,
 		Progress: MediaDuration{
-			Duration: 0,
+			Duration: -1,
 		},
 		Thumbnail: "https://play-lh.googleusercontent.com/07lewhVI4GklVBi_ehhOXxmB_bPaWWTiyqHAlQP6VsYD7h9R4d8hskNAy4SCOx0leNx-=s180",
 		AudioUrl:  audioUrl,

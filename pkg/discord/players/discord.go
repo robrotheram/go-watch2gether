@@ -139,12 +139,7 @@ func (player *DiscordPlayer) Play(url string, startTime int) error {
 	opts.Application = "audio"
 	opts.PacketLoss = 10
 	player.startTime = startTime
-	if err := player.ParseDuration(url); err != nil {
-		player.progress = media.MediaDuration{
-			Duration: 0,
-			Progress: 0,
-		}
-	}
+	player.ParseDuration(url)
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
 		return fmt.Errorf("failed creating an encoding session: %v", err)

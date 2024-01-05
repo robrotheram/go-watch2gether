@@ -5,11 +5,10 @@ import Player from "./components/player";
 import { addVideoController, getChannelPlaylists, getSocket, updateQueueController, getController, createController } from "./watch2gether";
 import { Header, VideoHeader } from "./components/header";
 import { useNavigate } from "react-router-dom";
-import { NotificationMessages } from "./components/notifications";
 import { PlaylistBtn } from "./playlist";
 import { PlayerContext } from "./components/providers";
 import { Loading } from "./components/loading";
-const debug = true
+import { useHotkeys } from 'react-hotkeys-hook'
 
 export const AddVideoCtrl = ({ onAddVideo }) => {
     const [video, setVideo] = useState("");
@@ -45,7 +44,11 @@ export const AppController = () => {
     const [loading, setLoading] = useState(true)
     const [playlists, setPlaylists] = useState([])
     const [notificationURL, setNotificationURL] = useState(null)
+    const [debug, setDebug] = useState(false)
+
     const { showVideo } = useContext(PlayerContext)
+    
+    useHotkeys('ctrl+shift+b', () => setDebug(!debug), [debug])
 
     const updatePlaylists = async () => {
         try {
@@ -151,10 +154,10 @@ export const AppController = () => {
                 <PlaylistBtn playlists={playlists} />
             </div>
 
-            {debug && <div style={{ position: "fixed", top: "150px", width: "50%", background: "white", height: "600px", zIndex: "100" }}>
-                <pre style={{ overflow: "auto", height: "100%" }}>
+            {debug && <div className="w-full h-1/3 z-50 p-4">
+                <pre  className="bg-stone-900 text-white rounded-lg p-8 h-full overflow-auto">
                     <code>
-                        `{JSON.stringify(state, null, 2)}`
+                        {JSON.stringify(state, null, 2)}
                     </code>
                 </pre>
             </div>}

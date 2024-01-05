@@ -32,6 +32,7 @@ func (wb *WebPlayer) Play(url string, start int) error {
 	wb.running = false
 	return nil
 }
+
 func (wb *WebPlayer) Progress() media.MediaDuration {
 	return wb.progress
 }
