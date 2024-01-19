@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 	"w2g/pkg/api/ui"
 	"w2g/pkg/controllers"
 	"w2g/pkg/media"
@@ -103,6 +104,25 @@ func (h *handler) handleShuffleVideo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
+
+func (h *handler) handleClearVideo(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	controller, err := h.Get(id)
+	if err != nil {
+		WriteError(w, channelNotFound)
+		return
+	}
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.UpdateQueue([]media.Media{}, user.Username)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(controller.State())
+}
+
 func (h *handler) handleLoopVideo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -137,6 +157,31 @@ func (h *handler) handlePlayVideo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
+
+func (h *handler) handleSeekVideo(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	var seconds time.Duration
+	decoder := json.NewDecoder(r.Body)
+	if decoder.Decode(&seconds) != nil {
+		return
+	}
+
+	controller, err := h.Get(id)
+	if err != nil {
+		WriteError(w, channelNotFound)
+		return
+	}
+	user, err := h.getUser(r)
+	if err != nil {
+		WriteError(w, userNotFound)
+		return
+	}
+	controller.Seek(seconds, user.Username)
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(controller.State())
+}
+
 func (h *handler) handlePauseVideo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -221,9 +266,8 @@ func (h *handler) notify() http.Handler {
 			w.Write([]byte("connection is not using the websocket protocol"))
 			return
 		}
-		player := NewWebPlayer()
-		controller.Join(player, user.Username)
-		client := NewClient(socket, controller, player)
+		client := NewClient(socket, controller, user)
+		controller.Join(client, user.Username)
 		controller.AddListner(client.id, client)
 	})
 }
@@ -338,4 +382,16 @@ func (h *handler) handleDeletePlaylist(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(id)
+}
+
+func (h *handler) handleGetPlayers(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	controller, err := h.Get(id)
+	if err != nil {
+		WriteError(w, playlistNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(controller.Players().GetProgress())
 }

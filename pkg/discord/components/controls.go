@@ -37,7 +37,9 @@ func init() {
 			Name: SkipBtn,
 			Function: func(ctx HandlerCtx) *discordgo.InteractionResponse {
 				ctx.Controller.Skip(ctx.User.Username)
-				return ctx.UpdateMessage(ControlCompontent(ctx.Controller.State()))
+				state := ctx.Controller.State()
+				state.Next()
+				return ctx.UpdateMessage(ControlCompontent(state))
 			},
 		},
 	)
@@ -54,7 +56,8 @@ func init() {
 
 func ControlCompontent(state controllers.PlayerState) *discordgo.InteractionResponseData {
 	var actionButton discordgo.Button
-	if state.State == controllers.PLAY {
+
+	if state.State == controllers.PLAY && state.Current.ID != "" {
 		actionButton = discordgo.Button{
 			CustomID: PauseBtn,
 			Emoji: discordgo.ComponentEmoji{

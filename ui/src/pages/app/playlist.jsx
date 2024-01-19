@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import Card from "./components/card"
-import { AddVideoCtrl } from "./controller"
 import { createPlaylist, deletePlaylist, getChannelPlaylists, getUser, loadFromPlaylist, updatePlaylist } from "./watch2gether"
 import { useOnClickOutside } from "./components/nav"
 import { Link } from "react-router-dom"
+import { AddVideoCtrl } from "./components/header/Controls"
 
 
 const ManagePlaylist = ({ playlist, onUpdate }) => {
@@ -124,7 +124,7 @@ export const PlaylistBtn = ({ playlists }) => {
     setShow(false)
   }
 
-  return <div className="w-full md:w-60 px-4 relative flex justify-end" ref={ref}>
+  return <div className="w-full md:w-60 px-4 relative flex justify-end z-30" ref={ref}>
     <button onClick={() => setShow(!show)} className="rounded-full w-16 h-16 justify-center mb-2 text-white font-medium text-sm text-center inline-flex items-center bg-purple-600 hover:bg-violet-700 focus:ring-violet-800" type="button">
 
       <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -148,7 +148,7 @@ export const PlaylistBtn = ({ playlists }) => {
         ))}
       </ul>}
       <Link to="playlists" className={`${playlists.length == 0 && "rounded-t-lg"} rounded-b-lg  flex justify-center p-3 text-sm font-medium text-white border-t border-violet-600  bg-violet-700 hover:bg-violet-600`}>
-        Mange playlists
+      manage playlists
       </Link>
     </div>
   </div>

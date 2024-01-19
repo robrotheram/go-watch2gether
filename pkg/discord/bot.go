@@ -7,7 +7,6 @@ import (
 	"w2g/pkg/controllers"
 	"w2g/pkg/discord/commands"
 	"w2g/pkg/discord/components"
-	"w2g/pkg/discord/players"
 	"w2g/pkg/discord/session"
 	"w2g/pkg/utils"
 
@@ -189,8 +188,8 @@ func (db *DiscordBot) AutoDisconnect() {
 	for range ticker.C {
 		for _, guild := range db.session.State.Guilds {
 			if controller, err := db.channels.Get(guild.ID); err == nil {
-				if len(guild.VoiceStates) <= 1 && controller.ContainsPlayer(players.DISCORD) {
-					controller.Leave(players.DISCORD, controllers.SYSTEM)
+				if len(guild.VoiceStates) <= 1 && controller.ContainsPlayer(guild.ID) {
+					controller.Leave(guild.ID, controllers.SYSTEM)
 				}
 			}
 		}

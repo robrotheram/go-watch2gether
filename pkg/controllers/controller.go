@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"time"
 	"w2g/pkg/media"
 
@@ -86,6 +87,12 @@ func (c *Controller) Pause(user string) {
 	c.Notify(PAUSE_ACTION, user)
 }
 
+func (c *Controller) Seek(seconds time.Duration, user string) {
+	c.players.Seek(seconds)
+	c.state.Current.Progress.Progress = c.players.Progress().Progress
+	c.Notify(SEEK, user)
+}
+
 func (c *Controller) Add(url string, user string) error {
 	tracks, err := media.NewVideo(url, user)
 	if err != nil {
@@ -136,37 +143,41 @@ func (c *Controller) Update(state PlayerState, user string) {
 }
 
 func (c *Controller) Join(player Player, user string) {
-	if _, ok := c.players.players[player.Type()]; !ok {
+	if _, ok := c.players.players[player.Id()]; !ok {
 		c.players.Add(player)
 		c.Notify(PLAYER_ACTION, user)
 	}
 }
 
-func (c *Controller) Leave(pType PlayerType, user string) {
-	c.players.Remvoe(pType)
+func (c *Controller) Leave(id string, user string) {
+	c.players.Remvoe(id)
 	c.Notify(LEAVE_ACTION, user)
 }
 
-func (c *Controller) ContainsPlayer(pType PlayerType) bool {
-	if _, ok := c.players.players[pType]; ok {
+func (c *Controller) ContainsPlayer(id string) bool {
+	if _, ok := c.players.players[id]; ok {
 		return true
 	}
 	return false
 }
 
 func (c *Controller) progress() {
-	defer c.Stop(SYSTEM)
+	fmt.Println("START")
 	for {
-		if len(c.state.Current.Url) == 0 || !c.running || c.players.Empty() {
-			c.Stop(SYSTEM)
-			return
-		}
 		audio := c.state.Current.GetAudioUrl()
+		fmt.Println("START_PLAYING")
 		c.players.Play(audio, 0)
+		fmt.Println("STOP_PLAYING")
 		if !c.state.Loop {
 			c.state.Next()
 			c.Notify(UPDATE_QUEUE, SYSTEM)
 		}
+		if len(c.state.Current.Url) == 0 || c.players.Empty() {
+			c.Stop(SYSTEM)
+			fmt.Println("DONE")
+			return
+		}
+		fmt.Println("NEXT")
 	}
 }
 
@@ -201,4 +212,8 @@ func (c *Controller) Notify(action ActionType, user string) {
 		},
 		State: state,
 	}
+}
+
+func (c *Controller) Players() *Players {
+	return c.players
 }

@@ -97,11 +97,16 @@ export async function pauseVideoController(video) {
           "Content-Type": "application/json",
         },
     });
-    // const jsonData = await response.json();
-    // if (!response.ok){
-    //     throw jsonData.message
-    // }
-    // return jsonData
+}
+
+export async function seekVideoController(seek) {
+    const response = await fetch(`/api/channel/${getRoomId()}/seek`, {
+        method: "POST", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(Math.round(seek))
+    });
 }
 
 
@@ -151,6 +156,14 @@ export async function shuffleVideoController(video) {
     return jsonData
 }
 
+export async function clearVideoController() {
+    await fetch(`/api/channel/${getRoomId()}/clear`, {
+        method: "POST", // or 'PUT'
+        headers: {
+          "Content-Type": "application/json",
+        },
+    });
+}
 
 export async function getSettings() {
     const response = await fetch(`/api/settings`);

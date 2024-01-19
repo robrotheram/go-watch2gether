@@ -15,6 +15,7 @@ import (
 const DISCORD = controllers.PlayerType("DISCORD")
 
 type DiscordPlayer struct {
+	id        string
 	done      chan error
 	stream    *dca.StreamingSession
 	session   *dca.EncodeSession
@@ -24,8 +25,9 @@ type DiscordPlayer struct {
 	startTime int
 }
 
-func NewDiscordPlayer(voice *discordgo.VoiceConnection) *DiscordPlayer {
+func NewDiscordPlayer(id string, voice *discordgo.VoiceConnection) *DiscordPlayer {
 	audio := &DiscordPlayer{
+		id:    id,
 		done:  make(chan error),
 		voice: voice,
 	}
@@ -85,6 +87,10 @@ func (player *DiscordPlayer) Type() controllers.PlayerType {
 	return DISCORD
 }
 
+func (player *DiscordPlayer) Id() string {
+	return player.id
+}
+
 func (player *DiscordPlayer) Status() bool {
 	return player.running
 }
@@ -92,6 +98,9 @@ func (player *DiscordPlayer) Status() bool {
 func (player *DiscordPlayer) Close() {
 	player.Stop()
 	player.voice.Disconnect()
+}
+
+func (player *DiscordPlayer) Seek(seconds time.Duration) {
 }
 
 func (player *DiscordPlayer) Finish() {

@@ -4,11 +4,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 	"w2g/pkg/controllers"
+	"w2g/pkg/media"
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+
+const WEBPLAYER = controllers.PlayerType("WEB_PLAYER")
 
 var Upgrader = &websocket.Upgrader{
 	ReadBufferSize:  SocketBufferSize,
@@ -21,12 +25,14 @@ var Upgrader = &websocket.Upgrader{
 // client represents a single chatting user.
 type Client struct {
 	id        string
+	user      User
 	contoller *controllers.Controller
-	player    *WebPlayer
-	// socket is the web socket for this client.
-	socket *websocket.Conn
-	// send is a channel on which messages are sent.
-	send chan []byte
+	socket    *websocket.Conn
+	send      chan []byte
+
+	done     chan any
+	progress media.MediaDuration
+	running  bool
 }
 
 const (
@@ -41,12 +47,13 @@ func (c *Client) Read() {
 		if err != nil {
 			fmt.Printf("ERROR decoding %v", err)
 			c.contoller.RemoveListner(c.id)
+			c.contoller.Leave(c.id, c.user.Username)
 			return
 		}
 		var event controllers.Event
 		err = json.Unmarshal(msg, &event)
 		if err == nil {
-			c.player.UpdateDuration(event.State.Current.Progress)
+			c.UpdateDuration(event.State.Current.Progress)
 		}
 	}
 }
@@ -69,13 +76,69 @@ func (c *Client) Send(event controllers.Event) {
 	}
 }
 
-func NewClient(socket *websocket.Conn, contoller *controllers.Controller, player *WebPlayer) *Client {
+func (wb *Client) Type() controllers.PlayerType {
+	return WEBPLAYER
+}
+
+func (wb *Client) Id() string {
+	return wb.id
+}
+
+func (wb *Client) Play(url string, start int) error {
+	fmt.Println(WEBPLAYER + "_PLAY")
+	wb.progress = media.MediaDuration{
+		Progress: 0,
+	}
+	wb.running = true
+	<-wb.done
+	fmt.Println(WEBPLAYER + "_DONE")
+	return nil
+}
+
+func (wb *Client) Progress() media.MediaDuration {
+	return wb.progress
+}
+
+func (wb *Client) Pause() {
+	fmt.Println(WEBPLAYER + "_PAUSE")
+}
+func (wb *Client) Unpause() {
+	fmt.Println(WEBPLAYER + "_UNPAUSE")
+	wb.running = true
+}
+
+func (wb *Client) Stop() {
+	fmt.Println(WEBPLAYER + "_STOP")
+	if wb.running {
+		wb.running = false
+		wb.done <- "STOP"
+	}
+}
+func (wb *Client) Close() {
+	fmt.Println(WEBPLAYER + "_CLOSE")
+	wb.Stop()
+}
+
+func (wb *Client) Status() bool {
+	return wb.running
+}
+
+func (wb *Client) UpdateDuration(duration media.MediaDuration) {
+	wb.progress = duration
+}
+
+func (wb *Client) Seek(seconds time.Duration) {
+	wb.progress.Progress = seconds
+}
+
+func NewClient(socket *websocket.Conn, contoller *controllers.Controller, user User) *Client {
 	client := &Client{
 		id:        uuid.NewString(),
+		user:      user,
 		socket:    socket,
 		send:      make(chan []byte, MessageBufferSize),
+		done:      make(chan any),
 		contoller: contoller,
-		player:    player,
 	}
 	go client.Read()
 	go client.Write()

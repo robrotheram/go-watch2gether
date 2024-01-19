@@ -59,7 +59,7 @@ func join(ctx CommandCtx) error {
 		return fmt.Errorf("you are not connected to voice channel")
 	}
 	ctx.Controller.Stop(ctx.Member.User.Username)
-	ctx.Controller.Join(players.NewDiscordPlayer(voice), ctx.Member.User.Username)
+	ctx.Controller.Join(players.NewDiscordPlayer(ctx.Guild.ID, voice), ctx.Member.User.Username)
 	return nil
 }
 
@@ -71,6 +71,6 @@ func joinCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func leave(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Leave(players.DISCORD, ctx.Member.User.Username)
+	ctx.Controller.Leave(ctx.Guild.ID, ctx.Member.User.Username)
 	return ctx.Reply("👋 cheerio have a good day 🎩")
 }

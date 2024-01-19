@@ -13,12 +13,15 @@ const VolumeProvider = ({ children }) => {
 export const PlayerContext = createContext();
 const PlayerProvider = ({ children }) => {
   const [showVideo, setShowVideo] = useState(false);
+  const [progress, setProgress] = useState(0);
   return (
-    <PlayerContext.Provider value={{ showVideo, setShowVideo}}>
+    <PlayerContext.Provider value={{ showVideo, setShowVideo, progress, setProgress}}>
       {children}
     </PlayerContext.Provider>
   );
 };
+
+
 
 
 export const Provider = ({ children }) => {

@@ -12,6 +12,7 @@
   "dependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-full-screen": "^1.1.1",
     "react-hot-toast": "^2.4.1",
     "react-hotkeys-hook": "^4.4.3",
     "react-player": "2.13.0",

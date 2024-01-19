@@ -12,6 +12,7 @@ var (
 	PLAY_ACTION     = ActionType("PLAY")
 	PAUSE_ACTION    = ActionType("PAUSE")
 	ADD_QUEUE       = ActionType("ADD_QUEUE")
+	SEEK            = ActionType("SEEK")
 	UPDATE_QUEUE    = ActionType("UPDATE_QUEUE")
 	UPDATE          = ActionType("UPDATE")
 	REMOVE_QUEUE    = ActionType("REMOVE_QUEUE")

@@ -2,6 +2,7 @@ package components
 
 import (
 	"fmt"
+	"math"
 	"unicode"
 	"w2g/pkg/media"
 
@@ -128,8 +129,10 @@ func QueueCompontent(queue []media.Media, pageNum int) *discordgo.InteractionRes
 		pos := pageNum*pageSize + i + 1
 		queStr = queStr + fmt.Sprintf("`%d.` [%s](%s) \n", pos, truncate(video.Title, 40), video.Url)
 	}
+	totalPages := float64(len(queue)) / float64(pageSize)
+
 	embed.AddField(discordgo.MessageEmbedField{
-		Name:  fmt.Sprintf("Page %d of %d", pageNum+1, len(queue)/pageSize),
+		Name:  fmt.Sprintf("Page %d of %d", pageNum+1, int(math.Ceil(totalPages))),
 		Value: queStr,
 	})
 	embed.Description = fmt.Sprintf("%d tracks in total in the queue", len(queue))

@@ -3,15 +3,22 @@ package controllers
 import (
 	"fmt"
 	"sync"
+	"time"
 	"w2g/pkg/media"
 )
 
 type PlayerType string
-
+type PlayerMeta struct {
+	Progress media.MediaDuration `json:"progress"`
+	Type     PlayerType          `json:"type"`
+	Running  bool                `json:"running"`
+}
 type Player interface {
 	Play(string, int) error
 	Progress() media.MediaDuration
+	Seek(time.Duration)
 	Type() PlayerType
+	Id() string
 	Pause()
 	Unpause()
 	Stop()
@@ -20,12 +27,12 @@ type Player interface {
 }
 
 type Players struct {
-	players map[PlayerType]Player
+	players map[string]Player
 }
 
 func newPlayers() *Players {
 	return &Players{
-		players: map[PlayerType]Player{},
+		players: map[string]Player{},
 	}
 }
 
@@ -34,10 +41,28 @@ func (p *Players) Empty() bool {
 }
 
 func (p *Players) Add(player Player) {
-	p.players[player.Type()] = player
+	p.players[player.Id()] = player
 }
 
-func (p *Players) Remvoe(id PlayerType) {
+func (p *Players) Seek(seconds time.Duration) {
+	for _, player := range p.players {
+		player.Seek(seconds)
+	}
+}
+
+func (p *Players) GetProgress() map[string]PlayerMeta {
+	data := map[string]PlayerMeta{}
+	for _, player := range p.players {
+		data[player.Id()] = PlayerMeta{
+			Progress: player.Progress(),
+			Type:     player.Type(),
+			Running:  player.Status(),
+		}
+	}
+	return data
+}
+
+func (p *Players) Remvoe(id string) {
 	if player, ok := p.players[id]; ok {
 		player.Close()
 		delete(p.players, id)
