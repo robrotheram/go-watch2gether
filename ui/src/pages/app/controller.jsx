@@ -29,6 +29,8 @@ export const AppController = () => {
 
 
     useHotkeys('ctrl+shift+b', () => setDebug(!debug), [debug])
+    
+
 
     const updatePlaylists = async () => {
         try {

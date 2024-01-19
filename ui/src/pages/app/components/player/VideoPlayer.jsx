@@ -9,6 +9,7 @@ import { PlayerSwitch } from "./PlayerSwitch";
 import { PlayBtn } from "./PlayBtn";
 import { VolumeControl } from "./VolumeControl";
 import { PlayerContext, VolumeContext } from "../providers";
+import { useHotkeys } from "react-hotkeys-hook";
 
 
 const microseconds = 1000000000;
@@ -21,6 +22,8 @@ export const VideoPlayer = ({ state, connection }) => {
     const { volume } = useContext(VolumeContext)
     const handle = useFullScreenHandle();
 
+    useHotkeys('f', () => handle.active ? handle.exit() : handle.enter() , [handle])
+    useHotkeys('space', () => state.status === "PLAY"? handlePause(): handlePlay(), [state.status])
 
     useEffect(() => {
         if (!updating && (Math.abs((playerProgress - progress) / microseconds)) > 2) {
