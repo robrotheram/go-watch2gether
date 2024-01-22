@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
 import { toast } from "react-hot-toast"
 import Card from "./components/card"
-import { createPlaylist, deletePlaylist, getChannelPlaylists, getUser, loadFromPlaylist, updatePlaylist } from "./watch2gether"
+import { createPlaylist, deletePlaylist, getChannelPlaylists, loadFromPlaylist, updatePlaylist } from "./watch2gether"
 import { useOnClickOutside } from "./components/nav"
 import { Link } from "react-router-dom"
 import { AddVideoCtrl } from "./components/header/Controls"

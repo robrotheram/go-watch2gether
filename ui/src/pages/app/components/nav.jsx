@@ -34,7 +34,7 @@ export const Nav = ({user, bot}) => {
     useOnClickOutside(ref, () => setModalOpen(false));
     
       return (
-          <header className='flex shadow-lg fixed z-0 w-full top-0 justify-between bg-zinc-900'>
+          <header className='flex shadow-lg fixed w-full top-0 justify-between bg-zinc-900 z-10'>
            <Link to={`/app/`} ><img src={logo} className='h-16 w-16 bg-purple-700' alt="logo" /></Link>
           <h1 className='text-3xl font-dosis font-bold'>Watch2Gether</h1>
           <div ref={ref} className="flex items-center md:order-2 mr-4">

@@ -103,20 +103,31 @@ func (da *DiscordAuth) getToken(state string, code string) (*oauth2.Token, error
 }
 
 func (da *DiscordAuth) Middleware(next http.Handler) http.Handler {
+	handleError := func(w http.ResponseWriter, r *http.Request) {
+		if strings.Contains(r.Header.Get("Accept"), "application/json") {
+			w.WriteHeader(http.StatusUnauthorized)
+			w.Write([]byte("Authorization Required"))
+		} else {
+			http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
+		}
+	}
+
+	checkPaths := func(req string) bool {
+		for _, path := range da.paths {
+			if strings.HasPrefix(req, path) {
+				return true
+			}
+		}
+		return false
+	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !contains(da.paths, r.URL.Path) {
+		if !checkPaths(r.URL.Path) {
 			next.ServeHTTP(w, r)
 			return
 		}
 		token, err := da.validateToken(r)
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte(err.Error()))
-			return
-		}
-		if token == nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			w.Write([]byte("Missing Authorization"))
+		if err != nil || token == nil {
+			handleError(w, r)
 			return
 		}
 
@@ -158,10 +169,11 @@ func (da *DiscordAuth) ClearSession(w http.ResponseWriter, r *http.Request) {
 		fmt.Printf("failed to delete session: %v", err)
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
+
 func (da *DiscordAuth) HandleLogout(w http.ResponseWriter, r *http.Request) {
 	da.ClearSession(w, r)
+	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
@@ -259,11 +271,15 @@ func (da *DiscordAuth) HandleUser(w http.ResponseWriter, r *http.Request) {
 	token, err := da.validateToken(r)
 	if err != nil {
 		da.ClearSession(w, r)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Athentication failed"))
 		return
 	}
 	dUser, err := da.getUser(token.AccessToken)
 	if err != nil {
 		da.ClearSession(w, r)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("Athentication failed"))
 		return
 	}
 	w.Header().Set("Content-Type", "application/json")

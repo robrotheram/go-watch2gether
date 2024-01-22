@@ -20,6 +20,7 @@ type App struct {
 func NewApp(config utils.Config, hub *controllers.Hub) App {
 	auth := NewDiscordAuth(config, []string{
 		"/api",
+		"/app",
 	})
 	router := mux.NewRouter()
 	router.Use(recoveryMiddleware)
