@@ -3,9 +3,10 @@ package playlists
 import (
 	"log"
 	"w2g/pkg/media"
+	"w2g/pkg/utils"
 
-	"github.com/asdine/storm"
 	"github.com/google/uuid"
+	bolt "go.etcd.io/bbolt"
 )
 
 type Playlist struct {
@@ -33,43 +34,41 @@ func (playist *Playlist) RefeshList() {
 }
 
 type PlaylistStore struct {
-	*storm.DB
+	*utils.Store[*Playlist]
 }
 
-func NewPlaylistStore(store *storm.DB) *PlaylistStore {
+func NewPlaylistStore(db *bolt.DB) *PlaylistStore {
+	store := &utils.Store[*Playlist]{
+		DB:     db,
+		Bucket: []byte("controllers"),
+	}
+	store.Create()
+
 	return &PlaylistStore{
-		DB: store,
+		Store: store,
 	}
 }
 
-func (store *PlaylistStore) GetAll() ([]Playlist, error) {
-	var playlist []Playlist
-	err := store.All(&playlist)
-	return playlist, err
+func (store *PlaylistStore) GetAll() []*Playlist {
+	return store.All()
 }
 
-func (store *PlaylistStore) GetByUser(user string) ([]Playlist, error) {
-	var playlist []Playlist
-	err := store.Find("User", user, &playlist)
-	return playlist, err
+func (store *PlaylistStore) GetByUser(user string) ([]*Playlist, error) {
+	return store.Find("User", user)
 }
 
-func (store *PlaylistStore) GetByChannel(channel string) ([]Playlist, error) {
-	var playlist []Playlist
-	err := store.Find("Channel", channel, &playlist)
-	return playlist, err
+func (store *PlaylistStore) GetByChannel(channel string) ([]*Playlist, error) {
+	return store.Find("Channel", channel)
 }
 
-func (store *PlaylistStore) GetById(id string) (Playlist, error) {
-	var playlist Playlist
-	err := store.One("ID", id, &playlist)
-	return playlist, err
+func (store *PlaylistStore) GetById(id string) (*Playlist, error) {
+	return store.Get(id)
 }
 
 func (store *PlaylistStore) Create(playlist *Playlist) error {
 	playlist.ID = uuid.NewString()
 	playlist.RefeshList()
-	return store.Save(playlist)
+	return store.Save(playlist.ID, playlist)
 }
 
 func (store *PlaylistStore) UpdatePlaylist(id string, playlist *Playlist) error {
@@ -77,13 +76,12 @@ func (store *PlaylistStore) UpdatePlaylist(id string, playlist *Playlist) error 
 		return err
 	}
 	playlist.RefeshList()
-	return store.Update(playlist)
+	return store.Save(playlist.ID, playlist)
 }
 
 func (store *PlaylistStore) DeletePlaylist(id string) error {
 	if playlist, err := store.GetById(id); err == nil {
-		err := store.DeleteStruct(&playlist)
-		return err
+		return store.Delete(playlist.ID)
 	} else {
 		return err
 	}

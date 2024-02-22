@@ -4,20 +4,20 @@ import (
 	"fmt"
 	"w2g/pkg/playlists"
 
-	"github.com/asdine/storm"
+	bolt "go.etcd.io/bbolt"
 )
 
 type Hub struct {
 	channels  map[string]*Controller
 	playlists *playlists.PlaylistStore
-	db        *storm.DB
+	db        *bolt.DB
 }
 
-func NewHub(db *storm.DB) *Hub {
+func NewHub(db *bolt.DB) *Hub {
 	return &Hub{
-		channels:  make(map[string]*Controller),
+		channels: make(map[string]*Controller),
 		playlists: playlists.NewPlaylistStore(db),
-		db:        db,
+		db: db,
 	}
 }
 

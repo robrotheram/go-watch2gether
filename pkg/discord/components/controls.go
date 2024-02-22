@@ -54,7 +54,7 @@ func init() {
 	)
 }
 
-func ControlCompontent(state controllers.PlayerState) *discordgo.InteractionResponseData {
+func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionResponseData {
 	var actionButton discordgo.Button
 
 	if state.State == controllers.PLAY && state.Current.ID != "" {

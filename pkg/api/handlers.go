@@ -217,7 +217,7 @@ func (h *handler) handleAddVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, userNotFound)
 		return
 	}
-	controller.Add(url, user.Username)
+	controller.Add(url, false, user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }

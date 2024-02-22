@@ -9,15 +9,15 @@ import (
 	"w2g/pkg/discord"
 	"w2g/pkg/utils"
 
-	"github.com/asdine/storm"
 	log "github.com/sirupsen/logrus"
+	bolt "go.etcd.io/bbolt"
 )
 
-func createStore() (*storm.DB, error) {
+func createStore() (*bolt.DB, error) {
 	log.Println("Using Database Path:" + utils.Configuration.DatabasePath)
 	os.MkdirAll(utils.Configuration.DatabasePath, os.ModePerm)
 	path := filepath.Join(utils.Configuration.DatabasePath, "watch2gether.db")
-	return storm.Open(path)
+	return bolt.Open(path, 0600, nil)
 }
 
 func main() {

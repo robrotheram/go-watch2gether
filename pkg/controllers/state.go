@@ -50,7 +50,11 @@ func (state *PlayerState) Remove(pos1 int) {
 	state.Queue = remove(state.Queue, pos1)
 }
 
-func (state *PlayerState) Add(videos []media.Media) {
+func (state *PlayerState) AddTop(videos []media.Media) {
+	state.Queue = append(videos, state.Queue...)
+}
+
+func (state *PlayerState) AddBottom(videos []media.Media) {
 	state.Queue = append(state.Queue, videos...)
 }
 
@@ -73,4 +77,8 @@ func remove(array []media.Media, index int) []media.Media {
 func move(array []media.Media, srcIndex int, dstIndex int) []media.Media {
 	value := array[srcIndex]
 	return insert(remove(array, srcIndex), value, dstIndex)
+}
+
+func (state *PlayerState) Key() []byte {
+	return []byte(state.ID)
 }

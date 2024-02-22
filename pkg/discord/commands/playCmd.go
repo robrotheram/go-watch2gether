@@ -2,6 +2,7 @@ package commands
 
 import (
 	"net/url"
+	"w2g/pkg/controllers"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -60,6 +61,22 @@ func init() {
 							Description: "Video/Audio URL e.g (https://www.youtube.com/watch?v=noneMROp_E8)",
 							Required:    true,
 						},
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "top or bottom of the the queue",
+							Description: "Where to add new media top of bottom of the queue (default: bottom)",
+							Required:    false,
+							Choices: []*discordgo.ApplicationCommandOptionChoice{
+								{
+									Name:  "top",
+									Value: "TOP",
+								},
+								{
+									Name:  "bottom",
+									Value: "BOTTOM",
+								},
+							},
+						},
 					},
 					Type: discordgo.ChatApplicationCommand,
 				},
@@ -68,15 +85,32 @@ func init() {
 		})
 }
 
+func getPostionOption(ctx CommandCtx) string {
+	if len(ctx.Args) < 2 {
+		return ""
+	}
+	return ctx.Args[1]
+}
+
 func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	_, err := url.ParseRequestURI(ctx.Args[0])
 	if err != nil {
 		return ctx.Errorf("%s Is not a valid URL", ctx.Args[0])
 	}
-	err = ctx.Controller.Add(ctx.Args[0], ctx.Member.User.Username)
+	isTop := getPostionOption(ctx) == "TOP"
+	err = ctx.Controller.Add(ctx.Args[0], isTop, ctx.Member.User.Username)
 	if err != nil {
 		return ctx.Errorf("error: %v", err)
 	}
+
+	if !ctx.Controller.ContainsPlayer(ctx.Guild.ID) {
+		join(ctx)
+	}
+
+	if ctx.Controller.State().State != controllers.PLAY {
+		ctx.Controller.Start(ctx.Member.User.Username)
+	}
+
 	return ctx.Reply(":notes: added traks to the queue :thumbsup:")
 }
 

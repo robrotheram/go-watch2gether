@@ -2,28 +2,37 @@ package controllers
 
 import (
 	"fmt"
+	"sync"
 	"time"
 	"w2g/pkg/media"
+	"w2g/pkg/utils"
 
-	"github.com/asdine/storm"
 	"github.com/google/uuid"
+	bolt "go.etcd.io/bbolt"
 )
 
 const SYSTEM = "system"
 
 type Controller struct {
-	state         PlayerState
+	state         *PlayerState
 	players       *Players
 	notifications *Notify
 	running       bool
-	db            *storm.DB
+	db            *utils.Store[*PlayerState]
+	sync          *sync.Mutex
 }
 
-func NewController(id string, store *storm.DB) *Controller {
+func NewController(id string, db *bolt.DB) *Controller {
+	store := &utils.Store[*PlayerState]{
+		DB:     db,
+		Bucket: []byte("controllers"),
+	}
+	store.Create()
 	contoller := Controller{
 		players:       newPlayers(),
 		notifications: NewNotifications(),
 		db:            store,
+		sync:          &sync.Mutex{},
 	}
 	contoller.load(id)
 	contoller.AddListner(uuid.NewString(), &Auditing{})
@@ -31,20 +40,19 @@ func NewController(id string, store *storm.DB) *Controller {
 }
 
 func (c *Controller) save() error {
-	return c.db.Save(&c.state)
+	return c.db.Save(c.state.ID, c.state)
 }
 
 func (c *Controller) load(id string) {
-	var state PlayerState
-	err := c.db.One("ID", id, &state)
+	state, err := c.db.Get(id)
 	if err != nil {
-		state = PlayerState{
+		state = &PlayerState{
 			ID:    id,
 			Queue: []media.Media{},
 			State: STOP,
 			Loop:  false,
 		}
-		c.save()
+		c.db.Save(id, state)
 	}
 	state.ChangeState(STOP)
 	c.state = state
@@ -74,8 +82,8 @@ func (c *Controller) Stop(user string) {
 	if c.players.Empty() {
 		return
 	}
-	c.players.Stop()
 	c.state.ChangeState(STOP)
+	c.players.Stop()
 	c.save()
 	c.Notify(STOP_ACTION, user)
 }
@@ -93,12 +101,16 @@ func (c *Controller) Seek(seconds time.Duration, user string) {
 	c.Notify(SEEK, user)
 }
 
-func (c *Controller) Add(url string, user string) error {
+func (c *Controller) Add(url string, top bool, user string) error {
 	tracks, err := media.NewVideo(url, user)
 	if err != nil {
 		return err
 	}
-	c.state.Add(tracks)
+	if top {
+		c.state.AddTop(tracks)
+	} else {
+		c.state.AddBottom(tracks)
+	}
 	c.save()
 	c.Notify(ADD_QUEUE, user)
 	return nil
@@ -131,12 +143,12 @@ func (c *Controller) UpdateQueue(videos []media.Media, user string) {
 	c.Notify(UPDATE_QUEUE, user)
 }
 
-func (c *Controller) State() PlayerState {
+func (c *Controller) State() *PlayerState {
 	c.state.Active = !c.players.Empty()
 	return c.state
 }
 
-func (c *Controller) Update(state PlayerState, user string) {
+func (c *Controller) Update(state *PlayerState, user string) {
 	c.state = state
 	c.save()
 	c.Notify(UPDATE, user)
@@ -168,14 +180,14 @@ func (c *Controller) progress() {
 		fmt.Println("START_PLAYING")
 		c.players.Play(audio, 0)
 		fmt.Println("STOP_PLAYING")
-		if !c.state.Loop {
-			c.state.Next()
-			c.Notify(UPDATE_QUEUE, SYSTEM)
-		}
-		if len(c.state.Current.Url) == 0 || c.players.Empty() {
+		if len(c.state.Current.Url) == 0 || c.players.Empty() || c.state.State == STOP {
 			c.Stop(SYSTEM)
 			fmt.Println("DONE")
 			return
+		}
+		if !c.state.Loop {
+			c.state.Next()
+			c.Notify(UPDATE_QUEUE, SYSTEM)
 		}
 		fmt.Println("NEXT")
 	}
@@ -210,7 +222,7 @@ func (c *Controller) Notify(action ActionType, user string) {
 			User:    user,
 			Channel: state.ID,
 		},
-		State: state,
+		State: *state,
 	}
 }
 
