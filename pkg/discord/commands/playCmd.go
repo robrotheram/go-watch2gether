@@ -63,16 +63,16 @@ func init() {
 						},
 						{
 							Type:        discordgo.ApplicationCommandOptionString,
-							Name:        "top or bottom of the the queue",
+							Name:        "position",
 							Description: "Where to add new media top of bottom of the queue (default: bottom)",
 							Required:    false,
 							Choices: []*discordgo.ApplicationCommandOptionChoice{
 								{
-									Name:  "top",
+									Name:  "top of queue",
 									Value: "TOP",
 								},
 								{
-									Name:  "bottom",
+									Name:  "bottom of queue",
 									Value: "BOTTOM",
 								},
 							},

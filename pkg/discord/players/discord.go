@@ -101,6 +101,7 @@ func (player *DiscordPlayer) Close() {
 }
 
 func (player *DiscordPlayer) Seek(seconds time.Duration) {
+	
 }
 
 func (player *DiscordPlayer) Finish() {
