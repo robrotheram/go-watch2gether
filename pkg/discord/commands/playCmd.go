@@ -162,7 +162,7 @@ func seekCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 		return ctx.Reply("Invalid time format")
 	}
 	ctx.Controller.Seek(seekTime, ctx.Member.User.Username)
-	return ctx.Replyf(":fast_forward: Seeking to %d seconds into the track :thumbsup:", seekTime)
+	return ctx.Replyf(":fast_forward: Seeking to %f seconds into the track :thumbsup:", seekTime.Seconds())
 }
 
 func restartCmd(ctx CommandCtx) *discordgo.InteractionResponse {
