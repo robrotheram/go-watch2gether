@@ -13,8 +13,16 @@ type PlayerMeta struct {
 	Type     PlayerType          `json:"type"`
 	Running  bool                `json:"running"`
 }
+type PlayerExitCode uint8
+
+const (
+	STOP_EXITCODE PlayerExitCode = iota
+	EXIT_EXITCODE
+	SKIP_EXITCODE
+)
+
 type Player interface {
-	Play(string, int) error
+	Play(string, int) (PlayerExitCode, error)
 	Progress() media.MediaDuration
 	Seek(time.Duration)
 	Type() PlayerType
@@ -27,7 +35,8 @@ type Player interface {
 }
 
 type Players struct {
-	players map[string]Player
+	players  map[string]Player
+	AutoSkip bool
 }
 
 func newPlayers() *Players {
@@ -42,6 +51,13 @@ func (p *Players) Empty() bool {
 
 func (p *Players) Add(player Player) {
 	p.players[player.Id()] = player
+}
+
+func (p *Players) Remvoe(id string) {
+	if player, ok := p.players[id]; ok {
+		player.Close()
+		delete(p.players, id)
+	}
 }
 
 func (p *Players) Seek(seconds time.Duration) {
@@ -62,13 +78,6 @@ func (p *Players) GetProgress() map[string]PlayerMeta {
 	return data
 }
 
-func (p *Players) Remvoe(id string) {
-	if player, ok := p.players[id]; ok {
-		player.Close()
-		delete(p.players, id)
-	}
-}
-
 func (p *Players) Progress() media.MediaDuration {
 	progress := media.MediaDuration{}
 	for _, player := range p.players {
@@ -82,16 +91,18 @@ func (p *Players) Progress() media.MediaDuration {
 
 func (p *Players) Play(url string, start int) {
 	wg := sync.WaitGroup{}
+	wg.Add(len(p.players))
 	for _, player := range p.players {
-		wg.Add(1)
+		player := player //TODO: Remove in when we upgrade go 1.22
 		go func(player Player) {
-			err := player.Play(url, start)
+			exit, err := player.Play(url, start)
 			if err != nil {
 				fmt.Printf("%s player error: %v", player.Type(), err)
 			}
 			wg.Done()
-			//Currently Set it the the first "player to finish will override all other players"
-			p.Stop()
+			if exit == STOP_EXITCODE {
+				p.Stop()
+			}
 		}(player)
 	}
 	wg.Wait()

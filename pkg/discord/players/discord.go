@@ -22,14 +22,17 @@ type DiscordPlayer struct {
 	voice     *discordgo.VoiceConnection
 	progress  media.MediaDuration
 	running   bool
+	seekTo    time.Duration
 	startTime int
+	exitcode  controllers.PlayerExitCode
 }
 
 func NewDiscordPlayer(id string, voice *discordgo.VoiceConnection) *DiscordPlayer {
 	audio := &DiscordPlayer{
-		id:    id,
-		done:  make(chan error),
-		voice: voice,
+		id:       id,
+		done:     make(chan error),
+		voice:    voice,
+		exitcode: controllers.STOP_EXITCODE,
 	}
 	return audio
 }
@@ -73,8 +76,9 @@ func (player *DiscordPlayer) playStream() {
 	ticker := time.NewTicker(time.Second)
 	for {
 		select {
-		case <-player.done:
+		case msg := <-player.done:
 			// Clean up incase something happened and ffmpeg is still running
+			fmt.Printf("player msg: %v\n", msg)
 			player.Finish()
 			return
 		case <-ticker.C:
@@ -96,12 +100,18 @@ func (player *DiscordPlayer) Status() bool {
 }
 
 func (player *DiscordPlayer) Close() {
+	player.exitcode = controllers.EXIT_EXITCODE
 	player.Stop()
 	player.voice.Disconnect()
 }
 
 func (player *DiscordPlayer) Seek(seconds time.Duration) {
-	
+	player.seekTo = seconds
+	if player.session == nil {
+		return
+	}
+	player.session.Stop()
+	player.Finish()
 }
 
 func (player *DiscordPlayer) Finish() {
@@ -138,9 +148,10 @@ func (player *DiscordPlayer) Progress() media.MediaDuration {
 	return player.progress
 }
 
-func (player *DiscordPlayer) Play(url string, startTime int) error {
+func (player *DiscordPlayer) Play(url string, startTime int) (controllers.PlayerExitCode, error) {
+	player.seekTo = -1
 	if player.running {
-		return fmt.Errorf("playing already started")
+		return controllers.STOP_EXITCODE, fmt.Errorf("playing already started")
 	}
 	opts := dca.StdEncodeOptions
 	opts.RawOutput = true
@@ -152,13 +163,17 @@ func (player *DiscordPlayer) Play(url string, startTime int) error {
 	player.ParseDuration(url)
 	encodeSession, err := dca.EncodeFile(url, opts)
 	if err != nil {
-		return fmt.Errorf("failed creating an encoding session: %v", err)
+		return controllers.STOP_EXITCODE, fmt.Errorf("failed creating an encoding session: %v", err)
 	}
 	player.session = encodeSession
-
 	player.voice.Speaking(true)
-	defer player.voice.Speaking(false)
-	defer player.Stop()
 	player.playStream()
-	return nil
+
+	if player.seekTo > -1 {
+		fmt.Println("SEEKING")
+		player.Finish()
+		return player.Play(url, int(player.seekTo.Seconds()))
+	}
+	player.Finish()
+	return player.exitcode, nil
 }

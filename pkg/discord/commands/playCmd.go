@@ -3,6 +3,7 @@ package commands
 import (
 	"net/url"
 	"w2g/pkg/controllers"
+	"w2g/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -48,6 +49,32 @@ func init() {
 				},
 			},
 			Function: pauseCmd,
+		},
+		Command{
+			Name: "seek",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Set the position of the track to the given time. ",
+					Options: []*discordgo.ApplicationCommandOption{
+						{
+							Type:        discordgo.ApplicationCommandOptionString,
+							Name:        "time",
+							Description: "Position to fast forward e.g 30 for seconds ",
+							Required:    true,
+						},
+					},
+				},
+			},
+			Function: seekCMD,
+		},
+		Command{
+			Name: "restart",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Restart the currently playing track.",
+				},
+			},
+			Function: restartCmd,
 		},
 		Command{
 			Name: "add",
@@ -122,6 +149,30 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	}
 	ctx.Controller.Start(ctx.Member.User.Username)
 	return ctx.Reply(":play_pause: Now Playing :thumbsup:")
+}
+
+func seekCMD(ctx CommandCtx) *discordgo.InteractionResponse {
+	if !ctx.Controller.ContainsPlayer(ctx.Guild.ID) {
+		if join(ctx) != nil {
+			return ctx.Reply("User not connected to voice channel")
+		}
+	}
+	seekTime, err := utils.ParseTime(ctx.Args[0])
+	if err != nil {
+		return ctx.Reply("Invalid time format")
+	}
+	ctx.Controller.Seek(seekTime, ctx.Member.User.Username)
+	return ctx.Replyf(":fast_forward: Seeking to %d seconds into the track :thumbsup:", seekTime)
+}
+
+func restartCmd(ctx CommandCtx) *discordgo.InteractionResponse {
+	if !ctx.Controller.ContainsPlayer(ctx.Guild.ID) {
+		if join(ctx) != nil {
+			return ctx.Reply("User not connected to voice channel")
+		}
+	}
+	ctx.Controller.Seek(0, ctx.Member.User.Username)
+	return ctx.Reply(":leftwards_arrow_with_hook: Restarting Track")
 }
 
 func skipCmd(ctx CommandCtx) *discordgo.InteractionResponse {

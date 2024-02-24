@@ -33,6 +33,7 @@ type Client struct {
 	done     chan any
 	progress media.MediaDuration
 	running  bool
+	exitCode controllers.PlayerExitCode
 }
 
 const (
@@ -84,7 +85,7 @@ func (wb *Client) Id() string {
 	return wb.id
 }
 
-func (wb *Client) Play(url string, start int) error {
+func (wb *Client) Play(url string, start int) (controllers.PlayerExitCode, error) {
 	fmt.Println(WEBPLAYER + "_PLAY")
 	wb.progress = media.MediaDuration{
 		Progress: 0,
@@ -92,7 +93,7 @@ func (wb *Client) Play(url string, start int) error {
 	wb.running = true
 	<-wb.done
 	fmt.Println(WEBPLAYER + "_DONE")
-	return nil
+	return wb.exitCode, nil
 }
 
 func (wb *Client) Progress() media.MediaDuration {
@@ -108,6 +109,7 @@ func (wb *Client) Unpause() {
 }
 
 func (wb *Client) Stop() {
+	wb.exitCode = controllers.STOP_EXITCODE
 	fmt.Println(WEBPLAYER + "_STOP")
 	if wb.running {
 		wb.running = false
@@ -116,7 +118,7 @@ func (wb *Client) Stop() {
 }
 func (wb *Client) Close() {
 	fmt.Println(WEBPLAYER + "_CLOSE")
-	wb.Stop()
+	wb.exitCode = controllers.EXIT_EXITCODE
 }
 
 func (wb *Client) Status() bool {
@@ -139,6 +141,7 @@ func NewClient(socket *websocket.Conn, contoller *controllers.Controller, user U
 		send:      make(chan []byte, MessageBufferSize),
 		done:      make(chan any),
 		contoller: contoller,
+		exitCode:  controllers.STOP_EXITCODE,
 	}
 	go client.Read()
 	go client.Write()
