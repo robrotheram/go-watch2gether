@@ -115,7 +115,7 @@ export const VideoPlayer = ({ state, connection }) => {
     const getMediaUrl = () => {
         switch(state.current.type){
             case "YOUTUBE_LIVE": return state.current.url
-            case "YOUTUBE": return `/api/channel/${getRoomId()}/proxy`
+            case "YOUTUBE": return `/api/channel/${getRoomId()}/proxy?id=${state.current.id}`
             default: return state.current.audio_url
         }
     }  

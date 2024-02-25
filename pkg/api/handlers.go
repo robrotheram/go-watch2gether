@@ -411,28 +411,35 @@ func (h *handler) handleMediaProxy(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "URL parameter is missing", http.StatusBadRequest)
 		return
 	}
-	// Make an HTTP request to the provided URL
-	resp, err := http.Get(media.GetAudioUrl())
+	// Create a new request to the destination URL
+	req, err := http.NewRequest(r.Method, media.GetAudioUrl(), r.Body)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to fetch URL: %s", err), http.StatusInternalServerError)
+		http.Error(w, fmt.Sprintf("Failed to create request: %s", err), http.StatusInternalServerError)
+		return
+	}
+	req.Header = r.Header
+
+	// Perform the request
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to perform request: %s", err), http.StatusInternalServerError)
 		return
 	}
 	defer resp.Body.Close()
 
-	// Forward the response from the external URL back to the client
-	body, err := io.ReadAll(resp.Body)
+	// Copy headers from the response
+	for key, values := range resp.Header {
+		for _, value := range values {
+			w.Header().Add(key, value)
+		}
+	}
+	w.WriteHeader(resp.StatusCode)
+
+	// Stream the response body to the client
+	_, err = io.Copy(w, resp.Body)
 	if err != nil {
-		http.Error(w, fmt.Sprintf("Failed to read response body: %s", err), http.StatusInternalServerError)
+		fmt.Printf("Failed to stream response body: %s\n", err)
 		return
 	}
-
-	// Set the content type based on the response header
-	contentType := resp.Header.Get("Content-Type")
-	if contentType != "" {
-		w.Header().Set("Content-Type", contentType)
-	}
-
-	// Write the response body back to the client
-	w.WriteHeader(resp.StatusCode)
-	w.Write(body)
 }
