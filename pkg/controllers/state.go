@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"math/rand"
 	"w2g/pkg/media"
 )
@@ -64,6 +65,15 @@ func (state *PlayerState) Clear() {
 
 func (state *PlayerState) ChangeState(ps PlayState) {
 	state.State = ps
+}
+
+func (state *PlayerState) FindById(id string) (media.Media, error) {
+	for _, track := range state.Queue {
+		if track.ID == id {
+			return track, nil
+		}
+	}
+	return media.Media{}, fmt.Errorf("track not found")
 }
 
 func insert(array []media.Media, value media.Media, index int) []media.Media {

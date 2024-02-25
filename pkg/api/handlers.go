@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 	"w2g/pkg/api/ui"
@@ -87,6 +88,7 @@ func (h *handler) handleNextVideo(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
+
 func (h *handler) handleShuffleVideo(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
@@ -394,4 +396,43 @@ func (h *handler) handleGetPlayers(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.Players().GetProgress())
+}
+
+func (h *handler) handleMediaProxy(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id := vars["id"]
+	controller, err := h.Get(id)
+	if err != nil {
+		WriteError(w, channelNotFound)
+		return
+	}
+	media := controller.State().Current
+	if media.ID == "" {
+		http.Error(w, "URL parameter is missing", http.StatusBadRequest)
+		return
+	}
+	// Make an HTTP request to the provided URL
+	resp, err := http.Get(media.GetAudioUrl())
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to fetch URL: %s", err), http.StatusInternalServerError)
+		return
+	}
+	defer resp.Body.Close()
+
+	// Forward the response from the external URL back to the client
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("Failed to read response body: %s", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Set the content type based on the response header
+	contentType := resp.Header.Get("Content-Type")
+	if contentType != "" {
+		w.Header().Set("Content-Type", contentType)
+	}
+
+	// Write the response body back to the client
+	w.WriteHeader(resp.StatusCode)
+	w.Write(body)
 }

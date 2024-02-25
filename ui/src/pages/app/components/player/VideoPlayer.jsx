@@ -112,12 +112,20 @@ export const VideoPlayer = ({ state, connection }) => {
         setPlayerProgress(seconds)
     };
 
+    const getMediaUrl = () => {
+        switch(state.current.type){
+            case "YOUTUBE_LIVE": return state.current.url
+            case "YOUTUBE": return `/api/channel/${getRoomId()}/proxy`
+            default: return state.current.audio_url
+        }
+    }  
+
     return (
         <FullScreen handle={handle}>
             <div className={`w-full flex justify-center bg-black fixed ${handle.active ? "top-0 bottom-0" : "top-16 bottom-20"} z-20`}>
                 <ReactPlayer
                     ref={playerRef}
-                    url={state.current.type === "YOUTUBE_LIVE" ? state.current.url : state.current.audio_url}
+                    url={getMediaUrl()}
                     width='100%'
                     height='100%'
                     muted={volume === 0}
