@@ -1,6 +1,8 @@
 package controllers
 
-import log "github.com/sirupsen/logrus"
+import (
+	log "github.com/sirupsen/logrus"
+)
 
 type Auditing struct {
 }

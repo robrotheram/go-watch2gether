@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"w2g/pkg/api"
@@ -42,5 +41,5 @@ func main() {
 	defer bot.Close()
 
 	app := api.NewApp(utils.Configuration, hub)
-	fmt.Println(app.Start())
+	app.Start()
 }

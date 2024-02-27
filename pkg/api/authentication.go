@@ -159,14 +159,14 @@ func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
 func (da *DiscordAuth) ClearSession(w http.ResponseWriter, r *http.Request) {
 	session, err := da.store.Get(r, sessionName)
 	if err != nil {
-		fmt.Printf("failed to get session: %v", err)
+		log.Debugf("failed to get session: %v", err)
 		return
 	}
 	session.Values["token"] = ""
 	session.Options.MaxAge = -1
 	err = session.Save(r, w)
 	if err != nil {
-		fmt.Printf("failed to delete session: %v", err)
+		log.Debugf("failed to delete session: %v", err)
 		return
 	}
 }

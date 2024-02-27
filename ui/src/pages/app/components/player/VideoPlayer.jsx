@@ -145,8 +145,8 @@ export const VideoPlayer = ({ state, connection }) => {
                 />
             </div>
             <div className="w-full h-20 grid-cols-1 px-8 pt-1  bg-zinc-900 absolute bottom-0 flex justify-center flex-col items-center">
-                <div className="flex items-center mb-1 lg:w-auto w-3/5">
-                    <div className="flex w-64 justify-end gap-1">
+                <div className="flex items-center mb-1 lg:w-auto">
+                    <div className="flex md:w-64  justify-end gap-1">
                         <button onClick={() => updateSeek()} data-tooltip-target="tooltip-shuffle" type="button" className="p-2.5 group rounded-full  mr-1 focus:outline-none focus:ring-4 focus:ring-gray-600 hover:bg-gray-600">
                             <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" width={24} height={24} viewBox="0 0 24 24" strokeWidth="3.5" stroke="white" fill="none" strokeLinecap="round" strokeLinejoin="round">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
@@ -158,10 +158,10 @@ export const VideoPlayer = ({ state, connection }) => {
                         <FullScreenBtn status={handle.active} show={() => {handle.enter();}} hide={handle.exit} />
                         <PlayerSwitch/>
                     </div>
-                    <div className="flex w-24 justify-center">
+                    <div className="flex md:w-24 sm:w-12 justify-center">
                         <PlayBtn play={handlePlay} pause={handlePause} status={state.status} />
                     </div>
-                    <div className="flex w-64 justify-end gap-1">
+                    <div className="flex md:w-64 sm:w-12 justify-end gap-1">
                         <button onClick={() => handleSkip()} data-tooltip-target="tooltip-next" type="button" className="p-2.5 group rounded-full mr-1 focus:outline-none focus:ring-4 focus:ring-gray-200  hover:bg-gray-600">
                             <svg className="w-5 h-5 text-gray-300  group-hover:text-white" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" aria-hidden="true"><path d="M52.5 440.6c-9.5 7.9-22.8 9.7-34.1 4.4S0 428.4 0 416V96C0 83.6 7.2 72.3 18.4 67s24.5-3.6 34.1 4.4l192 160L256 241V96c0-17.7 14.3-32 32-32s32 14.3 32 32V416c0 17.7-14.3 32-32 32s-32-14.3-32-32V271l-11.5 9.6-192 160z" fill="currentColor" /></svg>
                             <span className="sr-only">Next video</span>

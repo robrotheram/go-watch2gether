@@ -1,10 +1,11 @@
 package controllers
 
 import (
-	"fmt"
 	"sync"
 	"time"
 	"w2g/pkg/media"
+
+	log "github.com/sirupsen/logrus"
 )
 
 type PlayerType string
@@ -97,7 +98,7 @@ func (p *Players) Play(url string, start int) {
 		go func(player Player) {
 			exit, err := player.Play(url, start)
 			if err != nil {
-				fmt.Printf("%s player error: %v", player.Type(), err)
+				log.Warnf("%s player error: %v", player.Type(), err)
 			}
 			wg.Done()
 			if exit == STOP_EXITCODE {

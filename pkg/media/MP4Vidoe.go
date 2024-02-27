@@ -1,6 +1,12 @@
 package media
 
-import "github.com/segmentio/ksuid"
+import (
+	"context"
+	"time"
+
+	"github.com/segmentio/ksuid"
+	"gopkg.in/vansante/go-ffprobe.v2"
+)
 
 type MP4Video struct{}
 
@@ -9,17 +15,28 @@ func init() {
 	MediaFactory.Register(mp4Client)
 }
 
+func getMediaInfo(url string) (*ffprobe.ProbeData, error) {
+	ctx, cancelFn := context.WithTimeout(context.Background(), 2*time.Second)
+	defer cancelFn()
+	return ffprobe.ProbeURL(ctx, url)
+}
+
 func (client *MP4Video) GetMedia(url string, username string) ([]Media, error) {
-	return []Media{
-		{
-			ID:       ksuid.New().String(),
-			Url:      url,
-			User:     username,
-			Type:     MediaType(client.GetType()),
-			Title:    url,
-			AudioUrl: url,
-		},
-	}, nil
+	track := Media{
+		ID:       ksuid.New().String(),
+		Url:      url,
+		User:     username,
+		Type:     MediaType(client.GetType()),
+		Title:    url,
+		AudioUrl: url,
+	}
+	if data, err := getMediaInfo(url); err == nil {
+		track.Title = data.Format.Filename
+		track.Progress = MediaDuration{
+			Duration: time.Duration(data.Format.DurationSeconds * float64(time.Second)),
+		}
+	}
+	return []Media{track}, nil
 }
 
 func (client *MP4Video) Refresh(media *Media) error {

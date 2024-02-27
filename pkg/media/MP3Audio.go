@@ -1,6 +1,10 @@
 package media
 
-import "github.com/segmentio/ksuid"
+import (
+	"time"
+
+	"github.com/segmentio/ksuid"
+)
 
 type MP3Video struct{}
 
@@ -10,16 +14,21 @@ func init() {
 }
 
 func (client *MP3Video) GetMedia(url string, username string) ([]Media, error) {
-	return []Media{
-		{
-			ID:       ksuid.New().String(),
-			Url:      url,
-			User:     username,
-			Type:     MediaType(client.GetType()),
-			Title:    url,
-			AudioUrl: url,
-		},
-	}, nil
+	track := Media{
+		ID:       ksuid.New().String(),
+		Url:      url,
+		User:     username,
+		Type:     MediaType(client.GetType()),
+		Title:    url,
+		AudioUrl: url,
+	}
+	if data, err := getMediaInfo(url); err == nil {
+		track.Title = data.Format.Filename
+		track.Progress = MediaDuration{
+			Duration: time.Duration(data.Format.DurationSeconds * float64(time.Second)),
+		}
+	}
+	return []Media{track}, nil
 }
 
 func (client *MP3Video) Refresh(media *Media) error {

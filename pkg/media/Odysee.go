@@ -2,9 +2,11 @@ package media
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
+	"io"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -55,9 +57,28 @@ func (sc *OdyseeAPI) getOdyseePage(url string) ([]byte, error) {
 		return []byte{}, err
 	}
 	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
+func parseDuration(durationStr string) (time.Duration, error) {
+	re := regexp.MustCompile(`PT(\d+)M(\d+)S`)
+	matches := re.FindStringSubmatch(durationStr)
+	if len(matches) != 3 {
+		return 0, fmt.Errorf("invalid duration format: %s", durationStr)
+	}
+
+	minutes, err := strconv.Atoi(matches[1])
+	if err != nil {
+		return 0, err
+	}
+
+	seconds, err := strconv.Atoi(matches[2])
+	if err != nil {
+		return 0, err
+	}
+
+	return time.Duration(minutes)*time.Minute + time.Duration(seconds)*time.Second, nil
+}
 func parse(text string) (data []string) {
 
 	tkn := html.NewTokenizer(strings.NewReader(text))
@@ -95,30 +116,37 @@ func parse(text string) (data []string) {
 
 func (sc *OdyseeAPI) GetMedia(url string, username string) ([]Media, error) {
 	data, _ := sc.getOdyseePage(url)
-	parsedData := parse(string(data))[0]
-	parsedData = strings.ReplaceAll(parsedData, "\n", "")
-	parsedData = strings.ReplaceAll(parsedData, "\\", "")
-	dataInBytes := []byte(parsedData)
-	var tackData odyseeStruct
-	media := []Media{}
+	scripts := parse(string(data))
 
-	err := json.Unmarshal(dataInBytes, &tackData)
-	if err != nil {
-		return media, err
+	var tackData odyseeStruct
+	for _, script := range scripts {
+		script = strings.ReplaceAll(script, "\n", "")
+		script = strings.ReplaceAll(script, "\\", "")
+		dataInBytes := []byte(script)
+		if json.Unmarshal(dataInBytes, &tackData) == nil {
+			break
+		}
+	}
+	media := []Media{}
+	if tackData.ContentURL == "" {
+		return media, fmt.Errorf("unable to parse site")
 	}
 
 	m := Media{
-		ID:    ksuid.New().String(),
-		Url:   url,
-		User:  username,
-		Type:  VIDEO_TYPE_ODYSEE,
-		Title: tackData.Name,
-		//Duration:    time.Duration(tackData.Duration / 1000),
+		ID:          ksuid.New().String(),
+		Url:         url,
+		User:        username,
+		Type:        VIDEO_TYPE_ODYSEE,
+		Title:       tackData.Name,
 		Thumbnail:   tackData.ThumbnailURL,
 		ChannelName: tackData.Author.Name,
 		AudioUrl:    tackData.ContentURL,
 	}
-
+	if duration, err := parseDuration(tackData.Duration); err == nil {
+		m.Progress = MediaDuration{
+			Duration: duration,
+		}
+	}
 	return append(media, m), nil
 }
 

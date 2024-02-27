@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"time"
 	"w2g/pkg/controllers"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
+	log "github.com/sirupsen/logrus"
 )
 
 const WEBPLAYER = controllers.PlayerType("WEB_PLAYER")
@@ -46,7 +46,7 @@ func (c *Client) Read() {
 	for {
 		_, msg, err := c.socket.ReadMessage()
 		if err != nil {
-			fmt.Printf("ERROR decoding %v", err)
+			log.Debugf("ERROR decoding %v", err)
 			c.contoller.RemoveListner(c.id)
 			c.contoller.Leave(c.id, c.user.Username)
 			return
@@ -86,13 +86,11 @@ func (wb *Client) Id() string {
 }
 
 func (wb *Client) Play(url string, start int) (controllers.PlayerExitCode, error) {
-	fmt.Println(WEBPLAYER + "_PLAY")
 	wb.progress = media.MediaDuration{
 		Progress: 0,
 	}
 	wb.running = true
 	<-wb.done
-	fmt.Println(WEBPLAYER + "_DONE")
 	return wb.exitCode, nil
 }
 
@@ -100,24 +98,19 @@ func (wb *Client) Progress() media.MediaDuration {
 	return wb.progress
 }
 
-func (wb *Client) Pause() {
-	fmt.Println(WEBPLAYER + "_PAUSE")
-}
+func (wb *Client) Pause() {}
 func (wb *Client) Unpause() {
-	fmt.Println(WEBPLAYER + "_UNPAUSE")
 	wb.running = true
 }
 
 func (wb *Client) Stop() {
 	wb.exitCode = controllers.STOP_EXITCODE
-	fmt.Println(WEBPLAYER + "_STOP")
 	if wb.running {
 		wb.running = false
 		wb.done <- "STOP"
 	}
 }
 func (wb *Client) Close() {
-	fmt.Println(WEBPLAYER + "_CLOSE")
 	wb.exitCode = controllers.EXIT_EXITCODE
 }
 

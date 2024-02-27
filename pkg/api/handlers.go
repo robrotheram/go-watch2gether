@@ -13,6 +13,7 @@ import (
 	"w2g/pkg/utils"
 
 	"github.com/gorilla/mux"
+	log "github.com/sirupsen/logrus"
 )
 
 type handler struct {
@@ -439,7 +440,7 @@ func (h *handler) handleMediaProxy(w http.ResponseWriter, r *http.Request) {
 	// Stream the response body to the client
 	_, err = io.Copy(w, resp.Body)
 	if err != nil {
-		fmt.Printf("Failed to stream response body: %s\n", err)
+		log.Debugf("Failed to stream response body: %s\n", err)
 		return
 	}
 }

@@ -213,17 +213,9 @@ func (pt *Peertube) GetMedia(url string, username string) ([]Media, error) {
 				audioUrl = file.FileURL
 			}
 		}
-	} else if len(info.StreamingPlaylists) > 0 {
-		//audioUrl = info.StreamingPlaylists[0].PlaylistURL
-		playlist := info.StreamingPlaylists[0].Files[0]
-		for _, play := range info.StreamingPlaylists {
-			for _, file := range play.Files {
-				if file.Size < playlist.Size {
-					playlist = file
-				}
-			}
-		}
-		audioUrl = playlist.FileDownloadURL
+	} else if info.IsLive {
+		playlist := info.StreamingPlaylists[0]
+		audioUrl = playlist.PlaylistURL
 	}
 
 	m := Media{

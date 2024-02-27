@@ -1,9 +1,10 @@
 package playlists
 
 import (
-	"log"
 	"w2g/pkg/media"
 	"w2g/pkg/utils"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/google/uuid"
 	bolt "go.etcd.io/bbolt"

@@ -61,7 +61,7 @@ export const VolumeControl = React.memo(() => {
                 />
                 <MaxVolBtn onClick={() => setVolume(100)} />
             </div>
-            <div className="flex sm:hidden w-28 items-center">
+            <div className="flex sm:hidden items-center">
                 {volume === 0 ? <MuteBtn onClick={() => setVolume(100)} /> : <MaxVolBtn onClick={() => setVolume(0)} />}
             </div>
         </>

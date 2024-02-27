@@ -20,6 +20,7 @@ type Config struct {
 	Reset               bool   `mapstructure:"RESET"`
 	Loglevel            string `mapstructure:"LOG_LEVEL"`
 	ListenPort          string `mapstructure:"LISTEN_PORT"`
+	BetterStackToken    string `mapstructure:"BETTER_STACK_TOKEN"`
 }
 
 // LoadConfig reads configuration from file or environment variables.

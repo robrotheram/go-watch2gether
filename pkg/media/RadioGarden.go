@@ -4,12 +4,13 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"net/url"
 	"path"
 	"regexp"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/segmentio/ksuid"
 )

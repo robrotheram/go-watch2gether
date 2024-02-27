@@ -1,9 +1,38 @@
 package media
 
-import "testing"
+import (
+	"testing"
 
-func TestMeida(t *testing.T) {
+	"github.com/stretchr/testify/assert"
+)
 
+func TestMP4Meida(t *testing.T) {
 	client := MediaFactory.GetFactory("https://f000.backblazeb2.com/file/exceptionerror-io-public/movies/Bicentennial.Man.1999.mkv")
-	client.GetMedia("https://f000.backblazeb2.com/file/exceptionerror-io-public/movies/Bicentennial.Man.1999.mkv", "")
+	tracks, err := client.GetMedia("https://f000.backblazeb2.com/file/exceptionerror-io-public/movies/Bicentennial.Man.1999.mkv", "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(tracks), 1)
+}
+
+func TestPodcastMeida(t *testing.T) {
+	url := "https://feeds.fireside.fm/selfhosted/rss"
+	client := MediaFactory.GetFactory(url)
+	tracks, err := client.GetMedia(url, "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(tracks), 1)
+}
+
+func TestPeerTubeLive(t *testing.T) {
+	url := "https://jupiter.tube/w/gYdezxbqGJMA3cfTTiK1cz"
+	client := MediaFactory.GetFactory(url)
+	tracks, err := client.GetMedia(url, "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(tracks), 1)
+}
+
+func TestOdesey(t *testing.T) {
+	url := "https://odysee.com/@veritasium:f/the-trillion-dollar-equation:3"
+	client := MediaFactory.GetFactory(url)
+	tracks, err := client.GetMedia(url, "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(tracks), 1)
 }

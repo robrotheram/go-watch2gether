@@ -1,13 +1,13 @@
 package controllers
 
 import (
-	"fmt"
 	"sync"
 	"time"
 	"w2g/pkg/media"
 	"w2g/pkg/utils"
 
 	"github.com/google/uuid"
+	log "github.com/sirupsen/logrus"
 	bolt "go.etcd.io/bbolt"
 )
 
@@ -36,6 +36,10 @@ func NewController(id string, db *bolt.DB) *Controller {
 	}
 	contoller.load(id)
 	contoller.AddListner(uuid.NewString(), &Auditing{})
+	if utils.Configuration.BetterStackToken != "" {
+		contoller.AddListner(uuid.NewString(), &BetterStack{Token: utils.Configuration.BetterStackToken})
+	}
+
 	return &contoller
 }
 
@@ -164,6 +168,9 @@ func (c *Controller) Join(player Player, user string) {
 func (c *Controller) Leave(id string, user string) {
 	c.players.Remvoe(id)
 	c.Notify(LEAVE_ACTION, user)
+	if len(c.players.players) == 0 {
+		c.Stop(SYSTEM)
+	}
 }
 
 func (c *Controller) ContainsPlayer(id string) bool {
@@ -174,22 +181,21 @@ func (c *Controller) ContainsPlayer(id string) bool {
 }
 
 func (c *Controller) progress() {
-	fmt.Println("START")
 	for {
 		audio := c.state.Current.GetAudioUrl()
-		fmt.Println("START_PLAYING")
+		log.Debug("START_PLAYING")
 		c.players.Play(audio, 0)
-		fmt.Println("STOP_PLAYING")
-		if len(c.state.Current.Url) == 0 || c.players.Empty() || c.state.State == STOP {
-			c.Stop(SYSTEM)
-			fmt.Println("DONE")
-			return
-		}
+		log.Debug("STOP_PLAYING")
 		if !c.state.Loop {
 			c.state.Next()
 			c.Notify(UPDATE_QUEUE, SYSTEM)
 		}
-		fmt.Println("NEXT")
+		if len(c.state.Current.Url) == 0 || c.players.Empty() || c.state.State == STOP {
+			c.Stop(SYSTEM)
+			log.Debug("DONE")
+			return
+		}
+		log.Debug("NEXT")
 	}
 }
 

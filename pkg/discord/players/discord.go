@@ -76,9 +76,7 @@ func (player *DiscordPlayer) playStream() {
 	ticker := time.NewTicker(time.Second)
 	for {
 		select {
-		case msg := <-player.done:
-			// Clean up incase something happened and ffmpeg is still running
-			fmt.Printf("player msg: %v\n", msg)
+		case <-player.done:
 			player.Finish()
 			return
 		case <-ticker.C:
@@ -170,7 +168,6 @@ func (player *DiscordPlayer) Play(url string, startTime int) (controllers.Player
 	player.playStream()
 
 	if player.seekTo > -1 {
-		fmt.Println("SEEKING")
 		player.Finish()
 		return player.Play(url, int(player.seekTo.Seconds()))
 	}

@@ -4,9 +4,12 @@ package media
 
 import (
 	"encoding/xml"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"time"
+	"w2g/pkg/utils"
+
+	"github.com/segmentio/ksuid"
 )
 
 type Time struct {
@@ -109,7 +112,7 @@ func (pod *PodcastRSS) fetch(url string) (pd Podcast, err error) {
 
 	defer res.Body.Close()
 
-	buff, err := ioutil.ReadAll(res.Body)
+	buff, err := io.ReadAll(res.Body)
 	if err != nil {
 		return
 	}
@@ -122,19 +125,26 @@ func (pod *PodcastRSS) GetMedia(url string, username string) ([]Media, error) {
 	if err != nil {
 		return []Media{}, err
 	}
-
 	item := podcasts.Items[0]
-
-	return []Media{
-		{
-			Url:       item.Enclosure.Url,
-			Type:      VIDEO_TYPE_PODCAST,
-			Thumbnail: item.Image.Url,
-			Title:     item.Title,
-			User:      username,
-			AudioUrl:  item.Enclosure.Url,
-		},
-	}, nil
+	track := Media{
+		ID:          ksuid.New().String(),
+		Url:         item.Link,
+		Thumbnail:   item.Image.Url,
+		User:        username,
+		Type:        VIDEO_TYPE_PODCAST,
+		Title:       item.Title,
+		AudioUrl:    item.Enclosure.Url,
+		ChannelName: podcasts.Title,
+	}
+	if track.Thumbnail == "" {
+		track.Thumbnail = podcasts.Image.Href
+	}
+	if duration, err := utils.ParseTime(item.Duration); err == nil {
+		track.Progress = MediaDuration{
+			Duration: duration,
+		}
+	}
+	return []Media{track}, nil
 }
 
 func (pod *PodcastRSS) GetType() MediaType {
@@ -146,7 +156,7 @@ func (pod *PodcastRSS) IsValidUrl(url string, ct *ContentType) bool {
 	if err != nil {
 		return false
 	}
-	return contentetType == "application/rss+xml; charset=UTF-8" || contentetType == "application/xml; charset=utf-8"
+	return contentetType == "application/rss+xml; charset=UTF-8" || contentetType == "application/xml; charset=utf-8" || contentetType == "text/xml"
 }
 
 func (client *PodcastRSS) Refresh(media *Media) error {
