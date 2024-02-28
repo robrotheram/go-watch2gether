@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"w2g/pkg/api"
 	"w2g/pkg/controllers"
 	"w2g/pkg/discord"
@@ -34,12 +35,18 @@ func main() {
 		log.Fatalf("Database Error: %v", err)
 	}
 
-	log.Infof("Version: %s", utils.Version)
+	log.Infof("Version: %s", strings.TrimSuffix(utils.Version, "\r\n"))
 
 	hub := controllers.NewHub(db)
 
-	bot, _ := discord.NewDiscordBot(utils.Configuration, hub)
-	bot.Start()
+	bot, err := discord.NewDiscordBot(utils.Configuration, hub)
+	if err != nil {
+		log.Warnf("discord bot error: %v", err)
+	}
+	err = bot.Start()
+	if err != nil {
+		log.Warnf("discord bot error: %v", err)
+	}
 	defer bot.Close()
 
 	app := api.NewApp(utils.Configuration, hub)

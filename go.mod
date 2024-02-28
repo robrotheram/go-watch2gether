@@ -10,10 +10,10 @@ require (
 	github.com/robrotheram/dca v0.0.0-20240103231016-764e174aecab
 	github.com/segmentio/ksuid v1.0.4
 	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/viper v1.18.2
 	golang.org/x/net v0.21.0
 	golang.org/x/oauth2 v0.17.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.1.1
-	github.com/spf13/viper v1.17.0
 )
 
 require (

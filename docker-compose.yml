@@ -1,44 +1,25 @@
 services:
 
   watch2gether:
-    image: ghcr.io/robrotheram/go-watch2gether:latest
-    restart: always
-    networks:
-      - caddy
+    build:
+      context: .
     environment:
       DISCORD_TOKEN: CHANGE_ME
       DISCORD_CLIENT_ID: CHANGE_ME
       DISCORD_CLIENT_SECRET: CHANGE_ME
       SESSION_SECRET: CHANGE_ME
       BASE_URL: https://watch2gether.exceptionerror.io
-      DEVELOPMENT: true 
-      DISCORD_ENABLE_NOTIFICATIONS: false
+      DEVELOPMENT: 'true'
+      DISCORD_ENABLE_NOTIFICATIONS: 'false'
       LISTEN_PORT: 8080
       LOG_LEVEL: info
+      RESET: 'true'
       DATABASE_PATH: "/data"
     volumes:
       - w2g_data:/data
     labels:
       caddy: watch2gether.exceptionerror.io
       caddy.reverse_proxy: "{{upstreams 8080}}"
-
-  caddy:
-    image: lucaslorentz/caddy-docker-proxy:ci-alpine
-    ports:
-      - 80:80
-      - 443:443
-    environment:
-      - CADDY_INGRESS_NETWORKS=caddy
-    networks:
-      - caddy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - caddy_data:/data
-    restart: unless-stopped
-
-networks:
-  caddy:
-    external: true
 
 volumes:
   caddy_data: {}
