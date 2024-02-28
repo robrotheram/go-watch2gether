@@ -1,7 +1,9 @@
 FROM node:lts-alpine as UI_BUILDER
+RUN apk update && apk add git
 ARG VER
 WORKDIR /ui
 ADD /ui .
+ADD .git .
 RUN npm i; npm run build; 
 
 FROM golang:1.21.4 as GO_BUILDER
