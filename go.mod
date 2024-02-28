@@ -13,6 +13,7 @@ require (
 	golang.org/x/net v0.21.0
 	golang.org/x/oauth2 v0.17.0
 	gopkg.in/vansante/go-ffprobe.v2 v2.1.1
+	github.com/spf13/viper v1.17.0
 )
 
 require (
@@ -50,7 +51,6 @@ require (
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.1
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
-	github.com/spf13/viper v1.18.2
 	github.com/stretchr/testify v1.8.4
 	go.etcd.io/bbolt v1.3.9
 	golang.org/x/crypto v0.20.0 // indirect
