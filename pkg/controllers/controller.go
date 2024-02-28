@@ -37,6 +37,7 @@ func NewController(id string, db *bolt.DB) *Controller {
 	contoller.load(id)
 	contoller.AddListner(uuid.NewString(), &Auditing{})
 	if utils.Configuration.BetterStackToken != "" {
+		log.Info("enabling better stack logging")
 		contoller.AddListner(uuid.NewString(), &BetterStack{Token: utils.Configuration.BetterStackToken})
 	}
 

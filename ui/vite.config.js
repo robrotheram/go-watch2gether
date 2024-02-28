@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import * as child from "child_process";
 import { VitePWA } from "vite-plugin-pwa";
 
 const manifestForPlugin = {
@@ -47,7 +48,15 @@ const manifestForPlugin = {
 	},
 };
 
+
+
+const commitHash = child.execSync("git rev-parse --short HEAD").toString()
+const gitTag = child.execSync("git describe --tags --abbrev=0").toString()
 // https://vitejs.dev/config/
 export default defineConfig({
+	define: {
+		'import.meta.env.VITE_APP_VERSION': JSON.stringify(gitTag),
+		'import.meta.env.VITE_APP_COMMIT': JSON.stringify(commitHash)
+	},
 	plugins: [react()],
 })

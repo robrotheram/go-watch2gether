@@ -8,6 +8,7 @@ FROM golang:1.21.4 as GO_BUILDER
 ARG VER
 WORKDIR /server
 ADD . .
+RUN go generate pkg/utils/version.go
 RUN CGO_ENABLED=0 GOOS=linux go build
 
 FROM alpine

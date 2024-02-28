@@ -34,6 +34,8 @@ func main() {
 		log.Fatalf("Database Error: %v", err)
 	}
 
+	log.Infof("Version: %s", utils.Version)
+
 	hub := controllers.NewHub(db)
 
 	bot, _ := discord.NewDiscordBot(utils.Configuration, hub)

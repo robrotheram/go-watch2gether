@@ -41,8 +41,8 @@ export const Nav = ({user, bot}) => {
             <button onClick={() => setModalOpen(!isModalOpen)} type="button" className="float-right flex mr-4 text-sm rounded-full md:mr-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600" id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown" data-dropdown-placement="bottom">
               <img className="w-8 h-8 rounded-full" src={user.avatar_icon} alt="user photo" />
             </button>
-            {isModalOpen && <div className="z-50 fixed top-10 right-2 my-4 text-base list-none divide-y divide-gray-100 rounded-lg shadow bg-zinc-800" id="user-dropdown">
-              <ul className="" aria-labelledby="user-menu-button">
+            {!isModalOpen && <div className="z-50 fixed top-10 right-2 my-4 text-base list-none divide-y divide-gray-100 rounded-lg shadow bg-zinc-800" id="user-dropdown">
+              <ul className="px-4 py-1" aria-labelledby="user-menu-button">
                 <li>
                   <a href={`https://discord.com/oauth2/authorize?client_id=${bot}&scope=bot`} className="block text-center px-8 py-3 text-md hover:rounded-lg  text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
                     invite bot
@@ -53,6 +53,10 @@ export const Nav = ({user, bot}) => {
                     Sign out
                   </a>
                 </li>
+                <hr style={{margin:"0.5rem 0"}}/>
+                <li className="text-center py-2">
+                  <span>Release: {import.meta.env.VITE_APP_VERSION}</span>
+                 </li>
               </ul>
             </div>}
           </div>

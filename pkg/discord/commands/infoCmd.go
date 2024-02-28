@@ -1,7 +1,9 @@
 package commands
 
 import (
+	"time"
 	"w2g/pkg/discord/components"
+	"w2g/pkg/utils"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -12,7 +14,6 @@ func init() {
 			Name: "player",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
-
 					Type: discordgo.UserApplicationCommand,
 				},
 				{
@@ -31,12 +32,17 @@ func init() {
 				},
 			},
 			Function: listcmd,
+		},
+		Command{
+			Name: "version",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "return the version of this bot",
+					Type:        discordgo.ChatApplicationCommand,
+				},
+			},
+			Function: versioncmd,
 		})
-}
-
-func nowplayingCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	current := ctx.Controller.State().Current
-	return ctx.CmdReplyEmbed(components.MediaEmbed(current, "Now Playing"))
 }
 
 func listcmd(ctx CommandCtx) *discordgo.InteractionResponse {
@@ -45,4 +51,8 @@ func listcmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 func controlscmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	return ctx.CmdReplyData(components.ControlCompontent(ctx.Controller.State()))
+}
+
+func versioncmd(ctx CommandCtx) *discordgo.InteractionResponse {
+	return ctx.Replyf("Version: %s, \n commit: %s \n time: %s", utils.Version, utils.Revision, utils.LastCommit.Format(time.RFC822))
 }
