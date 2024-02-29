@@ -54,5 +54,5 @@ func controlscmd(ctx CommandCtx) *discordgo.InteractionResponse {
 }
 
 func versioncmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	return ctx.Replyf("Version: %s, \n commit: %s \n time: %s", utils.Version, utils.Revision, utils.LastCommit.Format(time.RFC822))
+	return ctx.Replyf("Version: %s commit: %s \n time: %s", utils.Version, utils.Revision, utils.LastCommit.Format(time.RFC822))
 }
