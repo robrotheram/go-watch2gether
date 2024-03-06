@@ -20,6 +20,9 @@ type BetterStackMessage struct {
 }
 
 func (a *BetterStack) Send(event Event) {
+	if event.Action.Type == UPDATE_DURATION {
+		return
+	}
 	jsonData, err := json.Marshal(BetterStackMessage{
 		Level:    "info",
 		Severity: "low",
