@@ -36,3 +36,12 @@ func TestOdesey(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, len(tracks), 1)
 }
+
+func TestYoutube(t *testing.T) {
+	// url := "https://www.youtube.com/watch?v=kW8L7MVaaFE"
+	url := "https://www.youtube.com/watch?v=WssuSLZJ9mY"
+	client := MediaFactory.GetFactory(url)
+	tracks, err := client.GetMedia(url, "")
+	assert.Nil(t, err)
+	assert.Equal(t, len(tracks), 1)
+}

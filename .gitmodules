@@ -1,0 +1,6 @@
+[submodule "local/youtube"]
+	path = local/youtube
+	url = https://github.com/robrotheram/go-youtubedl.git
+[submodule "local/dca"]
+	path = local/dca
+	url = https://github.com/robrotheram/dca
