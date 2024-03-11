@@ -28,7 +28,7 @@ func (a *BetterStack) Send(event Event) {
 	players := []string{}
 	if event.Players != nil {
 		for _, v := range event.Players.players {
-			players = append(players, v.Id())
+			players = append(players, fmt.Sprintf("%s-%s", v.Type(), v.Id()))
 		}
 	}
 	msg := BetterStackMessage{
