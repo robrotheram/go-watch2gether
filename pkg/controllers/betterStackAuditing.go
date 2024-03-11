@@ -17,20 +17,32 @@ type BetterStackMessage struct {
 	Status   Action      `json:"status"`
 	Message  string      `json:"message"`
 	State    PlayerState `json:"state"`
-	Players  Players     `json:"players"`
+	Players  []string    `json:"players"`
 }
 
 func (a *BetterStack) Send(event Event) {
 	if event.Action.Type == UPDATE_DURATION {
 		return
 	}
-	jsonData, err := json.Marshal(BetterStackMessage{
+
+	players := []string{}
+	if event.Players != nil {
+		for _, v := range event.Players.players {
+			players = append(players, v.Id())
+		}
+	}
+	msg := BetterStackMessage{
 		Level:    "info",
 		Severity: "low",
 		Status:   event.Action,
-		State:    event.State,
-		Players:  event.Players,
-	})
+		Players:  players,
+	}
+	if event.State != nil {
+		msg.State = *event.State
+	}
+
+	jsonData, err := json.Marshal(msg)
+
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
 		return

@@ -229,8 +229,8 @@ func (c *Controller) Notify(action ActionType, user string) {
 			User:    user,
 			Channel: state.ID,
 		},
-		State:   *state,
-		Players: *c.players,
+		State:   state,
+		Players: c.players,
 	}
 }
 
