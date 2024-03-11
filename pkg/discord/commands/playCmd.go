@@ -77,6 +77,15 @@ func init() {
 			Function: restartCmd,
 		},
 		Command{
+			Name: "loop",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "Looping track.",
+				},
+			},
+			Function: restartCmd,
+		},
+		Command{
 			Name: "add",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
@@ -188,4 +197,12 @@ func stopCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 func pauseCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	ctx.Controller.Pause(ctx.Member.User.Username)
 	return ctx.Reply("Pause")
+}
+
+func loopCMD(ctx CommandCtx) *discordgo.InteractionResponse {
+	ctx.Controller.Loop(ctx.Member.User.Username)
+	if ctx.Controller.State().Loop {
+		return ctx.Reply(":arrows_counterclockwise: Loop On")
+	}
+	return ctx.Reply(":arrows_counterclockwise: Loop Off")
 }

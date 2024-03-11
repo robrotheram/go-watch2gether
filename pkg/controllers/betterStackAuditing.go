@@ -17,6 +17,7 @@ type BetterStackMessage struct {
 	Status   Action      `json:"status"`
 	Message  string      `json:"message"`
 	State    PlayerState `json:"state"`
+	Players  Players     `json:"players"`
 }
 
 func (a *BetterStack) Send(event Event) {
@@ -28,6 +29,7 @@ func (a *BetterStack) Send(event Event) {
 		Severity: "low",
 		Status:   event.Action,
 		State:    event.State,
+		Players:  event.Players,
 	})
 	if err != nil {
 		fmt.Println("Error marshaling JSON:", err)
