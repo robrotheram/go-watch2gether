@@ -80,10 +80,10 @@ func init() {
 			Name: "loop",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
-					Description: "Looping track.",
+					Description: "Enable or disabling Looping.",
 				},
 			},
-			Function: restartCmd,
+			Function: loopCMD,
 		},
 		Command{
 			Name: "add",
