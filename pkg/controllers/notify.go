@@ -29,6 +29,7 @@ type Event struct {
 	ID      string      `json:"id"`
 	Action  Action      `json:"action"`
 	State   PlayerState `json:"state"`
+	Players Players     `json:"players"`
 	Message string      `json:"message"`
 }
 
