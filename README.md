@@ -50,8 +50,57 @@ You can run it with
 ```
 docker run -d -p 8080:8080 robrotheram/watch2gether
 ```
+### Replacing Values in `app.sample.env` with Discord Bot and OAuth Client Credentials
 
-There is also a Docker-compose file avalible. 
+Follow these steps to replace the placeholder values in the `app.sample.env` file with the actual credentials obtained from creating a Discord bot and OAuth2 client:
+
+1. **Create a Discord Bot:**
+
+   - Go to the [Discord Developer Portal](https://discord.com/developers/applications).
+   - Click on the "New Application" button.
+   - Enter a name for your application.
+   - Navigate to the "Bot" tab on the left sidebar.
+   - Click on "Add Bot" and confirm.
+   - Copy the generated Bot Token.
+
+2. **Create an OAuth2 Client:**
+
+   - In the [Discord Developer Portal](https://discord.com/developers/applications), go to your application settings.
+   - Navigate to the "OAuth2" tab on the left sidebar.
+   - Under "Redirects", add a redirect URL (e.g., `http://localhost:8080/auth/callback`).
+   - Under "OAuth2 URL Generator", select appropriate OAuth2 scopes (e.g., `identify`, `email`) based on your application's requirements.
+   - Copy the generated OAuth2 Client ID.
+   - Copy the generated OAuth2 Client Secret.
+
+3. **Replace Values in `app.sample.env`:**
+
+   - Copy the `app.sample.env` file and rename it to `app.env`.
+   - Replace the placeholder values (`CHANGEME`) with the corresponding values obtained from creating the Discord bot and OAuth2 client:
+     ```plaintext
+     DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN
+     DISCORD_CLIENT_ID=YOUR_OAUTH2_CLIENT_ID
+     DISCORD_CLIENT_SECRET=YOUR_OAUTH2_CLIENT_SECRET
+     SESSION_SECRET=ANY_RANDOM_STRING_FOR_SESSION_SECURITY
+     ```
+     Ensure to replace `YOUR_DISCORD_BOT_TOKEN`, `YOUR_OAUTH2_CLIENT_ID`, and `YOUR_OAUTH2_CLIENT_SECRET` with the actual values obtained from the Discord Developer Portal.
+
+4. **Save Changes:**
+
+   - Save the `app.env` file.
+
+#### Configuring `docker-compose.yml`
+
+If you are using Docker, you can configure your `docker-compose.yml` file to include the necessary environmental variables. Here's an example:
+
+```yaml
+    environment:
+      - DISCORD_TOKEN=YOUR_DISCORD_BOT_TOKEN
+      - DISCORD_CLIENT_ID=YOUR_OAUTH2_CLIENT_ID
+      - DISCORD_CLIENT_SECRET=YOUR_OAUTH2_CLIENT_SECRET
+      - SESSION_SECRET=ANY_RANDOM_STRING_FOR_SESSION_SECURITY
+```
+
+### Reverse Proxy
 
 For running behind a proxy you will need to forward websoctes as well as http. Below is a sample nginx configuration
 
