@@ -68,7 +68,6 @@ Follow these steps to replace the placeholder values in the `app.sample.env` fil
    - In the [Discord Developer Portal](https://discord.com/developers/applications), go to your application settings.
    - Navigate to the "OAuth2" tab on the left sidebar.
    - Under "Redirects", add a redirect URL (e.g., `http://localhost:8080/auth/callback`).
-   - Under "OAuth2 URL Generator", select appropriate OAuth2 scopes (e.g., `identify`, `email`) based on your application's requirements.
    - Copy the generated OAuth2 Client ID.
    - Copy the generated OAuth2 Client Secret.
 
@@ -138,8 +137,6 @@ There is a handy make file that will build the server, ui and container.
 ```
 make build
 ```
-
-
 
 # Screenshots
 ![Screenshot 1](docs/homepage.png)
