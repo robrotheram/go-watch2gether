@@ -1,15 +1,16 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import Card from "./components/card";
 import toast from 'react-hot-toast';
-import { addVideoController, getChannelPlaylists, getSocket, updateQueueController, getController, createController } from "./watch2gether";
+import { addVideoController, getChannelPlaylists, getSocket, updateQueueController, getController, createController, getChannelPlayers } from "./watch2gether";
 import { Header } from "./components/header";
 import { useNavigate } from "react-router-dom";
 import { PlaylistBtn } from "./playlist";
-import { PlayerContext } from "./components/providers";
+import { GuildContext, PlayerContext } from "./components/providers";
 import { Loading } from "./components/loading";
 import { useHotkeys } from 'react-hotkeys-hook'
 import { Player } from "./components/player";
 import { AddVideoCtrl } from "./components/header/Controls";
+import { UserPlayer, UserPlayerBtn } from "./components/UserPlayer";
 
 
 export const AppController = () => {
@@ -18,8 +19,9 @@ export const AppController = () => {
     const [playlists, setPlaylists] = useState([])
     const [notificationURL, setNotificationURL] = useState(null)
     const [debug, setDebug] = useState(false)
-    const { showVideo, setProgress } = useContext(PlayerContext)
-    
+    const { setProgress } = useContext(PlayerContext)
+    const {setPlayers} = useContext(GuildContext)
+
     const [state, setState] = useState({
         id: "",
         status: "STOPPED",
@@ -67,14 +69,17 @@ export const AppController = () => {
         socket.addEventListener("open", (event) => {
             socket.send("Connection established")
         })
-        socket.addEventListener("message", (event) => {
+        socket.addEventListener("message", async(event) => {
             let evt = JSON.parse(event.data)
-            if (evt.action.type === "SEEK"){
-                console.log("SEEK", evt)
-                setProgress(evt.state.current.time.progress)
-                toast.success(`${evt.action.user} has synced the track to their position`)
+            switch(evt.action.type){
+                case "SEEK": 
+                    console.log("SEEK", evt)
+                    setProgress(evt.state.current.time.progress)
+                    toast.success(`${evt.action.user} has synced the track to their position`)
+                    break;
             }
             setState(evt.state)
+            setPlayers(evt.players)
         })
         connection.current = socket
         return () => socket.close()
@@ -117,10 +122,10 @@ export const AppController = () => {
                 </div>
             </div>
             <Player state={state} connection={connection.current}/>
-            <div className="absolute md:bottom-9 bottom-12 md:right-0 -right-2">
+            {/* <div className="absolute md:bottom-9 bottom-12 md:right-0 -right-2">
                 <PlaylistBtn playlists={playlists} />
-            </div>
-
+            </div> */}
+            <UserPlayerBtn/>
             {debug && <div className="w-full h-1/3 z-50 p-4">
                 <pre  className="bg-stone-900 text-white rounded-lg p-8 h-full overflow-auto">
                     <code>

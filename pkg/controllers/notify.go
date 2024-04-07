@@ -21,16 +21,16 @@ var (
 	LOOP_ACTION     = ActionType("LOOP")
 	SHUFFLE_ACTION  = ActionType("SHUFFLE")
 	SKIP_ACTION     = ActionType("SKIP")
-	PLAYER_ACTION   = ActionType("PlAYER CHANGE")
+	PLAYER_ACTION   = ActionType("PlAYER_CHANGE")
 	LEAVE_ACTION    = ActionType("LEAVE")
 )
 
 type Event struct {
 	ID      string       `json:"id"`
 	Action  Action       `json:"action"`
-	State   *PlayerState `json:"state"`
-	Players *Players     `json:"players"`
+	State   PlayerState  `json:"state"`
 	Message string       `json:"message"`
+	Players []PlayerMeta `json:"players"`
 }
 
 type Listener interface {

@@ -7,6 +7,8 @@ import (
 	"w2g/pkg/controllers"
 	"w2g/pkg/utils"
 
+	_ "net/http/pprof"
+
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"

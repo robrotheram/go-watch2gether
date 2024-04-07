@@ -23,6 +23,11 @@ type PlayerState struct {
 	Active  bool          `json:"active"`
 }
 
+type ServerState struct {
+	Players []PlayerMeta `json:"players"`
+	State   PlayerState
+}
+
 func (state *PlayerState) Next() {
 	if len(state.Queue) > 0 {
 		state.Current = state.Queue[0]

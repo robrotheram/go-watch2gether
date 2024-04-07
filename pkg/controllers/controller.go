@@ -124,6 +124,9 @@ func (c *Controller) Add(url string, top bool, user string) error {
 func (c *Controller) Skip(user string) {
 	if c.running {
 		c.players.Stop()
+		c.state.Next()
+		go c.progress()
+		go c.duration()
 	} else {
 		c.state.Next()
 	}
@@ -151,6 +154,13 @@ func (c *Controller) UpdateQueue(videos []media.Media, user string) {
 func (c *Controller) State() *PlayerState {
 	c.state.Active = !c.players.Empty()
 	return c.state
+}
+
+func (c *Controller) ServerState() ServerState {
+	return ServerState{
+		Players: c.players.GetProgress(),
+		State:   *c.state,
+	}
 }
 
 func (c *Controller) Update(state *PlayerState, user string) {
@@ -229,8 +239,8 @@ func (c *Controller) Notify(action ActionType, user string) {
 			User:    user,
 			Channel: state.ID,
 		},
-		State:   state,
-		Players: c.players,
+		State:   *state,
+		Players: c.players.GetProgress(),
 	}
 }
 

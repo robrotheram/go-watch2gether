@@ -29,11 +29,10 @@ type Client struct {
 	contoller *controllers.Controller
 	socket    *websocket.Conn
 	send      chan []byte
-
-	done     chan any
-	progress media.MediaDuration
-	running  bool
-	exitCode controllers.PlayerExitCode
+	done      chan any
+	progress  media.MediaDuration
+	running   bool
+	exitCode  controllers.PlayerExitCode
 }
 
 const (
@@ -77,12 +76,18 @@ func (c *Client) Send(event controllers.Event) {
 	}
 }
 
-func (wb *Client) Type() controllers.PlayerType {
-	return WEBPLAYER
-}
-
 func (wb *Client) Id() string {
 	return wb.id
+}
+
+func (wb *Client) Meta() controllers.PlayerMeta {
+	return controllers.PlayerMeta{
+		Id:       wb.id,
+		Type:     WEBPLAYER,
+		Running:  wb.running,
+		Progress: wb.progress,
+		User:     wb.user.Username,
+	}
 }
 
 func (wb *Client) Play(url string, start int) (controllers.PlayerExitCode, error) {
@@ -94,11 +99,8 @@ func (wb *Client) Play(url string, start int) (controllers.PlayerExitCode, error
 	return wb.exitCode, nil
 }
 
-func (wb *Client) Progress() media.MediaDuration {
-	return wb.progress
-}
-
 func (wb *Client) Pause() {}
+
 func (wb *Client) Unpause() {
 	wb.running = true
 }

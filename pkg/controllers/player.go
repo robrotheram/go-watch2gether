@@ -10,6 +10,8 @@ import (
 
 type PlayerType string
 type PlayerMeta struct {
+	Id       string              `json:"id"`
+	User     string              `json:"user"`
 	Progress media.MediaDuration `json:"progress"`
 	Type     PlayerType          `json:"type"`
 	Running  bool                `json:"running"`
@@ -24,15 +26,13 @@ const (
 
 type Player interface {
 	Play(string, int) (PlayerExitCode, error)
-	Progress() media.MediaDuration
 	Seek(time.Duration)
-	Type() PlayerType
-	Id() string
 	Pause()
 	Unpause()
 	Stop()
 	Close()
-	Status() bool
+	Meta() PlayerMeta
+	Id() string
 }
 
 type Players struct {
@@ -51,7 +51,7 @@ func (p *Players) Empty() bool {
 }
 
 func (p *Players) Add(player Player) {
-	p.players[player.Id()] = player
+	p.players[player.Meta().Id] = player
 }
 
 func (p *Players) Remvoe(id string) {
@@ -67,14 +67,10 @@ func (p *Players) Seek(seconds time.Duration) {
 	}
 }
 
-func (p *Players) GetProgress() map[string]PlayerMeta {
-	data := map[string]PlayerMeta{}
+func (p *Players) GetProgress() []PlayerMeta {
+	data := []PlayerMeta{}
 	for _, player := range p.players {
-		data[player.Id()] = PlayerMeta{
-			Progress: player.Progress(),
-			Type:     player.Type(),
-			Running:  player.Status(),
-		}
+		data = append(data, player.Meta())
 	}
 	return data
 }
@@ -82,7 +78,7 @@ func (p *Players) GetProgress() map[string]PlayerMeta {
 func (p *Players) Progress() media.MediaDuration {
 	progress := media.MediaDuration{}
 	for _, player := range p.players {
-		prg := player.Progress().Progress
+		prg := player.Meta().Progress.Progress
 		if prg > progress.Progress {
 			progress.Progress = prg
 		}
@@ -98,7 +94,7 @@ func (p *Players) Play(url string, start int) {
 		go func(player Player) {
 			exit, err := player.Play(url, start)
 			if err != nil {
-				log.Warnf("%s player error: %v", player.Type(), err)
+				log.Warnf("%s player error: %v", player.Meta().Type, err)
 			}
 			wg.Done()
 			if exit == STOP_EXITCODE {
@@ -135,7 +131,7 @@ func (p *Players) Close() {
 
 func (p *Players) Running() bool {
 	for _, player := range p.players {
-		if player.Status() {
+		if player.Meta().Running {
 			return true
 		}
 	}
