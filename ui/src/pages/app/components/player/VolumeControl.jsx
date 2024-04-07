@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { VolumeContext } from "../providers";
+import { PlayerContext } from "../providers";
 
 const MuteBtn = ({ onClick }) => {
     return <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-gray-300  group-hover:text-white mr-1"
@@ -40,7 +40,7 @@ const MaxVolBtn = ({ onClick }) => {
 
 
 export const VolumeControl = React.memo(() => {
-    const { volume, setVolume } = useContext(VolumeContext)
+    const { volume, setVolume } = useContext(PlayerContext)
 
     const handleChange = (event) => {
         setVolume(event.target.value);

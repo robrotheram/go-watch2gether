@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useState } from "react";
-import { getRoomId, loopVideoController, pauseVideoController, playVideoController, seekVideoController, skipVideoController } from "../../watch2gether";
+import { formatTime, getRoomId, loopVideoController, pauseVideoController, playVideoController, seekVideoController, skipVideoController } from "../../watch2gether";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import ReactPlayer from "react-player";
 import background from "./wave-signal.svg"
@@ -8,7 +8,7 @@ import { FullScreenBtn } from "./FullScreenBtn";
 import { PlayerSwitch } from "./PlayerSwitch";
 import { PlayBtn } from "./PlayBtn";
 import { VolumeControl } from "./VolumeControl";
-import { PlayerContext, VolumeContext } from "../providers";
+import { PlayerContext } from "../providers";
 import { useHotkeys } from "react-hotkeys-hook";
 
 
@@ -18,8 +18,7 @@ export const VideoPlayer = ({ state, connection }) => {
     const playerRef = React.useRef(null);
     const [playerProgress, setPlayerProgress] = useState(0)
     const [updating, setUpdating] = useState(false)
-    const { progress } = useContext(PlayerContext)
-    const { volume } = useContext(VolumeContext)
+    const { progress, volume } = useContext(PlayerContext)
     const handle = useFullScreenHandle();
 
     useHotkeys('f', () => handle.active ? handle.exit() : handle.enter() , [handle])
@@ -50,14 +49,6 @@ export const VideoPlayer = ({ state, connection }) => {
 
     const handleProgessChange = (evt) => {
         setPlayerProgress(evt.target.value)
-    }
-
-    const formatTime = (seconds) => {
-        if (seconds === undefined) {
-            seconds = 0
-        }
-        let iso = new Date(seconds / 1000000).toISOString()
-        return iso.substring(11, iso.length - 5);
     }
 
     const progressPercentage = (current, total) => {
@@ -142,6 +133,7 @@ export const VideoPlayer = ({ state, connection }) => {
                         backgroundRepeat: "no-repeat"
                     }}
                     loop={state.loop}
+                    controls={false}
                 />
             </div>
             <div className="w-full h-20 grid-cols-1 px-8 pt-1  bg-zinc-900 absolute bottom-0 flex justify-center flex-col items-center">

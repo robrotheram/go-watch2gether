@@ -1,12 +1,37 @@
-import React, { useState, createContext } from 'react';
+import React, { useState, createContext, useEffect } from 'react';
+import { Loading } from './loading';
+import { getGuilds, getSettings, getUser } from '../watch2gether';
 
-export const VolumeContext = createContext();
-const VolumeProvider = ({ children }) => {
-  const [volume, setVolume] = useState(0);
+export const GuildContext = createContext();
+const GuildProvider = ({ children }) => {
+  const [guilds, setGuilds] = useState([]);
+  const [loading, setLoading] = useState(true)
+  const [user, setUser] = useState({});
+  const [settings, setSettings] = useState({})
+  const [players, setPlayers] = useState([])
+
+  useEffect(() => {
+    async function get() {
+      const g = await getGuilds();
+      setUser(await getUser())
+      setSettings(await getSettings())
+      if (g != null) {
+        setGuilds(g);
+      }
+      setLoading(false)
+    }
+    if (guilds.length == 0) { get() };
+  }, [])
+
+  const getGuild = (id) => {
+    return guilds.filter(g => g.id === id)[0]
+  }
+
   return (
-    <VolumeContext.Provider value={{ volume, setVolume }}>
-      {children}
-    </VolumeContext.Provider>
+    <GuildContext.Provider value={{ guilds, user, settings, players, setPlayers, getGuild }}>
+      {loading ? <div className='text-white wrap-login min-h-screen w-full flex justify-center items-center'><Loading /></div>
+        : children}
+    </GuildContext.Provider>
   );
 };
 
@@ -14,8 +39,9 @@ export const PlayerContext = createContext();
 const PlayerProvider = ({ children }) => {
   const [showVideo, setShowVideo] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [volume, setVolume] = useState(0);
   return (
-    <PlayerContext.Provider value={{ showVideo, setShowVideo, progress, setProgress}}>
+    <PlayerContext.Provider value={{ showVideo, setShowVideo, progress, setProgress, volume, setVolume }}>
       {children}
     </PlayerContext.Provider>
   );
@@ -27,11 +53,11 @@ const PlayerProvider = ({ children }) => {
 export const Provider = ({ children }) => {
   return (
     <>
-      <VolumeProvider>
-          <PlayerProvider>
+      <GuildProvider>
+        <PlayerProvider>
           {children}
-          </PlayerProvider>
-      </VolumeProvider>
+        </PlayerProvider>
+      </GuildProvider>
     </>
   );
 };

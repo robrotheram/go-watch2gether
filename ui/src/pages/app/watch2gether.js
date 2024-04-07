@@ -194,6 +194,15 @@ export async function getUser() {
     return jsonData
 }
 
+export async function getChannelPlayers() {
+    const response = await fetch(`/api/channel/${getRoomId()}/players`);
+    const jsonData = await response.json();
+    if (!response.ok){
+        throw jsonData.messages
+    }
+    console.log(Object.keys(jsonData).length)
+    return jsonData
+}
 
 export async function getChannelPlaylists() {
     
@@ -264,4 +273,12 @@ export async function loadFromPlaylist(playlistID) {
         throw jsonData.message
     }
     return jsonData
+}
+
+export const formatTime = (seconds) => {
+    if (seconds === undefined) {
+        seconds = 0
+    }
+    let iso = new Date(seconds / 1000000).toISOString()
+    return iso.substring(11, iso.length - 5);
 }

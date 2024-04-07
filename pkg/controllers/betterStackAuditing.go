@@ -17,30 +17,18 @@ type BetterStackMessage struct {
 	Status   Action      `json:"status"`
 	Message  string      `json:"message"`
 	State    PlayerState `json:"state"`
-	Players  []string    `json:"players"`
 }
 
 func (a *BetterStack) Send(event Event) {
 	if event.Action.Type == UPDATE_DURATION {
 		return
 	}
-
-	players := []string{}
-	if event.Players != nil {
-		for _, v := range event.Players.players {
-			players = append(players, fmt.Sprintf("%s-%s", v.Type(), v.Id()))
-		}
-	}
 	msg := BetterStackMessage{
 		Level:    "info",
 		Severity: "low",
 		Status:   event.Action,
-		Players:  players,
+		State:    event.State,
 	}
-	if event.State != nil {
-		msg.State = *event.State
-	}
-
 	jsonData, err := json.Marshal(msg)
 
 	if err != nil {

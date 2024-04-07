@@ -72,6 +72,7 @@ func NewDiscordAuth(conf utils.Config, paths []string) DiscordAuth {
 	}
 	da.oauthStateString = utils.RandStringRunes(20)
 	da.store = sessions.NewCookieStore([]byte(conf.SessionSecret))
+	da.store.MaxAge(86400 * 1)
 	da.users = make(map[string]User)
 	da.paths = paths
 	return da
@@ -94,7 +95,6 @@ func (da *DiscordAuth) getToken(state string, code string) (*oauth2.Token, error
 	if state != da.oauthStateString {
 		return nil, fmt.Errorf("invalid oauth state")
 	}
-
 	token, err := da.oauthConfig.Exchange(context.Background(), code)
 	if err != nil {
 		return nil, fmt.Errorf("code exchange failed: %s", err.Error())

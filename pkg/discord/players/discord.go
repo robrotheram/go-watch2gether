@@ -85,16 +85,18 @@ func (player *DiscordPlayer) playStream() {
 	}
 }
 
-func (player *DiscordPlayer) Type() controllers.PlayerType {
-	return DISCORD
-}
-
 func (player *DiscordPlayer) Id() string {
 	return player.id
 }
 
-func (player *DiscordPlayer) Status() bool {
-	return player.running
+func (player *DiscordPlayer) Meta() controllers.PlayerMeta {
+	return controllers.PlayerMeta{
+		Id:       player.id,
+		Type:     DISCORD,
+		User:     string(DISCORD),
+		Running:  player.running,
+		Progress: player.progress,
+	}
 }
 
 func (player *DiscordPlayer) Close() {
@@ -140,10 +142,6 @@ func (player *DiscordPlayer) Stop() {
 	}
 	player.session.Stop()
 	player.Finish()
-}
-
-func (player *DiscordPlayer) Progress() media.MediaDuration {
-	return player.progress
 }
 
 func (player *DiscordPlayer) Play(url string, startTime int) (controllers.PlayerExitCode, error) {
