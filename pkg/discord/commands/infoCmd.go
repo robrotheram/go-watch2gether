@@ -11,7 +11,20 @@ import (
 func init() {
 	register(
 		Command{
-			Name: "player",
+			Name: "controls",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Type: discordgo.UserApplicationCommand,
+				},
+				{
+					Description: "show player controls",
+					Type:        discordgo.ChatApplicationCommand,
+				},
+			},
+			Function: controlscmd,
+		},
+		Command{
+			Name: "now-playing",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
 					Type: discordgo.UserApplicationCommand,
