@@ -1,7 +1,9 @@
-go 1.21.7
+go 1.23
+
+toolchain go1.23.0
 
 use (
-    ./local/dca
-    ./local/youtube
-    .
+	.
+	./local/dca
+	./local/youtube
 )

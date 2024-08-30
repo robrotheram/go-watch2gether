@@ -142,28 +142,28 @@ func QueueCompontent(queue []media.Media, pageNum int) *discordgo.InteractionRes
 			Components: []discordgo.MessageComponent{
 				discordgo.Button{
 					CustomID: QueueBtnFirst,
-					Emoji: discordgo.ComponentEmoji{
+					Emoji: &discordgo.ComponentEmoji{
 						Name: "⏮️",
 					},
 					Style: discordgo.PrimaryButton,
 				},
 				discordgo.Button{
 					CustomID: QueueBtnPrevious,
-					Emoji: discordgo.ComponentEmoji{
+					Emoji: &discordgo.ComponentEmoji{
 						Name: "◀️",
 					},
 					Style: discordgo.PrimaryButton,
 				},
 				discordgo.Button{
 					CustomID: QueueBtnNext,
-					Emoji: discordgo.ComponentEmoji{
+					Emoji: &discordgo.ComponentEmoji{
 						Name: "▶️",
 					},
 					Style: discordgo.PrimaryButton,
 				},
 				discordgo.Button{
 					CustomID: QueueBtnLast,
-					Emoji: discordgo.ComponentEmoji{
+					Emoji: &discordgo.ComponentEmoji{
 						Name: "⏭️",
 					},
 					Style: discordgo.PrimaryButton,

@@ -60,7 +60,7 @@ func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionRes
 	if state.State == controllers.PLAY && state.Current.ID != "" {
 		actionButton = discordgo.Button{
 			CustomID: PauseBtn,
-			Emoji: discordgo.ComponentEmoji{
+			Emoji: &discordgo.ComponentEmoji{
 				Name: "⏸️",
 			},
 			Style: discordgo.PrimaryButton,
@@ -68,7 +68,7 @@ func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionRes
 	} else {
 		actionButton = discordgo.Button{
 			CustomID: PlayBtn,
-			Emoji: discordgo.ComponentEmoji{
+			Emoji: &discordgo.ComponentEmoji{
 				Name: "▶️",
 			},
 			Style: discordgo.PrimaryButton,
@@ -80,7 +80,7 @@ func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionRes
 			Components: []discordgo.MessageComponent{
 				discordgo.Button{
 					CustomID: StopBtn,
-					Emoji: discordgo.ComponentEmoji{
+					Emoji: &discordgo.ComponentEmoji{
 						Name: "⏹️",
 					},
 					Style: discordgo.PrimaryButton,
@@ -88,7 +88,7 @@ func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionRes
 				actionButton,
 				discordgo.Button{
 					CustomID: SkipBtn,
-					Emoji: discordgo.ComponentEmoji{
+					Emoji: &discordgo.ComponentEmoji{
 						Name: "⏭️",
 					},
 					Style: discordgo.PrimaryButton,
