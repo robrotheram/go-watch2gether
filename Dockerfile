@@ -6,7 +6,7 @@ ADD /ui .
 ADD .git .
 RUN npm i; npm run build; 
 
-FROM golang:1.21.7 as GO_BUILDER
+FROM golang:1.24 as GO_BUILDER
 ARG VER
 WORKDIR /server
 ADD . .
