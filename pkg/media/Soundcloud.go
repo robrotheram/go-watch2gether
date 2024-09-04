@@ -3,7 +3,7 @@ package media
 import (
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"regexp"
 	"time"
@@ -11,8 +11,6 @@ import (
 	"github.com/segmentio/ksuid"
 	"github.com/sirupsen/logrus"
 )
-
-var re = regexp.MustCompile(`(?m)"contentUrl": "(.*)"`)
 
 type SoundCloudApi struct{}
 
@@ -118,7 +116,7 @@ func (sc *SoundCloudApi) getSoundcloudData(url string) ([]byte, error) {
 		return []byte{}, err
 	}
 	defer resp.Body.Close()
-	return ioutil.ReadAll(resp.Body)
+	return io.ReadAll(resp.Body)
 }
 
 func (sc *SoundCloudApi) getTrackInfoUrl(html []byte) (string, error) {
@@ -146,20 +144,6 @@ func (sc *SoundCloudApi) getTrackData(trackID string, clientID string) Soundclou
 	return track
 }
 
-func (sc *SoundCloudApi) getClientID(html []byte) (string, error) {
-	var re = regexp.MustCompile(`<script crossorigin src="(.+?)"><\/script>`)
-	url := re.FindAllStringSubmatch(string(html), -1)[4][1]
-
-	data, err := sc.getSoundcloudData(url)
-	if err != nil {
-		return "", err
-	}
-	re = regexp.MustCompile(`client_id=(.+?)&`)
-	clientID := re.FindAllStringSubmatch(string(data), -1)[0][1]
-
-	return clientID, nil
-}
-
 func (sc *SoundCloudApi) GetMedia(url string, username string) []Media {
 	media := []Media{}
 
@@ -169,9 +153,6 @@ func (sc *SoundCloudApi) GetMedia(url string, username string) []Media {
 		return media
 	}
 	clientID := "iZIs9mchVcX5lhVRyQGGAYlNPVldzAoX"
-	if err != nil {
-		return media
-	}
 	trackID, err := sc.getTrackID(html)
 	if err != nil {
 		return media

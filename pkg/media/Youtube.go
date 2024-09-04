@@ -157,7 +157,7 @@ func (yt *Youtube) GetMedia(url string, username string) ([]Media, error) {
 		}
 		return []Media{video}, nil
 	}
-	return []Media{}, fmt.Errorf("Unable find valid audio for this url, %v", err)
+	return []Media{}, fmt.Errorf("unable find valid audio for this url, %v", err)
 }
 
 func (yt *Youtube) GetType() MediaType {

@@ -413,7 +413,11 @@ func (h *handler) handleMediaProxy(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Create a new request to the destination URL
-	req, err := http.NewRequest(r.Method, media.GetAudioUrl(), r.Body)
+	if media.Refresh() != nil {
+		http.Error(w, "unable to resolve audio url for media", http.StatusBadRequest)
+		return
+	}
+	req, err := http.NewRequest(r.Method, media.AudioUrl, r.Body)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to create request: %s", err), http.StatusInternalServerError)
 		return

@@ -193,7 +193,10 @@ func (c *Controller) ContainsPlayer(id string) bool {
 
 func (c *Controller) progress() {
 	for {
-		audio := c.state.Current.GetAudioUrl()
+		if c.state.Current.Refresh() != nil {
+			return
+		}
+		audio := c.state.Current.AudioUrl
 		log.Debug("START_PLAYING")
 		c.players.Play(audio, 0)
 		log.Debug("STOP_PLAYING")
