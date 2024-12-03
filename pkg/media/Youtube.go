@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"regexp"
 	"time"
+	"w2g/pkg/media/clients/youtube"
 
-	"github.com/kkdai/youtube/v2"
 	"github.com/segmentio/ksuid"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/net/http/httpproxy"
@@ -49,8 +49,10 @@ func (yt *Youtube) Setup() {
 		}).DialContext,
 	}
 
-	yt.downloader = &youtube.Client{}
-	yt.downloader.HTTPClient = &http.Client{Transport: httpTransport}
+	yt.downloader = &youtube.Client{
+		HTTPClient: &http.Client{Transport: httpTransport},
+	}
+	yt.downloader.SetDefaultClient(&youtube.WebClient)
 	yt.hlsRegex = regexp.MustCompile(`(https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#,?&*//=]*)(.m3u8)\b([-a-zA-Z0-9@:%_\+.~#,?&//=]*))`)
 }
 

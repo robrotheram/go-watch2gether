@@ -5,5 +5,4 @@ toolchain go1.23.0
 use (
 	.
 	./local/dca
-	./local/youtube
 )
