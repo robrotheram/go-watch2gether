@@ -84,7 +84,7 @@ func paginate(pageNum int, pageSize int, sliceLength int) (int, int) {
 	return start, end
 }
 
-func maxPages(queue []media.Media) int {
+func maxPages(queue []*media.Media) int {
 	return len(queue) / 10
 }
 
@@ -110,7 +110,7 @@ func emptyQueue() *discordgo.InteractionResponseData {
 	}
 }
 
-func QueueCompontent(queue []media.Media, pageNum int) *discordgo.InteractionResponseData {
+func QueueCompontent(queue []*media.Media, pageNum int) *discordgo.InteractionResponseData {
 	if len(queue) == 0 {
 		return emptyQueue()
 	}

@@ -76,15 +76,15 @@ func (radio *RadioGarden) getIDFromURL(targetUrl string) string {
 	}
 	return (path.Base(myUrl.Path))
 }
-func (radio *RadioGarden) GetMedia(url string, username string) ([]Media, error) {
-	media := []Media{}
+func (radio *RadioGarden) GetMedia(url string, username string) ([]*Media, error) {
+	media := []*Media{}
 
 	radioID := radio.getIDFromURL(url)
 
 	info, _ := radio.getRadioInfo(radioID)
 	audioUrl := radio.getAudioURL(radioID)
 
-	m := Media{
+	m := &Media{
 		ID:    ksuid.New().String(),
 		Url:   url,
 		User:  username,

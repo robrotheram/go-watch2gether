@@ -2,6 +2,7 @@ package media
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 	"time"
 )
@@ -41,16 +42,20 @@ func (ct *ContentType) getConentType(url string) (string, error) {
 type MediaClient interface {
 	GetType() MediaType
 	IsValidUrl(string, *ContentType) bool
-	GetMedia(url string, username string) ([]Media, error)
+	GetMedia(url string, username string) ([]*Media, error)
 	Refresh(media *Media) error
 }
 
 type Factory struct {
 	Factories map[MediaType]*MediaClient
+	Client    Client
 }
 
 var MediaFactory = Factory{
 	Factories: map[MediaType]*MediaClient{},
+	Client: Client{
+		Executable: "yt-dlp",
+	},
 }
 
 func (f *Factory) Register(client MediaClient) {
@@ -68,25 +73,42 @@ func (f *Factory) GetFactory(url string) MediaClient {
 	return nil
 }
 
-func (f *Factory) GetMedia(url string, username string) ([]Media, error) {
+func (f *Factory) getMedia(url string, username string) ([]*Media, error) {
+	if m, err := f.Client.GetMedia(url, username); err == nil {
+		return m, err
+	}
 	factory := f.GetFactory(url)
 	if factory == nil {
-		return []Media{}, fmt.Errorf("unsupported URL")
+		return []*Media{}, fmt.Errorf("unsupported URL")
 	}
 	return factory.GetMedia(url, username)
 }
 
-func NewVideo(url string, username string) ([]Media, error) {
-	media, err := MediaFactory.GetMedia(url, username)
+func NewVideo(url string, username string) ([]*Media, error) {
+	media, err := MediaFactory.getMedia(url, username)
 	return media, err
 }
 
-func RefreshAudioURL(media *Media) error {
+func Refresh(media *Media) error {
+	if len(media.AudioUrl) > 0 {
+		log.Println("Skipping Refesh")
+		return nil
+	}
+	if err := MediaFactory.Client.HydrateMedia(media); err == nil {
+		return nil
+	}
 	factory := MediaFactory.GetFactory(media.Url)
 	if factory == nil {
 		return fmt.Errorf("no factory found")
 	}
 	return factory.Refresh(media)
+}
+
+func RefreshAll(tracks []*Media) error {
+	for _, track := range tracks {
+		Refresh(track)
+	}
+	return nil
 }
 
 func (f *Factory) GetTypes() []MediaType {

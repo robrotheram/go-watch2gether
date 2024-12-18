@@ -27,5 +27,5 @@ func (v *Media) GetType() MediaType {
 }
 
 func (m *Media) Refresh() error {
-	return RefreshAudioURL(m)
+	return Refresh(m)
 }

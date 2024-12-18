@@ -120,13 +120,13 @@ func (pod *PodcastRSS) fetch(url string) (pd Podcast, err error) {
 	return pod.parse(buff)
 }
 
-func (pod *PodcastRSS) GetMedia(url string, username string) ([]Media, error) {
+func (pod *PodcastRSS) GetMedia(url string, username string) ([]*Media, error) {
 	podcasts, err := pod.fetch(url)
 	if err != nil {
-		return []Media{}, err
+		return []*Media{}, err
 	}
 	item := podcasts.Items[0]
-	track := Media{
+	track := &Media{
 		ID:          ksuid.New().String(),
 		Url:         item.Link,
 		Thumbnail:   item.Image.Url,
@@ -144,7 +144,7 @@ func (pod *PodcastRSS) GetMedia(url string, username string) ([]Media, error) {
 			Duration: duration,
 		}
 	}
-	return []Media{track}, nil
+	return []*Media{track}, nil
 }
 
 func (pod *PodcastRSS) GetType() MediaType {

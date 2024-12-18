@@ -1,6 +1,7 @@
 package media
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -44,4 +45,6 @@ func TestYoutube(t *testing.T) {
 	tracks, err := client.GetMedia(url, "")
 	assert.Nil(t, err)
 	assert.Equal(t, len(tracks), 1)
+
+	fmt.Println(tracks[0].AudioUrl)
 }

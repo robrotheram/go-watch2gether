@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"context"
 	"sync"
 	"time"
 	"w2g/pkg/media"
@@ -53,7 +54,7 @@ func (c *Controller) load(id string) {
 	if err != nil {
 		state = &PlayerState{
 			ID:    id,
-			Queue: []media.Media{},
+			Queue: []*media.Media{},
 			State: STOP,
 			Loop:  false,
 		}
@@ -73,7 +74,6 @@ func (c *Controller) Start(user string) {
 		}
 		c.running = true
 		go c.progress()
-		go c.duration()
 	} else if c.state.State == PAUSE {
 		c.players.Unpause()
 	}
@@ -108,6 +108,7 @@ func (c *Controller) Seek(seconds time.Duration, user string) {
 
 func (c *Controller) Add(url string, top bool, user string) error {
 	tracks, err := media.NewVideo(url, user)
+	go media.RefreshAll(tracks)
 	if err != nil {
 		return err
 	}
@@ -124,9 +125,6 @@ func (c *Controller) Add(url string, top bool, user string) error {
 func (c *Controller) Skip(user string) {
 	if c.running {
 		c.players.Stop()
-		c.state.Next()
-		go c.progress()
-		go c.duration()
 	} else {
 		c.state.Next()
 	}
@@ -145,7 +143,7 @@ func (c *Controller) Loop(user string) {
 	c.Notify(LOOP_ACTION, user)
 }
 
-func (c *Controller) UpdateQueue(videos []media.Media, user string) {
+func (c *Controller) UpdateQueue(videos []*media.Media, user string) {
 	c.state.Queue = videos
 	c.save()
 	c.Notify(UPDATE_QUEUE, user)
@@ -198,8 +196,11 @@ func (c *Controller) progress() {
 		}
 		audio := c.state.Current.AudioUrl
 		log.Debug("START_PLAYING")
+		ctx, cancel := context.WithCancel(context.Background())
+		go c.duration(ctx)
 		c.players.Play(audio, 0)
 		log.Debug("STOP_PLAYING")
+		cancel()
 		if !c.state.Loop {
 			c.state.Next()
 			c.Notify(UPDATE_QUEUE, SYSTEM)
@@ -213,15 +214,17 @@ func (c *Controller) progress() {
 	}
 }
 
-func (c *Controller) duration() {
+func (c *Controller) duration(ctx context.Context) {
 	ticker := time.NewTicker(1 * time.Second)
-	for range ticker.C {
-		if !c.running {
-			ticker.Stop()
+	defer ticker.Stop() // Ensure ticker is cleaned up when the goroutine exits
+	for {
+		select {
+		case <-ctx.Done():
 			return
+		case <-ticker.C:
+			c.state.Current.Progress.Progress = c.players.Progress().Progress
+			c.Notify(UPDATE_DURATION, SYSTEM)
 		}
-		c.state.Current.Progress.Progress = c.players.Progress().Progress
-		c.Notify(UPDATE_DURATION, SYSTEM)
 	}
 }
 

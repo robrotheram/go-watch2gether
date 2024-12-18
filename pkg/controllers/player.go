@@ -90,7 +90,7 @@ func (p *Players) Play(url string, start int) {
 	wg := sync.WaitGroup{}
 	wg.Add(len(p.players))
 	for _, player := range p.players {
-		player := player //TODO: Remove in when we upgrade go 1.22
+		// player := player //TODO: Remove in when we upgrade go 1.22
 		go func(player Player) {
 			exit, err := player.Play(url, start)
 			if err != nil {

@@ -15,12 +15,12 @@ var (
 )
 
 type PlayerState struct {
-	ID      string        `json:"id"`
-	State   PlayState     `json:"status"`
-	Queue   []media.Media `json:"queue"`
-	Current media.Media   `json:"current"`
-	Loop    bool          `json:"loop"`
-	Active  bool          `json:"active"`
+	ID      string         `json:"id"`
+	State   PlayState      `json:"status"`
+	Queue   []*media.Media `json:"queue"`
+	Current *media.Media   `json:"current"`
+	Loop    bool           `json:"loop"`
+	Active  bool           `json:"active"`
 }
 
 type ServerState struct {
@@ -33,7 +33,7 @@ func (state *PlayerState) Next() {
 		state.Current = state.Queue[0]
 		state.Queue = state.Queue[1:]
 	} else {
-		state.Current = media.Media{}
+		state.Current = nil
 	}
 	state.Current.Refresh()
 }
@@ -56,40 +56,40 @@ func (state *PlayerState) Remove(pos1 int) {
 	state.Queue = remove(state.Queue, pos1)
 }
 
-func (state *PlayerState) AddTop(videos []media.Media) {
+func (state *PlayerState) AddTop(videos []*media.Media) {
 	state.Queue = append(videos, state.Queue...)
 }
 
-func (state *PlayerState) AddBottom(videos []media.Media) {
+func (state *PlayerState) AddBottom(videos []*media.Media) {
 	state.Queue = append(state.Queue, videos...)
 }
 
 func (state *PlayerState) Clear() {
-	state.Queue = []media.Media{}
+	state.Queue = []*media.Media{}
 }
 
 func (state *PlayerState) ChangeState(ps PlayState) {
 	state.State = ps
 }
 
-func (state *PlayerState) FindById(id string) (media.Media, error) {
+func (state *PlayerState) FindById(id string) (*media.Media, error) {
 	for _, track := range state.Queue {
 		if track.ID == id {
 			return track, nil
 		}
 	}
-	return media.Media{}, fmt.Errorf("track not found")
+	return nil, fmt.Errorf("track not found")
 }
 
-func insert(array []media.Media, value media.Media, index int) []media.Media {
-	return append(array[:index], append([]media.Media{value}, array[index:]...)...)
+func insert(array []*media.Media, value *media.Media, index int) []*media.Media {
+	return append(array[:index], append([]*media.Media{value}, array[index:]...)...)
 }
 
-func remove(array []media.Media, index int) []media.Media {
+func remove(array []*media.Media, index int) []*media.Media {
 	return append(array[:index], array[index+1:]...)
 }
 
-func move(array []media.Media, srcIndex int, dstIndex int) []media.Media {
+func move(array []*media.Media, srcIndex int, dstIndex int) []*media.Media {
 	value := array[srcIndex]
 	return insert(remove(array, srcIndex), value, dstIndex)
 }

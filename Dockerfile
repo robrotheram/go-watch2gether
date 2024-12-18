@@ -17,7 +17,7 @@ FROM alpine
 LABEL org.opencontainers.image.source="https://github.com/robrotheram/go-watch2gether"
 WORKDIR /app
 RUN apk upgrade -U \
- && apk add ca-certificates ffmpeg \
+ && apk add ca-certificates ffmpeg 	yt-dlp \
  && rm -rf /var/cache/*
 RUN mkdir -p /app/ui
 ADD app.sample.env /app/app.env

@@ -11,15 +11,15 @@ import (
 )
 
 type Playlist struct {
-	ID      string        `json:"id"`
-	Name    string        `json:"name"`
-	Videos  []media.Media `json:"videos"`
-	User    string        `json:"user"`
-	Channel string        `json:"channel"`
+	ID      string         `json:"id"`
+	Name    string         `json:"name"`
+	Videos  []*media.Media `json:"videos"`
+	User    string         `json:"user"`
+	Channel string         `json:"channel"`
 }
 
 func (playist *Playlist) RefeshList() {
-	newList := []media.Media{}
+	newList := []*media.Media{}
 	for _, video := range playist.Videos {
 		if len(video.Type) > 0 {
 			newList = append(newList, video)

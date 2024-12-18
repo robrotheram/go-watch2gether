@@ -121,7 +121,7 @@ func (h *handler) handleClearVideo(w http.ResponseWriter, r *http.Request) {
 		WriteError(w, userNotFound)
 		return
 	}
-	controller.UpdateQueue([]media.Media{}, user.Username)
+	controller.UpdateQueue([]*media.Media{}, user.Username)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())
 }
@@ -228,7 +228,7 @@ func (h *handler) handleAddVideo(w http.ResponseWriter, r *http.Request) {
 func (h *handler) handleUpateQueue(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
-	var videos []media.Media
+	var videos []*media.Media
 	decoder := json.NewDecoder(r.Body)
 	if decoder.Decode(&videos) != nil {
 		return
