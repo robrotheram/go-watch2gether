@@ -98,7 +98,7 @@ func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionRes
 	}
 
 	currentlyPlayingEmbed := EmbedBuilder("Nothing is currently playing")
-	if len(state.Current.ID) > 0 {
+	if state.Current != nil {
 		currentlyPlayingEmbed = MediaEmbed(*state.Current, "Currently Playing:")
 	}
 

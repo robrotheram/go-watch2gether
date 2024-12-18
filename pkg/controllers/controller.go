@@ -69,7 +69,7 @@ func (c *Controller) Start(user string) {
 		return
 	}
 	if !c.running {
-		if c.state.Current.Url == "" {
+		if c.state.Current != nil {
 			c.state.Next()
 		}
 		c.running = true
@@ -191,7 +191,7 @@ func (c *Controller) ContainsPlayer(id string) bool {
 
 func (c *Controller) progress() {
 	for {
-		if c.state.Current.Refresh() != nil {
+		if c.state.Current == nil {
 			return
 		}
 		audio := c.state.Current.AudioUrl

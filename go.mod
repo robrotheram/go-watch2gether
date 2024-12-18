@@ -12,9 +12,7 @@ require (
 	github.com/segmentio/ksuid v1.0.4
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/viper v1.19.0
-	golang.org/x/net v0.28.0
 	golang.org/x/oauth2 v0.22.0
-	gopkg.in/vansante/go-ffprobe.v2 v2.2.0
 )
 
 require (
@@ -42,17 +40,11 @@ require (
 )
 
 require (
-	github.com/bitly/go-simplejson v0.5.1
-	github.com/dlclark/regexp2 v1.11.4 // indirect
-	github.com/dop251/goja v0.0.0-20240828124009-016eb7256539
-	github.com/go-sourcemap/sourcemap v2.1.4+incompatible // indirect
-	github.com/google/pprof v0.0.0-20240829160300-da1f7e9f2b25 // indirect
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/websocket v1.5.3
 	github.com/jonas747/ogg v0.0.0-20161220051205-b4f6f4cf3757 // indirect
 	github.com/stretchr/testify v1.9.0
-	github.com/yezige/youtube/v2 v2.8.18
 	go.etcd.io/bbolt v1.3.11
 	golang.org/x/crypto v0.26.0 // indirect
 	golang.org/x/sys v0.24.0 // indirect
