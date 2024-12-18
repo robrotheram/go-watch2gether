@@ -72,7 +72,7 @@ func init() {
 }
 
 func listcmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	return ctx.CmdReplyData(components.QueueCompontent(ctx.Controller.State().Queue, 0))
+	return ctx.CmdReplyData(components.QueueCompontent(ctx.Controller.State(), 0))
 }
 
 func controlscmd(ctx CommandCtx) *discordgo.InteractionResponse {

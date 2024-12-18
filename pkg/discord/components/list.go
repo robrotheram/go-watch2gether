@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"unicode"
+	"w2g/pkg/controllers"
 	"w2g/pkg/media"
 
 	"github.com/bwmarrin/discordgo"
@@ -26,7 +27,7 @@ func init() {
 			Name: QueueBtnFirst,
 			Function: func(ctx HandlerCtx) *discordgo.InteractionResponse {
 				ctx.UserSession.Page = 0
-				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State().Queue, ctx.UserSession.Page))
+				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State(), ctx.UserSession.Page))
 			},
 		},
 	)
@@ -35,7 +36,7 @@ func init() {
 			Name: QueueBtnLast,
 			Function: func(ctx HandlerCtx) *discordgo.InteractionResponse {
 				ctx.UserSession.Page = maxPages(ctx.Controller.State().Queue)
-				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State().Queue, ctx.UserSession.Page))
+				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State(), ctx.UserSession.Page))
 			},
 		},
 	)
@@ -47,7 +48,7 @@ func init() {
 				if ctx.UserSession.Page > maxPages(ctx.Controller.State().Queue) {
 					ctx.UserSession.Page = maxPages(ctx.Controller.State().Queue)
 				}
-				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State().Queue, ctx.UserSession.Page))
+				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State(), ctx.UserSession.Page))
 			},
 		},
 	)
@@ -59,7 +60,7 @@ func init() {
 				if ctx.UserSession.Page < 0 {
 					ctx.UserSession.Page = 0
 				}
-				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State().Queue, ctx.UserSession.Page))
+				return ctx.UpdateMessage(QueueCompontent(ctx.Controller.State(), ctx.UserSession.Page))
 			},
 		},
 	)
@@ -110,17 +111,17 @@ func emptyQueue() *discordgo.InteractionResponseData {
 	}
 }
 
-func QueueCompontent(queue []*media.Media, pageNum int) *discordgo.InteractionResponseData {
-	if len(queue) == 0 {
+func QueueCompontent(state *controllers.PlayerState, pageNum int) *discordgo.InteractionResponseData {
+	if len(state.Queue) == 0 {
 		return emptyQueue()
 	}
 
-	start, end := paginate(pageNum, pageSize, len(queue))
-	pagedSlice := queue[start:end]
+	start, end := paginate(pageNum, pageSize, len(state.Queue))
+	pagedSlice := state.Queue[start:end]
 	if len(pagedSlice) == 0 {
 		pageNum = pageNum - 1
-		start, end := paginate(pageNum, pageSize, len(queue))
-		pagedSlice = queue[start:end]
+		start, end := paginate(pageNum, pageSize, len(state.Queue))
+		pagedSlice = state.Queue[start:end]
 	}
 
 	embed := EmbedBuilder("Currently in the Queue")
@@ -129,13 +130,13 @@ func QueueCompontent(queue []*media.Media, pageNum int) *discordgo.InteractionRe
 		pos := pageNum*pageSize + i + 1
 		queStr = queStr + fmt.Sprintf("`%d.` [%s](%s) \n", pos, truncate(video.Title, 40), video.Url)
 	}
-	totalPages := float64(len(queue)) / float64(pageSize)
+	totalPages := float64(len(state.Queue)) / float64(pageSize)
 
 	embed.AddField(discordgo.MessageEmbedField{
 		Name:  fmt.Sprintf("Page %d of %d", pageNum+1, int(math.Ceil(totalPages))),
 		Value: queStr,
 	})
-	embed.Description = fmt.Sprintf("%d tracks in total in the queue", len(queue))
+	embed.Description = fmt.Sprintf("%d tracks in total in the queue", len(state.Queue))
 
 	components := []discordgo.MessageComponent{
 		discordgo.ActionsRow{
@@ -172,11 +173,16 @@ func QueueCompontent(queue []*media.Media, pageNum int) *discordgo.InteractionRe
 		},
 	}
 
+	currentlyPlayingEmbed := EmbedBuilder("Nothing is currently playing")
+	if state.Current != nil {
+		currentlyPlayingEmbed = MediaEmbed(*state.Current, "Currently Playing:")
+	}
+
 	return &discordgo.InteractionResponseData{
-		Content:    "Currently Playing:",
 		Flags:      discordgo.MessageFlagsEphemeral,
 		Components: components,
 		Embeds: []*discordgo.MessageEmbed{
+			&currentlyPlayingEmbed.MessageEmbed,
 			&embed.MessageEmbed,
 		},
 	}
