@@ -25,7 +25,7 @@ type YTDLPMedia struct {
 		URL        string  `json:"url"`
 		Width      int     `json:"width,omitempty"`
 		Height     int     `json:"height,omitempty"`
-		Fps        float64 `json:"fps,omitempty"`
+		Fps        float32 `json:"fps,omitempty"`
 		Rows       int     `json:"rows,omitempty"`
 		Columns    int     `json:"columns,omitempty"`
 		Fragments  []struct {
@@ -54,7 +54,7 @@ type YTDLPMedia struct {
 		Quality            float32 `json:"quality,omitempty"`
 		HasDrm             bool    `json:"has_drm,omitempty"`
 		SourcePreference   int     `json:"source_preference,omitempty"`
-		Asr                int     `json:"asr,omitempty"`
+		Asr                float32 `json:"asr,omitempty"`
 		Filesize           int     `json:"filesize,omitempty"`
 		AudioChannels      int     `json:"audio_channels,omitempty"`
 		LanguagePreference int     `json:"language_preference,omitempty"`
@@ -65,22 +65,22 @@ type YTDLPMedia struct {
 		} `json:"downloader_options,omitempty"`
 	} `json:"formats"`
 	Thumbnails []struct {
-		URL        string `json:"url"`
-		Preference int    `json:"preference"`
-		ID         string `json:"id"`
-		Height     int    `json:"height,omitempty"`
-		Width      int    `json:"width,omitempty"`
-		Resolution string `json:"resolution,omitempty"`
+		URL        string  `json:"url"`
+		Preference int     `json:"preference"`
+		ID         string  `json:"id"`
+		Height     float32 `json:"height,omitempty"`
+		Width      float32 `json:"width,omitempty"`
+		Resolution string  `json:"resolution,omitempty"`
 	} `json:"thumbnails"`
 	Thumbnail         string   `json:"thumbnail"`
 	Url               string   `json:"url"`
 	Description       string   `json:"description"`
 	ChannelID         string   `json:"channel_id"`
 	ChannelURL        string   `json:"channel_url"`
-	Duration          int      `json:"duration"`
-	ViewCount         int      `json:"view_count"`
+	Duration          float32  `json:"duration"`
+	ViewCount         float32  `json:"view_count"`
 	AverageRating     any      `json:"average_rating"`
-	AgeLimit          int      `json:"age_limit"`
+	AgeLimit          float32  `json:"age_limit"`
 	WebpageURL        string   `json:"webpage_url"`
 	Categories        []string `json:"categories"`
 	Tags              []string `json:"tags"`
@@ -99,47 +99,47 @@ type YTDLPMedia struct {
 		EndTime   float64 `json:"end_time"`
 		Value     float64 `json:"value"`
 	} `json:"heatmap"`
-	LikeCount            int    `json:"like_count"`
-	Channel              string `json:"channel"`
-	ChannelFollowerCount int    `json:"channel_follower_count"`
-	ChannelIsVerified    bool   `json:"channel_is_verified"`
-	Uploader             string `json:"uploader"`
-	UploaderID           string `json:"uploader_id"`
-	UploaderURL          string `json:"uploader_url"`
-	UploadDate           string `json:"upload_date"`
-	Timestamp            int    `json:"timestamp"`
-	Availability         string `json:"availability"`
-	OriginalURL          string `json:"original_url"`
-	WebpageURLBasename   string `json:"webpage_url_basename"`
-	WebpageURLDomain     string `json:"webpage_url_domain"`
-	Extractor            string `json:"extractor"`
-	ExtractorKey         string `json:"extractor_key"`
-	Playlist             any    `json:"playlist"`
-	PlaylistIndex        any    `json:"playlist_index"`
-	DisplayID            string `json:"display_id"`
-	Fulltitle            string `json:"fulltitle"`
-	DurationString       string `json:"duration_string"`
-	ReleaseYear          any    `json:"release_year"`
-	IsLive               bool   `json:"is_live"`
-	WasLive              bool   `json:"was_live"`
-	RequestedSubtitles   any    `json:"requested_subtitles"`
-	HasDrm               any    `json:"_has_drm"`
-	Epoch                int    `json:"epoch"`
+	LikeCount            int     `json:"like_count"`
+	Channel              string  `json:"channel"`
+	ChannelFollowerCount int     `json:"channel_follower_count"`
+	ChannelIsVerified    bool    `json:"channel_is_verified"`
+	Uploader             string  `json:"uploader"`
+	UploaderID           string  `json:"uploader_id"`
+	UploaderURL          string  `json:"uploader_url"`
+	UploadDate           string  `json:"upload_date"`
+	Timestamp            float32 `json:"timestamp"`
+	Availability         string  `json:"availability"`
+	OriginalURL          string  `json:"original_url"`
+	WebpageURLBasename   string  `json:"webpage_url_basename"`
+	WebpageURLDomain     string  `json:"webpage_url_domain"`
+	Extractor            string  `json:"extractor"`
+	ExtractorKey         string  `json:"extractor_key"`
+	Playlist             any     `json:"playlist"`
+	PlaylistIndex        any     `json:"playlist_index"`
+	DisplayID            string  `json:"display_id"`
+	Fulltitle            string  `json:"fulltitle"`
+	DurationString       string  `json:"duration_string"`
+	ReleaseYear          any     `json:"release_year"`
+	IsLive               bool    `json:"is_live"`
+	WasLive              bool    `json:"was_live"`
+	RequestedSubtitles   any     `json:"requested_subtitles"`
+	HasDrm               any     `json:"_has_drm"`
+	Epoch                int     `json:"epoch"`
 	RequestedFormats     []struct {
 		Asr                any     `json:"asr"`
 		Filesize           int     `json:"filesize"`
 		FormatID           string  `json:"format_id"`
 		FormatNote         string  `json:"format_note"`
 		SourcePreference   int     `json:"source_preference"`
-		Fps                int     `json:"fps"`
+		Fps                float32 `json:"fps"`
 		AudioChannels      any     `json:"audio_channels"`
-		Height             int     `json:"height"`
+		Height             float32 `json:"height"`
 		Quality            float64 `json:"quality"`
 		HasDrm             bool    `json:"has_drm"`
 		Tbr                float64 `json:"tbr"`
 		FilesizeApprox     int     `json:"filesize_approx"`
 		URL                string  `json:"url"`
-		Width              int     `json:"width"`
+		Width              float32 `json:"width"`
 		Language           any     `json:"language"`
 		LanguagePreference float32 `json:"language_preference"`
 		Preference         any     `json:"preference"`
@@ -227,7 +227,7 @@ func processYTDLP(line string) (*Media, error) {
 }
 
 func (client *Client) HydrateMedia(media *Media) error {
-	cmd := exec.Command(client.Executable, "--flat-playlist", "--format", "ba", "--dump-json", media.Url)
+	cmd := exec.Command(client.Executable, "--flat-playlist", "--format", "worst", "--dump-json", media.Url)
 
 	// Create a buffer to capture the output
 	var out bytes.Buffer
