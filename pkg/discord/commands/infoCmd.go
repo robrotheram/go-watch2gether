@@ -37,6 +37,19 @@ func init() {
 			Function: controlscmd,
 		},
 		Command{
+			Name: "now",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Type: discordgo.UserApplicationCommand,
+				},
+				{
+					Description: "show what is currently playing",
+					Type:        discordgo.ChatApplicationCommand,
+				},
+			},
+			Function: controlscmd,
+		},
+		Command{
 			Name: "list",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{

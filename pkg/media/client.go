@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/segmentio/ksuid"
+	log "github.com/sirupsen/logrus"
 )
 
 type YTDLPMedia struct {
@@ -140,7 +141,7 @@ type YTDLPMedia struct {
 		URL                string  `json:"url"`
 		Width              int     `json:"width"`
 		Language           any     `json:"language"`
-		LanguagePreference int     `json:"language_preference"`
+		LanguagePreference float32 `json:"language_preference"`
 		Preference         any     `json:"preference"`
 		Ext                string  `json:"ext"`
 		Vcodec             string  `json:"vcodec"`
@@ -153,10 +154,10 @@ type YTDLPMedia struct {
 		Protocol    string  `json:"protocol"`
 		VideoExt    string  `json:"video_ext"`
 		AudioExt    string  `json:"audio_ext"`
-		Abr         int     `json:"abr"`
-		Vbr         float64 `json:"vbr"`
+		Abr         float32 `json:"abr"`
+		Vbr         float32 `json:"vbr"`
 		Resolution  string  `json:"resolution"`
-		AspectRatio float64 `json:"aspect_ratio"`
+		AspectRatio float32 `json:"aspect_ratio"`
 		HTTPHeaders struct {
 			UserAgent      string `json:"User-Agent"`
 			Accept         string `json:"Accept"`
@@ -171,8 +172,8 @@ type YTDLPMedia struct {
 	Protocol       string  `json:"protocol"`
 	Language       any     `json:"language"`
 	FormatNote     string  `json:"format_note"`
-	FilesizeApprox int     `json:"filesize_approx"`
-	Tbr            float64 `json:"tbr"`
+	FilesizeApprox float32 `json:"filesize_approx"`
+	Tbr            float32 `json:"tbr"`
 	Width          int     `json:"width"`
 	Height         int     `json:"height"`
 	Resolution     string  `json:"resolution"`
@@ -184,7 +185,7 @@ type YTDLPMedia struct {
 	AspectRatio    float64 `json:"aspect_ratio"`
 	Acodec         string  `json:"acodec"`
 	Abr            float64 `json:"abr"`
-	Asr            int     `json:"asr"`
+	Asr            float32 `json:"asr"`
 	AudioChannels  int     `json:"audio_channels"`
 	Filename       string  `json:"_filename"`
 	Filename0      string  `json:"filename"`
@@ -266,10 +267,11 @@ func (client *Client) GetMedia(videoURL string, username string) ([]*Media, erro
 			continue
 		}
 		media, err := processYTDLP(line)
-		media.AudioUrl = ""
 		if err != nil {
+			log.Warnf("unable to process audio %v", err)
 			continue
 		}
+		media.AudioUrl = ""
 		tracks = append(tracks, media)
 	}
 	return tracks, nil

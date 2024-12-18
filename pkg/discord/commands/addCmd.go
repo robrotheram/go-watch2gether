@@ -3,7 +3,6 @@ package commands
 import (
 	"log"
 	"net/url"
-	"w2g/pkg/controllers"
 
 	"github.com/bwmarrin/discordgo"
 )
@@ -59,14 +58,14 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 			return
 		}
 
-		if !ctx.Controller.ContainsPlayer(ctx.Guild.ID) {
-			join(ctx)
-		}
+		// if !ctx.Controller.ContainsPlayer(ctx.Guild.ID) {
+		// 	join(ctx)
+		// }
 
-		if ctx.Controller.State().State != controllers.PLAY {
-			ctx.Controller.Start(ctx.Member.User.Username)
-		}
+		// if ctx.Controller.State().State != controllers.PLAY {
+		// 	ctx.Controller.Start(ctx.Member.User.Username)
+		// }
 	}()
 
-	return ctx.Replyf("⏳ Processing your media link: `%s`\nIt will soon be added to the queue", ctx.Args[0])
+	return ctx.Replyf("⏳ Processing your media link: `%s`\nIt will soon be added to the queue give it a mo", ctx.Args[0])
 }

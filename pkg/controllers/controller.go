@@ -69,7 +69,7 @@ func (c *Controller) Start(user string) {
 		return
 	}
 	if !c.running {
-		if c.state.Current != nil {
+		if c.state.Current == nil {
 			c.state.Next()
 		}
 		c.running = true
@@ -205,7 +205,7 @@ func (c *Controller) progress() {
 			c.state.Next()
 			c.Notify(UPDATE_QUEUE, SYSTEM)
 		}
-		if len(c.state.Current.Url) == 0 || c.players.Empty() || c.state.State == STOP {
+		if c.state.Current == nil || c.players.Empty() || c.state.State == STOP {
 			c.Stop(SYSTEM)
 			log.Debug("DONE")
 			return

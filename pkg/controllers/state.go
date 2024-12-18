@@ -32,10 +32,10 @@ func (state *PlayerState) Next() {
 	if len(state.Queue) > 0 {
 		state.Current = state.Queue[0]
 		state.Queue = state.Queue[1:]
+		state.Current.Refresh()
 	} else {
 		state.Current = nil
 	}
-	state.Current.Refresh()
 }
 
 func (state *PlayerState) Shuffle() {

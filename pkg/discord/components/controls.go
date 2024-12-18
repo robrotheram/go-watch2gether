@@ -57,7 +57,7 @@ func init() {
 func ControlCompontent(state *controllers.PlayerState) *discordgo.InteractionResponseData {
 	var actionButton discordgo.Button
 
-	if state.State == controllers.PLAY && state.Current.ID != "" {
+	if state.State == controllers.PLAY && state.Current != nil {
 		actionButton = discordgo.Button{
 			CustomID: PauseBtn,
 			Emoji: &discordgo.ComponentEmoji{
