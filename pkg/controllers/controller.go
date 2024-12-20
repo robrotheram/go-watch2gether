@@ -223,6 +223,7 @@ func (c *Controller) duration(ctx context.Context) {
 			return
 		case <-ticker.C:
 			c.state.Current.Progress.Progress = c.players.Progress().Progress
+			log.Println(c.state.Current.Progress.Progress)
 			c.Notify(UPDATE_DURATION, SYSTEM)
 		}
 	}

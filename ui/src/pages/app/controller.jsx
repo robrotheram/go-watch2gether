@@ -116,7 +116,7 @@ export const AppController = () => {
         <div className="flex flex-col w-full h-full">
             <AddVideoCtrl onAddVideo={addVideo} controls/>
             <div className='bg-violet-800 w-full overflow-auto mb-20'>
-                {state.current.id && <Header state={state} />}
+                {state.current && <Header state={state} />}
                 <div className='w-full shadow-body px-4 md:px-10 text-white min-h-screen'>
                     <Card queue={state.queue} updateQueue={updateQueue} />
                 </div>

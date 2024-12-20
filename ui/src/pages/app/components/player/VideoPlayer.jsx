@@ -170,7 +170,7 @@ export const VideoPlayer = ({ state, connection }) => {
                         <VolumeControl />
                     </div>
                 </div>
-                {state.current.id &&
+                {state.current &&
                     <div className="flex items-center justify-between space-x-2 w-4/5">
                         <span className="text-sm font-medium  text-gray-400 w-16">{formatTime(playerProgress)}</span>
                         <input
