@@ -15,9 +15,9 @@ type Hub struct {
 
 func NewHub(db *bolt.DB) *Hub {
 	return &Hub{
-		channels: make(map[string]*Controller),
+		channels:  make(map[string]*Controller),
 		playlists: playlists.NewPlaylistStore(db),
-		db: db,
+		db:        db,
 	}
 }
 

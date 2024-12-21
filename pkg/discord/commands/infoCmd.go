@@ -24,19 +24,6 @@ func init() {
 			Function: controlscmd,
 		},
 		Command{
-			Name: "now-playing",
-			ApplicationCommand: []discordgo.ApplicationCommand{
-				{
-					Type: discordgo.UserApplicationCommand,
-				},
-				{
-					Description: "show what is currently playing",
-					Type:        discordgo.ChatApplicationCommand,
-				},
-			},
-			Function: controlscmd,
-		},
-		Command{
 			Name: "now",
 			ApplicationCommand: []discordgo.ApplicationCommand{
 				{
@@ -68,7 +55,18 @@ func init() {
 				},
 			},
 			Function: versioncmd,
-		})
+		},
+		Command{
+			Name: "history",
+			ApplicationCommand: []discordgo.ApplicationCommand{
+				{
+					Description: "what was previously played in this channel",
+					Type:        discordgo.ChatApplicationCommand,
+				},
+			},
+			Function: historycmd,
+		},
+	)
 }
 
 func listcmd(ctx CommandCtx) *discordgo.InteractionResponse {
@@ -81,4 +79,9 @@ func controlscmd(ctx CommandCtx) *discordgo.InteractionResponse {
 
 func versioncmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	return ctx.Replyf("Version: %s commit: %s \n time: %s", utils.Version, utils.Revision, utils.LastCommit.Format(time.RFC822))
+}
+
+func historycmd(ctx CommandCtx) *discordgo.InteractionResponse {
+	history, _ := ctx.Controller.History()
+	return ctx.CmdReplyData(components.HistoryCompontent(history, 0))
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"sync"
 	"time"
+	"w2g/pkg/history"
 	"w2g/pkg/media"
 	"w2g/pkg/utils"
 
@@ -20,6 +21,7 @@ type Controller struct {
 	notifications *Notify
 	running       bool
 	db            *utils.Store[*PlayerState]
+	history       *history.HistoryStore
 	sync          *sync.Mutex
 }
 
@@ -32,6 +34,7 @@ func NewController(id string, db *bolt.DB) *Controller {
 	contoller := Controller{
 		players:       newPlayers(),
 		notifications: NewNotifications(),
+		history:       history.NewHistoryStore(db),
 		db:            store,
 		sync:          &sync.Mutex{},
 	}
@@ -154,6 +157,10 @@ func (c *Controller) State() *PlayerState {
 	return c.state
 }
 
+func (c *Controller) History() ([]*media.Media, error) {
+	return c.history.GetHisory(c.state.ID)
+}
+
 func (c *Controller) ServerState() ServerState {
 	return ServerState{
 		Players: c.players.GetProgress(),
@@ -195,6 +202,7 @@ func (c *Controller) progress() {
 			return
 		}
 		audio := c.state.Current.AudioUrl
+		c.history.AddTrack(c.state.ID, c.state.Current)
 		log.Debug("START_PLAYING")
 		ctx, cancel := context.WithCancel(context.Background())
 		go c.duration(ctx)
