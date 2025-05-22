@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { formatTime, getRoomId, loopVideoController, pauseVideoController, playVideoController, seekVideoController, skipVideoController } from "../../watch2gether";
+import { formatTime, loopVideoController, pauseVideoController, playVideoController, seekVideoController, skipVideoController } from "../../watch2gether";
 import { FullScreen, useFullScreenHandle } from "react-full-screen";
 import ReactPlayer from "react-player";
-import background from "./wave-signal.svg"
 import { toast } from "react-hot-toast";
 import { FullScreenBtn } from "./FullScreenBtn";
 import { PlayerSwitch } from "./PlayerSwitch";
@@ -10,12 +9,16 @@ import { PlayBtn } from "./PlayBtn";
 import { VolumeControl } from "./VolumeControl";
 import { PlayerContext } from "../providers";
 import { useHotkeys } from "react-hotkeys-hook";
+import { State } from "@/types";
 
 
 const microseconds = 1000000000;
-
-export const VideoPlayer = ({ state, connection }) => {
-    const playerRef = React.useRef(null);
+type PlayerProps = {
+    state: State
+    connection: WebSocket
+}
+export const VideoPlayer = ({ state, connection }:PlayerProps) => {
+    const playerRef = React.useRef<any>(null);
     const [playerProgress, setPlayerProgress] = useState(0)
     const [updating, setUpdating] = useState(false)
     const { progress, volume } = useContext(PlayerContext)
@@ -37,61 +40,48 @@ export const VideoPlayer = ({ state, connection }) => {
         console.log("LOADING")
     }, [playerRef])
 
-    const handleOnSeek = (evt) => {
+    const handleOnSeek = (evt:any) => {
         setUpdating(false)
         playerRef.current.seekTo(evt.target.value / microseconds);
     }
 
     const updateSeek = () => {
         toast.success("Syncing everyone to your position")
-        seekVideoController(playerProgress)
+        seekVideoController(state.id, playerProgress)
     }
 
-    const handleProgessChange = (evt) => {
+    const handleProgessChange = (evt:any) => {
         setPlayerProgress(evt.target.value)
     }
 
-    const progressPercentage = (current, total) => {
-        if (total === -1) {
-            return 100
-        }
-        let pct = current / total * 100
-        return Math.min(Math.max(pct, 0), 100)
-    }
-
     const handlePlay = () => {
-        playVideoController();
+        playVideoController(state.id);
     }
     const handlePause = () => {
-        pauseVideoController();
+        pauseVideoController(state.id);
     }
     const handleSkip = () => {
-        skipVideoController();
+        skipVideoController(state.id);
     }
     const handleLoop = () => {
-        loopVideoController();
+        loopVideoController(state.id);
     }
     const onEnded = () => {
         if (!state.loop) {
-            skipVideoController();
+            skipVideoController(state.id);
         }
     }
-    const onStart = () => {
-        playVideoController();
-    }
-    const onPlay = () => {
-        playVideoController();
-    }
-    const handleProgress = (video_state) => {
-        let s = Object.assign({}, state)
+
+    const handleProgress = (video_state:any) => {
+        let s = {...state}
         let seconds = Math.floor(video_state.playedSeconds) * microseconds;
-        s.current.time = {
-            duration: s.current.time.duration,
+        s.current!.time = {
+            duration: s.current!.time.duration,
             progress: seconds
         }
 
         const evt = {
-            id: getRoomId(),
+            id: state.id,
             action: {
                 type: "UPDATE_DURATION"
             },
@@ -104,9 +94,13 @@ export const VideoPlayer = ({ state, connection }) => {
     };
 
     const getMediaUrl = () => {
-        switch(state.current.type){
+        if (!state.current) {
+            return ""
+        }
+
+       switch(state.current.type){
             case "YOUTUBE_LIVE": return state.current.url
-            case "YOUTUBE": return `/api/channel/${getRoomId()}/proxy?id=${state.current.id}`
+            case "YOUTUBE": return state.current.url
             default: return state.current.audio_url
         }
     }  
@@ -121,17 +115,11 @@ export const VideoPlayer = ({ state, connection }) => {
                     height='100%'
                     muted={volume === 0}
                     volume={volume / 100}
-                    onStart={onStart}
+                    onStart={handlePlay}
                     onEnded={onEnded}
                     onProgress={handleProgress}
-                    onPlay={onPlay}
+                    onPlay={handlePlay}
                     playing={state.status === "PLAY"}
-                    style={{
-                        backgroundImage: `url(${background})`,
-                        backgroundPosition: "center",
-                        backgroundSize: "100% 50%",
-                        backgroundRepeat: "no-repeat"
-                    }}
                     loop={state.loop}
                     controls={false}
                 />

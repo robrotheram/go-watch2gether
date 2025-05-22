@@ -1,11 +1,11 @@
-import logo from '../../assets/logo.svg'
+import logo from '../../assets/logo.svg';
 // import './index.css'
 
 export default function () {
 
   return (
     <div className={`text-white wrap-login min-h-screen w-full flex justify-center items-center bg-gradient-to-b from-violet-900  to-black`}>
-      <div className="flex flex-col items-center   rounded-lg shadow md:flex-row md:max-w-xl ">
+      <div className="flex flex-col items-center rounded-lg md:flex-row md:max-w-xl ">
         <img className="object-cover rounded-t-lg h-32 w-32  md:h-auto md:w-48 md:rounded-none md:rounded-l-lg" src={logo} alt="" />
         <div className="flex flex-col justify-between px-10 py-10 leading-normal">
           <h5 className="mb-8 text-5xl font-bold tracking-tight text-white text-center">Watch2Gether</h5>

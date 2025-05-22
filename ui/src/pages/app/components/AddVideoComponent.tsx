@@ -1,7 +1,13 @@
 import { useState } from "react";
-import { clearVideoController, shuffleVideoController } from "../../watch2gether";
+import { clearVideoController, shuffleVideoController } from "../watch2gether";
+import { State } from "@/types";
 
-export const AddVideoCtrl = ({ onAddVideo, controls }) => {
+type AddVideoCtrlProps = {
+    onAddVideo: (url: string) => void
+    state?: State
+}
+
+export const AddVideoCtrl = ({ onAddVideo, state }:AddVideoCtrlProps) => {
     const [video, setVideo] = useState("");
     const addVideo = async () => {
         if (video.length == 0) {
@@ -10,8 +16,8 @@ export const AddVideoCtrl = ({ onAddVideo, controls }) => {
         onAddVideo(video)
         setVideo("")
     }
-    const handleKeyPress = (e) => {
-        if (e.key == 'Enter') {
+    const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === 'Enter') {
             addVideo()
         }
     }
@@ -24,8 +30,8 @@ export const AddVideoCtrl = ({ onAddVideo, controls }) => {
             </div>
             <input onKeyDown={handleKeyPress} type="text" value={video} onChange={(e) => setVideo(e.target.value)} className="block w-full p-4 pl-10 text-xl bg-transparent text-white focus:ring-0 focus:outline-none " placeholder="Add New video" required />
             <button onClick={() => addVideo()} className="text-white whitespace-nowrap py-2 px-4 mr-2 bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg">Add Video</button>
-            {controls&&<div className="inline-flex rounded-md shadow-sm mr-2" role="group">
-                <button type="button" onClick={() => shuffleVideoController()} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 bg-zinc-100 ">
+            {state&&<div className="inline-flex rounded-md shadow-sm mr-2">
+                <button type="button" onClick={() => shuffleVideoController(state.id)} className="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-900 border border-gray-200 rounded-l-lg hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700 bg-zinc-100 ">
                     <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-letter-x" width={24} height={24} viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M18 4l3 3l-3 3" />
@@ -34,7 +40,7 @@ export const AddVideoCtrl = ({ onAddVideo, controls }) => {
                         <path d="M21 7h-5a4.978 4.978 0 0 0 -3 1m-4 8a4.984 4.984 0 0 1 -3 1h-3" />
                     </svg>
                 </button>
-                <button type="button" onClick={() => clearVideoController()} className="font-bold inline-flex items-center px-4 py-2 text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700">
+                <button type="button" onClick={() => clearVideoController(state.id)} className="font-bold inline-flex items-center px-4 py-2 text-gray-900 bg-white border border-gray-200 rounded-r-md hover:bg-gray-100 hover:text-purple-700 focus:z-10 focus:ring-2 focus:ring-purple-700 focus:text-purple-700">
                     <svg xmlns="http://www.w3.org/2000/svg" className="icon icon-tabler icon-tabler-square-letter-x" width={24} height={24} viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                         <path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />

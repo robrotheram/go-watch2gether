@@ -1,8 +1,9 @@
 import { useContext, useRef, useState } from "react";
 import { useOnClickOutside } from "./nav";
-import { GuildContext, PlayerContext } from "./providers";
+import { PlayerContext } from "./providers";
 import { formatTime } from "../watch2gether";
 import { toast } from "react-hot-toast";
+import { PlayerMeta } from "@/types";
 
 export const SyncIcon = () => {
     return <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" width={24} height={24} viewBox="0 0 24 24" strokeWidth="3.5" stroke="white" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -13,9 +14,9 @@ export const SyncIcon = () => {
     </svg>
 }
 
-const UserPlayerItem = ({player}) => {
+const UserPlayerItem = ({player}:{player:PlayerMeta}) => {
     const {setProgress} = useContext(PlayerContext)
-    const truncate = (input) => {
+    const truncate = (input:string) => {
         const size = 12;
         if (input.length > size) {
             return input.substring(0, size) + '... ';
@@ -27,14 +28,17 @@ const UserPlayerItem = ({player}) => {
         toast.success(`You have synced to ${player.user} position`)
     }
     return <li className="flex align-middle justify-between items-center">
-        <span>{truncate(player.user)}: {formatTime(player.progress.progress)}</span>
+        <span>{truncate(player.user)}:</span>
+        <span> {formatTime(player.progress.progress)}</span>
         <button onClick={()=>{handleSync()}} className="rounded-full p-1 border-purple-700 icon-shadow active:bg-purple-700">
             <SyncIcon />
         </button>
     </li>
 }
-export const UserPlayer = ({players}) => {
-    const p = players.sort(function(a, b) {
+
+
+export const UserPlayer = ({players}:UserPlayerProps) => {
+    const p = [...players].sort(function(a, b) {
         return a.id.localeCompare(b.id);
     });
     return <div className="z-50 absolute bottom-24 left-2 right-4 md:right-auto w-60 text-white rounded-lg shadow-lg  border-purple-950" style={{ background: "rgba(0,0,0,0.8)" }} >
@@ -48,15 +52,17 @@ export const UserPlayer = ({players}) => {
         </ul>
     </div>
 }
+type UserPlayerProps = {
+    players: PlayerMeta[] 
+}
 
-export const UserPlayerBtn = () => {
-    const [visable, setVisible] = useState(false)
-    const {players} = useContext(GuildContext)
-    const ref = useRef();
+export const UserPlayerBtn = ({players}:UserPlayerProps) => {
+    const [visible, setVisible] = useState(false)
+    const ref = useRef<HTMLDivElement>(null);
     useOnClickOutside(ref, () => setVisible(false));
 
     return <div ref={ref}>
-        <button onClick={()=>{setVisible(!visable)}} className="z-50 hidden  absolute w-12 h-12 bottom-4  left-4 rounded-full bg-violet-700 text-white sm:flex justify-center items-center icon-shadow active:bg-purple-700">
+        <button onClick={()=>{setVisible(!visible)}} className="z-50 hidden  absolute w-12 h-12 bottom-4  left-4 rounded-full bg-violet-700 text-white sm:flex justify-center items-center icon-shadow active:bg-purple-700">
             <svg xmlns="http://www.w3.org/2000/svg" width={24} height={24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" className="icon icon-tabler icons-tabler-outline icon-tabler-eyeglass-2">
                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                 <path d="M8 4h-2l-3 10v2.5" />
@@ -67,6 +73,6 @@ export const UserPlayerBtn = () => {
             </svg>
             <div className="absolute bottom-0 border-1 border-red-50 right-0 bg-violet-900 w-4 h-4 flex justify-center items-center rounded-full">{players.length}</div>
         </button>
-        {visable && <UserPlayer players={players} />}
+        {visible && <UserPlayer players={players} />}
     </div>
 }

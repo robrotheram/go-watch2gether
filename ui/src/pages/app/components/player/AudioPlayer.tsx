@@ -3,17 +3,19 @@ import { loopVideoController, pauseVideoController, playVideoController, skipVid
 import { PlayBtn } from "./PlayBtn";
 import { PlayerSwitch } from "./PlayerSwitch";
 import { VolumeControl } from "./VolumeControl";
+import { State } from "@/types";
 
-export const AudioPlayer = ({ state }) => {
-    const formatTime = (seconds) => {
-        if (seconds === undefined) {
-            seconds = 0
-        }
+type AudioPlayerProps = {
+    state: State
+}
+
+export const AudioPlayer = ({ state }:AudioPlayerProps) => {
+    const formatTime = (seconds:number) => {
         let iso = new Date(seconds / 1000000).toISOString()
         return iso.substring(11, iso.length - 5);
     }
 
-    const progressPercentage = (current, total) => {
+    const progressPercentage = (current:number, total:number) => {
         if (total === -1) {
             return 100
         }
@@ -22,16 +24,16 @@ export const AudioPlayer = ({ state }) => {
     }
 
     const handlePlay = () => {
-        playVideoController();
+        playVideoController(state.id);
     }
     const handlePause = () => {
-        pauseVideoController();
+        pauseVideoController(state.id);
     }
     const handleSkip = () => {
-        skipVideoController();
+        skipVideoController(state.id);
     }
     const handleLoop = () => {
-        loopVideoController();
+        loopVideoController(state.id);
     }
 
 

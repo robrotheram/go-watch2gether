@@ -1,8 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { getRoomId } from "../watch2gether";
+import { DiscordGuild, DiscordGuilds } from "@/types";
 
-export const GuildIcon = ({ guild, active }) => {
+type GuildIconProps = {
+    guild: DiscordGuild
+    active?: boolean
+}
+export const GuildIcon = ({ guild, active }:GuildIconProps) => {
     let className = "ml-1.5 mr-2.5 my-2  h-12 w-12 relative inline-flex items-center justify-center  overflow-hidden rounded-full bg-gray-100  dark:bg-gray-600 border-purple-700 hover:border-2 icon-shadow"
     className += active ? " border-2 icon-active" : " border-0";
 
@@ -16,12 +20,15 @@ export const GuildIcon = ({ guild, active }) => {
     );
 };
 
-
-const RoomList = ({guilds}) => {
+type RoomListProps = {
+    id: string
+    guilds: DiscordGuilds
+}
+const RoomList = ({id, guilds}:RoomListProps) => {
     const location = useLocation()
     const [active, setActive] = useState("")
     useEffect(() => {
-      setActive(getRoomId())
+      setActive(id)
     }, [location])
     return <>
         {guilds.map(guild => <Link key={guild.id} to={`/app/${guild.id}`}><GuildIcon guild={guild} key={guild.id} active={guild.id===active}/></Link>)}
