@@ -72,7 +72,13 @@ func NewDiscordAuth(conf utils.Config, paths []string) DiscordAuth {
 	}
 	da.oauthStateString = utils.RandStringRunes(20)
 	da.store = sessions.NewCookieStore([]byte(conf.SessionSecret))
-	da.store.MaxAge(86400 * 1)
+	da.store.Options = &sessions.Options{
+		Path:     "/",
+		MaxAge:   86400 * 1, // 1 day
+		HttpOnly: true,
+		Secure:   false, // Set to false if not using HTTPS in development
+		SameSite: http.SameSiteLaxMode,
+	}
 	da.users = make(map[string]User)
 	da.paths = paths
 	return da
@@ -150,7 +156,9 @@ func (da *DiscordAuth) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	session, _ := da.store.Get(r, sessionName)
 	session.Values["next"] = next
-	session.Save(r, w)
+	err = session.Save(r, w)
+
+	fmt.Println("err", err)
 
 	url := da.oauthConfig.AuthCodeURL(da.oauthStateString)
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
@@ -185,15 +193,21 @@ func (da *DiscordAuth) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	redirect := "/app"
-	session, _ := da.store.Get(r, sessionName)
-	next := (session.Values["next"]).(string)
-	if len(next) > 1 {
-		redirect = next
+	session, err := da.store.Get(r, sessionName)
+	if session.Values["next"] != nil {
+		next := (session.Values["next"]).(string)
+		if len(next) > 1 {
+			redirect = next
+		}
 	}
 	//Save token to session
 	str, _ := tokenToJSON(content)
 	session.Values["token"] = str
-	session.Save(r, w)
+
+	if err := session.Save(r, w); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	user, err := da.getUser(content.AccessToken)
 	if err != nil {

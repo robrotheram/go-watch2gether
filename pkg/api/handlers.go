@@ -46,27 +46,12 @@ func (h *handler) handleGetSettings(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(settings)
 }
 
-func (h *handler) handleCreateChannel(w http.ResponseWriter, r *http.Request) {
-	vars := mux.Vars(r)
-	id := vars["id"]
-	controller, err := h.Get(id)
-	if err == nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(controller.State())
-		return
-	}
-	controller = h.New(id)
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(controller.State())
-}
-
 func (h *handler) handleGetChannel(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id := vars["id"]
 	controller, err := h.Get(id)
 	if err != nil {
-		WriteError(w, channelNotFound)
-		return
+		controller = h.New(id)
 	}
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(controller.State())

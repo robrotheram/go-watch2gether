@@ -124,6 +124,7 @@ func (db *DiscordBot) handleApplicationCommand(s *discordgo.Session, i *discordg
 		Session:     s,
 		Guild:       guild,
 		Channel:     channel,
+		Interaction: i.Interaction,
 		Member:      user,
 		Args:        args,
 		Controller:  controller,

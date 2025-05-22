@@ -128,8 +128,10 @@ func (c *Controller) Add(url string, top bool, user string) error {
 func (c *Controller) Skip(user string) {
 	if c.running {
 		c.players.Stop()
-	} else {
-		c.state.Next()
+	}
+	c.state.Next()
+	if c.state.Current != nil && !c.players.Empty() {
+		c.Start(user)
 	}
 	c.Notify(SKIP_ACTION, user)
 }

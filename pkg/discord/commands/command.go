@@ -14,6 +14,7 @@ type CommandCtx struct {
 	Guild       *discordgo.Guild
 	Channel     *discordgo.Channel
 	Member      *discordgo.Member
+	Interaction *discordgo.Interaction
 	Args        []string
 	Controller  *controllers.Controller
 	UserSession *session.UserSession

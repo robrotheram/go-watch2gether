@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"log"
+	"fmt"
 	"net/url"
 
 	"github.com/bwmarrin/discordgo"
@@ -49,23 +49,23 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Errorf("%s Is not a valid URL", ctx.Args[0])
 	}
-	isTop := getPostionOption(ctx) == "TOP"
-	go func() {
-		err = ctx.Controller.Add(ctx.Args[0], isTop, ctx.Member.User.Username)
+
+	go func(ctx CommandCtx) {
+		isTop := getPostionOption(ctx) == "TOP"
+		url := ctx.Args[0]
+		// This runs in the background
+		err = ctx.Controller.Add(url, isTop, ctx.Member.User.Username)
+		var content string
 		if err != nil {
-			//ctx.Errorf("error: %v", err)
-			log.Printf("Unable to add vidoe: %v", err)
-			return
+			content = fmt.Sprintf("Failed to add video: %v", err)
+		} else {
+			content = "Video successfully added to the channel!"
 		}
-
-		// if !ctx.Controller.ContainsPlayer(ctx.Guild.ID) {
-		// 	join(ctx)
-		// }
-
-		// if ctx.Controller.State().State != controllers.PLAY {
-		// 	ctx.Controller.Start(ctx.Member.User.Username)
-		// }
-	}()
+		// Send follow-up message
+		ctx.Session.FollowupMessageCreate(ctx.Interaction, false, &discordgo.WebhookParams{
+			Content: content,
+		})
+	}(ctx)
 
 	return ctx.Replyf("⏳ Processing your media link: `%s`\nIt will soon be added to the queue give it a mo", ctx.Args[0])
 }

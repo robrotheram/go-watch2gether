@@ -38,7 +38,6 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 
 	router.Handle("/api/channel/{id}/ws", handlers.notify())
 	router.HandleFunc("/api/channel/{id}", handlers.handleGetChannel).Methods("GET")
-	router.HandleFunc("/api/channel/{id}", handlers.handleCreateChannel).Methods("POST")
 	router.HandleFunc("/api/channel/{id}/skip", handlers.handleNextVideo).Methods("POST")
 	router.HandleFunc("/api/channel/{id}/shuffle", handlers.handleShuffleVideo).Methods("POST")
 	router.HandleFunc("/api/channel/{id}/clear", handlers.handleClearVideo).Methods("POST")
@@ -49,6 +48,7 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 	router.HandleFunc("/api/channel/{id}/seek", handlers.handleSeekVideo).Methods("POST")
 	router.HandleFunc("/api/channel/{id}/add", handlers.handleAddVideo).Methods("PUT")
 	router.HandleFunc("/api/channel/{id}/players", handlers.handleGetPlayers).Methods("GET")
+	router.HandleFunc("/api/channel/{id}/proxy", handlers.handleMediaProxy).Methods("GET")
 
 	router.HandleFunc("/api/channel/{id}/playlist", handlers.handleGetPlaylistsByChannel).Methods("GET")
 	router.HandleFunc("/api/channel/{id}/add/playlist/{playlist_id}", handlers.handleAddFromPlaylist).Methods("PUT")
@@ -59,7 +59,6 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 	router.HandleFunc("/api/playist/{id}", handlers.handleUpdatePlaylist).Methods("POST")
 	router.HandleFunc("/api/playist/{id}", handlers.handleDeletePlaylist).Methods("DELETE")
 	router.HandleFunc("/api/settings", handlers.handleGetSettings).Methods("GET")
-	router.HandleFunc("/api/channel/{id}/proxy", handlers.handleMediaProxy).Methods("GET")
 
 	if config.Dev {
 		router.PathPrefix("/").Handler(ui.NewProxy())

@@ -211,6 +211,15 @@ func processYTDLP(line string) (*Media, error) {
 		return nil, err
 	}
 
+	//Determin if the video is playable e.g if its has been privated or deleted
+	if video.Title == "[Private video]" || video.Title == "[Deleted video]" {
+		return nil, fmt.Errorf("video is unplayable")
+	}
+
+	if len(video.Thumbnail) == 0 && len(video.Thumbnails) > 0 {
+		video.Thumbnail = video.Thumbnails[len(video.Thumbnails)-1].URL
+	}
+
 	media := &Media{
 		ID:          ksuid.New().String(),
 		Title:       video.Title,
@@ -272,6 +281,7 @@ func (client *Client) GetMedia(videoURL string, username string) ([]*Media, erro
 			continue
 		}
 		media.AudioUrl = ""
+		media.User = username
 		tracks = append(tracks, media)
 	}
 	return tracks, nil
