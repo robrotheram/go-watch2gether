@@ -62,8 +62,9 @@ func addCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 			content = "Video successfully added to the channel!"
 		}
 		// Send follow-up message
-		ctx.Session.FollowupMessageCreate(ctx.Interaction, false, &discordgo.WebhookParams{
+		ctx.Session.FollowupMessageCreate(ctx.Interaction, true, &discordgo.WebhookParams{
 			Content: content,
+			Flags:   discordgo.MessageFlagsEphemeral,
 		})
 	}(ctx)
 

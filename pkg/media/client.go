@@ -199,7 +199,8 @@ type YTDLPMedia struct {
 }
 
 type Client struct {
-	Executable string
+	LastClientUpdate time.Time // Last time the client was updated
+	Executable       string
 }
 
 func processYTDLP(line string) (*Media, error) {
@@ -258,6 +259,8 @@ func (client *Client) HydrateMedia(media *Media) error {
 }
 
 func (client *Client) GetMedia(videoURL string, username string) ([]*Media, error) {
+	client.updateClinet()
+	log.Infof("Fetching media from %s", videoURL)
 	var tracks = []*Media{}
 	cmd := exec.Command(client.Executable, "--flat-playlist", "--dump-json", videoURL)
 
@@ -285,4 +288,18 @@ func (client *Client) GetMedia(videoURL string, username string) ([]*Media, erro
 		tracks = append(tracks, media)
 	}
 	return tracks, nil
+}
+
+func (client *Client) updateClinet() error {
+	if time.Since(client.LastClientUpdate) < 24*time.Hour {
+		return nil // No need to update if it was updated in the last 24 hours
+	}
+	log.Info("Updating yt-dlp client...")
+	client.LastClientUpdate = time.Now()
+	cmd := exec.Command(client.Executable, "--update")
+	var out bytes.Buffer
+	cmd.Stdout = &out
+	cmd.Stderr = &out
+
+	return cmd.Run()
 }

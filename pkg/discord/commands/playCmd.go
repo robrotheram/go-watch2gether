@@ -99,7 +99,7 @@ func playCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 			return ctx.Reply("User not connected to voice channel")
 		}
 	}
-	ctx.Controller.Start(ctx.Member.User.Username)
+	go ctx.Controller.Start(ctx.Member.User.Username)
 	return ctx.Reply(":play_pause: Now Playing :thumbsup:")
 }
 
@@ -113,7 +113,7 @@ func seekCMD(ctx CommandCtx) *discordgo.InteractionResponse {
 	if err != nil {
 		return ctx.Reply("Invalid time format")
 	}
-	ctx.Controller.Seek(seekTime, ctx.Member.User.Username)
+	go ctx.Controller.Seek(seekTime, ctx.Member.User.Username)
 	return ctx.Replyf(":fast_forward: Seeking to %f seconds into the track :thumbsup:", seekTime.Seconds())
 }
 
@@ -123,22 +123,22 @@ func restartCmd(ctx CommandCtx) *discordgo.InteractionResponse {
 			return ctx.Reply("User not connected to voice channel")
 		}
 	}
-	ctx.Controller.Seek(0, ctx.Member.User.Username)
+	go ctx.Controller.Seek(0, ctx.Member.User.Username)
 	return ctx.Reply(":leftwards_arrow_with_hook: Restarting Track")
 }
 
 func skipCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Skip(ctx.Member.User.Username)
+	go ctx.Controller.Skip(ctx.Member.User.Username)
 	return ctx.Reply(":fast_forward: Now Skipping :thumbsup:")
 }
 
 func stopCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Stop(ctx.Member.User.Username)
+	go ctx.Controller.Stop(ctx.Member.User.Username)
 	return ctx.Reply(":stop_button: Stopping track")
 }
 
 func pauseCmd(ctx CommandCtx) *discordgo.InteractionResponse {
-	ctx.Controller.Pause(ctx.Member.User.Username)
+	go ctx.Controller.Pause(ctx.Member.User.Username)
 	return ctx.Reply("Pause")
 }
 
