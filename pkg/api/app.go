@@ -60,6 +60,9 @@ func NewApp(config utils.Config, hub *controllers.Hub) App {
 	router.HandleFunc("/api/playist/{id}", handlers.handleDeletePlaylist).Methods("DELETE")
 	router.HandleFunc("/api/settings", handlers.handleGetSettings).Methods("GET")
 
+	router.HandleFunc("/jellyfin/{vidoeid}", handlers.JellyfinProxy)
+	router.HandleFunc("/jellyfin/{vidoeid}/{rest:.*}", handlers.JellyfinProxy)
+
 	if config.Dev {
 		router.PathPrefix("/").Handler(ui.NewProxy())
 
